@@ -1,0 +1,74 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Conditions": {
+    },
+    "Description": "Lambda functions and API template for sandbox deployment of RDDI Study Management components.",
+    "Parameters": {
+    },
+    "Resources": {
+        "StudyManagementApi": {
+            "Properties": {
+                "Description": "Study Management Api (Sandbox)",
+                "Name": "nihrd-api-gateway-sandbox-study-management",
+                "StageName": "sandbox",
+                "Tags":{
+                    "Environment":"sandbox",
+                    "Name":"nihrd-api-gateway-sandbox-study-management",
+                    "System":"rddi-study-management"
+                }
+            },
+            "Type": "AWS::Serverless::Api"
+        },
+        "StudyManagementLambda": {
+          "Type": "AWS::Serverless::Function",
+              "Properties": {
+                "Handler":"NIHR.StudyManagement.Api::NIHR.StudyManagement.Api.LambdaEntryPoint::FunctionHandlerAsync",
+                "FunctionName": "nihrd-lambda-sandbox-study-management",
+                "Runtime": "dotnet6",
+                "Role": "arn:aws:iam::462580661309:role/service-role/nihrd-lambda-dev-rddi-cognito-pre-token-authorizer-role-9tzk20q8",
+                "Description": "NIHR Study Management (sandbox) lambda handling API Gateway events. ASP NET Core API",
+                "ImageUri": "",
+                "MemorySize": 256,
+                "Timeout": 30,
+                "Policies": [],
+                "Tags":{
+                    "Environment":"sandbox",
+                    "Name":"nihrd-lambda-sandbox-study-management",
+                    "System":"rddi-study-management"
+                },
+                "Environment":{
+                    "Variables":{
+                        "StudyManagementApi__JwtBearer__Authority":"<required Oidc issuer value>"
+                    }
+                },
+            "Events": {
+              "SwaggerProxyRoute": {
+                "Type": "Api",
+                "Properties": {
+                  "Path": "/swagger/{proxy+}",
+                  "Method": "GET",
+                  "RestApiId": { "Ref" : "StudyManagementApi" }
+                }
+              },
+              "Home": {
+                "Type": "Api",
+                "Properties": {
+                  "Path": "/api/v1/home",
+                  "Method": "GET",
+                  "RestApiId": { "Ref" : "StudyManagementApi" }
+                }
+              },
+              "HomeAuthenticated": {
+                "Type": "Api",
+                "Properties": {
+                  "Path": "/api/v1/home/authenticated",
+                  "Method": "GET",
+                  "RestApiId": { "Ref" : "StudyManagementApi" }
+                }
+              }
+            }
+          }
+        }
+    },
+    "Transform": "AWS::Serverless-2016-10-31"
+}
