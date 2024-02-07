@@ -33,7 +33,7 @@ jobs:
         run: dotnet nuget add source --username USERNAME --password ${{ secrets.GITHUB_TOKEN }}  --store-password-in-clear-text --name github "https://nuget.pkg.github.com/pa-nihr-crn/index.json"
 
       - name: Install dependencies
-        run: dotnet restore
+        run: dotnet restore NIHR.StudyManagement/NIHR.StudyManagement.sln
 
       - name: Build
         run: dotnet build  --configuration Release --no-restore NIHR.StudyManagement/NIHR.StudyManagement.sln
