@@ -45,7 +45,7 @@ jobs:
       - name: Deploy
         run: |
           dotnet tool install -g Amazon.Lambda.Tools
-          dotnet lambda deploy-function --region ${{ secrets.AWS_REGION }} -pl ./NIHR.StudyManagement nihrd-lambda-dev-study-management --function-role nihrd-iam-dev-study-management-lambda-role --function-publish true
+          dotnet lambda deploy-function --region ${{ secrets.AWS_REGION }} -pl ./NIHR.StudyManagement/NIHR.StudyManagement.Api nihrd-lambda-dev-study-management --function-role nihrd-iam-dev-study-management-lambda-role --function-publish true
 
       - name: Update alias to point to new version
         run: |
