@@ -11,7 +11,7 @@ jobs:
   build_test_deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v2
       - name: Configure AWS credentials - Dev
         # if: github.ref == 'refs/heads/main'
         uses: aws-actions/configure-aws-credentials@v4
