@@ -11,13 +11,13 @@ jobs:
   build_test_deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Configure AWS credentials - Dev
         # if: github.ref == 'refs/heads/main'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-        aws-access-key-id: ${{ secrets.NIHR_DEVELOPMENT_IAM_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.NIHR_DEVELOPMENT_IAM_ACCESS_KEY_SECRET }}
+          aws-access-key-id: ${{ secrets.NIHR_DEVELOPMENT_IAM_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.NIHR_DEVELOPMENT_IAM_ACCESS_KEY_SECRET }}
           # aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
