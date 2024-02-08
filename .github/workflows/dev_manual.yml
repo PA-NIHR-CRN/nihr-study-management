@@ -1,10 +1,6 @@
 name: Dev Build
 
 on:
-  push:
-    branches:
-      - github_actions
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
