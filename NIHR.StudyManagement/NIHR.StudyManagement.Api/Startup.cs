@@ -41,7 +41,7 @@ public class Startup
 
         services.AddOptions<StudyManagementApiSettings>().Bind(studyManagementApiConfigurationSection);
 
-        _logger.LogDebug($"Application settings: {System.Text.Json.JsonSerializer.Serialize(studyManagementApiSettings)}");
+        _logger.LogInformation($"Application settings: {System.Text.Json.JsonSerializer.Serialize(studyManagementApiSettings)}");
 
         services.AddAuthentication(options =>
         {
