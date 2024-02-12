@@ -13,5 +13,10 @@
     "template"      : "serverless.template",
     "template-parameters" : "",
     "s3-bucket"           : "nihrd-s3-dev-rddi",
-    "stack-name"          : "nihrd-cloudformation-stack-sandbox-study-management"
+    "stack-name"          : "nihrd-cloudformation-stack-sandbox-study-management",
+    "framework" : "net6.0",
+    "function-runtime":"dotnet6",
+    "function-memory-size" : 256,
+    "function-timeout" : 30,
+    "function-handler" : "NIHR.StudyManagement.Api::NIHR.StudyManagement.Api.LambdaEntryPoint::FunctionHandlerAsync"
 }

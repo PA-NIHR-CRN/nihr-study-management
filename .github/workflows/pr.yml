@@ -1,0 +1,42 @@
+name: PR Build & Test
+
+on:
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials - All
+        # if: github.ref == 'refs/heads/master'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.NIHR_DEVELOPMENT_IAM_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.NIHR_DEVELOPMENT_IAM_ACCESS_KEY_SECRET }}
+          # aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          
+      - name: Build Run Number and Build Id
+        run: echo ${{ github.run_number }}-${{ github.run_id }}
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+          
+      - name: Add Nuget Source
+        run: dotnet nuget add source --username USERNAME --password ${{ secrets.GITHUB_TOKEN }}  --store-password-in-clear-text --name github "https://nuget.pkg.github.com/pa-nihr-crn/index.json"
+
+      - name: Install dependencies
+        run: dotnet restore NIHR.StudyManagement/NIHR.StudyManagement.sln
+
+      - name: Build
+        run: dotnet build  --configuration Release --no-restore NIHR.StudyManagement/NIHR.StudyManagement.sln
+
+      - name: Run unit tests
+        run: dotnet test --no-restore --logger "console;verbosity=normal"  NIHR.StudyManagement/NIHR.StudyManagement.sln
