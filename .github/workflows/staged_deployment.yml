@@ -183,17 +183,6 @@ jobs:
         run: |
           VERSION=$(aws lambda list-versions-by-function --function-name nihrp-lambda-prod-study-management --query "Versions[-1]" | jq -r .Version)
           aws lambda update-alias --function-name nihrp-lambda-prod-study-management --name main --function-version $VERSION
-
-
-
-
-
-
-
-
-
-
-
           
   OAT_deploy:
     runs-on: ubuntu-latest
