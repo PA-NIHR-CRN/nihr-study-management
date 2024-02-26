@@ -14,7 +14,7 @@ on:
           - prod
 
 env:
-  AWS_DEFAULT_REGION: eu-west-2
+  AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
 jobs:
   deploy:
     name: "Deploying Study Management Database to AWS ${{ github.event.inputs.environment || 'dev' }}"
@@ -69,7 +69,7 @@ jobs:
     #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'test'
     #     with:
     #       secret-ids: |
-    #         RDS, nihrd-secret-test-rds-aurora-mysql-credential-commonid
+    #         RDS, nihrd-secret-test-rds-aurora-mysql-credential-study-management
     #       parse-json-secrets: true
     #   - name: Set security group (test)
     #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'test'
@@ -81,7 +81,7 @@ jobs:
     #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'uat'
     #     with:
     #       secret-ids: |
-    #         RDS, nihrs-secret-uat-rds-aurora-mysql-credential-commonid
+    #         RDS, nihrs-secret-uat-rds-aurora-mysql-credential-study-management
     #       parse-json-secrets: true
     #   - name: Set security group (uat)
     #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'uat'
@@ -93,7 +93,7 @@ jobs:
     #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'oat'
     #     with:
     #       secret-ids: |
-    #         RDS, nihrp-secret-oat-rds-aurora-mysql-credential-commonid
+    #         RDS, nihrp-secret-oat-rds-aurora-mysql-credential-study-management
     #       parse-json-secrets: true
     #   - name: Set security group (oat)
     #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'oat'
@@ -105,7 +105,7 @@ jobs:
     #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'prod'
     #     with:
     #       secret-ids: |
-    #         RDS, nihrp-secret-prod-rds-aurora-mysql-credential-commonid
+    #         RDS, nihrp-secret-prod-rds-aurora-mysql-credential-study-management
     #       parse-json-secrets: true
     #   - name: Set security group (prod)
     #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'prod'
