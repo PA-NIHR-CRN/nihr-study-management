@@ -1,0 +1,140 @@
+name: Deploy Database
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Select the environment
+        default: dev
+        options:
+          - dev
+          - test
+          - uat
+          - oat
+          - prod
+
+env:
+  AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+jobs:
+  deploy:
+    name: "Deploying Study Management Database to AWS ${{ github.event.inputs.environment || 'dev' }}"
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_ACTIONS_ENVIRONMENT: ${{ github.event.inputs.environment || 'dev' }}
+    steps:
+      # credentials to connect to AWS 
+      - name: Configure AWS credentials (dev/test)
+        uses: aws-actions/configure-aws-credentials@v4
+        if: env.GITHUB_ACTIONS_ENVIRONMENT == 'dev' || env.GITHUB_ACTIONS_ENVIRONMENT == 'test'
+        with:
+          aws-access-key-id: ${{ secrets.NIHR_DEVELOPMENT_IAM_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.NIHR_DEVELOPMENT_IAM_ACCESS_KEY_SECRET }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-session-name: GitHubActionsDev
+
+    #   - name: Configure AWS credentials (uat)
+    #     uses: aws-actions/configure-aws-credentials@v4
+    #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'uat'
+    #     with:
+    #       aws-access-key-id: ${{ secrets.NIHR_STAGING_IAM_ACCESS_KEY_ID }}
+    #       aws-secret-access-key: ${{ secrets.NIHR_STAGING_IAM_ACCESS_KEY_SECRET }}
+    #       aws-region: eu-west-2
+    #       role-session-name: GitHubActionsUat
+
+    #   - name: Configure AWS credentials (oat/prod)
+    #     uses: aws-actions/configure-aws-credentials@v4
+    #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'oat' || env.GITHUB_ACTIONS_ENVIRONMENT == 'prod'
+    #     with:
+    #       aws-access-key-id: ${{ secrets.NIHR_PROD_IAM_ACCESS_KEY_ID }}
+    #       aws-secret-access-key: ${{ secrets.NIHR_PROD_IAM_ACCESS_KEY_SECRET }}
+    #       aws-region: eu-west-2
+    #       role-session-name: GitHubActionsOat
+
+    #Get secrets from Secrets Manager
+
+      - name: Read secrets from AWS Secrets Manager into environment variables (Dev)
+        uses: aws-actions/aws-secretsmanager-get-secrets@v1
+        if: env.GITHUB_ACTIONS_ENVIRONMENT == 'dev'
+        with:
+          secret-ids: |
+            RDS, nihrd-secret-dev-rds-aurora-mysql-credential-study-management
+          parse-json-secrets: true
+      - name: Set security group (dev)
+        if: env.GITHUB_ACTIONS_ENVIRONMENT == 'dev'
+        run: |
+          echo "RDS_SECURITY_GROUP=sg-05e4d3572a4cf816f" >> $GITHUB_ENV
+
+    #   - name: Read secrets from AWS Secrets Manager into environment variables (Test)
+    #     uses: aws-actions/aws-secretsmanager-get-secrets@v1
+    #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'test'
+    #     with:
+    #       secret-ids: |
+    #         RDS, nihrd-secret-test-rds-aurora-mysql-credential-study-management
+    #       parse-json-secrets: true
+    #   - name: Set security group (test)
+    #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'test'
+    #     run: |
+    #       echo "RDS_SECURITY_GROUP=sg-05a42c30f81737b97" >> $GITHUB_ENV
+
+    #   - name: Read secrets from AWS Secrets Manager into environment variables (Uat)
+    #     uses: aws-actions/aws-secretsmanager-get-secrets@v1
+    #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'uat'
+    #     with:
+    #       secret-ids: |
+    #         RDS, nihrs-secret-uat-rds-aurora-mysql-credential-study-management
+    #       parse-json-secrets: true
+    #   - name: Set security group (uat)
+    #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'uat'
+    #     run: |
+    #       echo "RDS_SECURITY_GROUP=sg-0d672c4b6c377141c" >> $GITHUB_ENV
+
+    #   - name: Read secrets from AWS Secrets Manager into environment variables (Oat)
+    #     uses: aws-actions/aws-secretsmanager-get-secrets@v1
+    #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'oat'
+    #     with:
+    #       secret-ids: |
+    #         RDS, nihrp-secret-oat-rds-aurora-mysql-credential-study-management
+    #       parse-json-secrets: true
+    #   - name: Set security group (oat)
+    #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'oat'
+    #     run: |
+    #       echo "RDS_SECURITY_GROUP=sg-097ef9975aede5c18" >> $GITHUB_ENV
+
+    #   - name: Read secrets from AWS Secrets Manager into environment variables (Prod)
+    #     uses: aws-actions/aws-secretsmanager-get-secrets@v1
+    #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'prod'
+    #     with:
+    #       secret-ids: |
+    #         RDS, nihrp-secret-prod-rds-aurora-mysql-credential-study-management
+    #       parse-json-secrets: true
+    #   - name: Set security group (prod)
+    #     if: env.GITHUB_ACTIONS_ENVIRONMENT == 'prod'
+    #     run: |
+    #       echo "RDS_SECURITY_GROUP=sg-0435a48917a8554d0" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v4
+      - name: Get github actions runner public IP
+        id: ip
+        uses: haythem/public-ip@v1.3
+      - name: Add Github Actions IP to RDS security group
+        run: |
+          aws ec2 authorize-security-group-ingress --group-id ${{ env.RDS_SECURITY_GROUP }} --protocol tcp --port 3306 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
+      - name: List Databases
+        run: |
+          sudo /etc/init.d/mysql start
+          mysql -h${{ env.RDS_HOST }} -e 'SHOW DATABASES;' -u${{ env.RDS_USERNAME }} -p${{ env.RDS_PASSWORD }}
+
+      - uses: calxus/mysql-deploy-action@v1
+        name: Deploy Database Schema
+        with:
+          DATABASE_HOST: ${{ env.RDS_HOST }}
+          DATABASE_PORT: '3306'
+          DATABASE_NAME: ${{ env.RDS_DATABASE }}
+          DATABASE_USERNAME: ${{ env.RDS_USERNAME }}
+          DATABASE_PASSWORD: ${{ env.RDS_PASSWORD }}
+          DATABASE_SCRIPT: 'DatabaseScripts/1-CreateInitialDatabase-RDDI-100.sql'
+
+      - name: Remove Github Actions IP from RDS security group
+        run: |
+          aws ec2 revoke-security-group-ingress --group-id ${{ env.RDS_SECURITY_GROUP }} --protocol tcp --port 3306 --cidr ${{ steps.ip.outputs.ipv4 }}/32
