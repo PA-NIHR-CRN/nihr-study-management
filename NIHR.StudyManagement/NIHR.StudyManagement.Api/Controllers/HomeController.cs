@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace NIHR.StudyManagement.Api.Controllers
 {
-    [Route("api/v1/home")]
+    [Route("api/home")]
     public class HomeController : ApiControllerBase
     {
         [HttpGet]
