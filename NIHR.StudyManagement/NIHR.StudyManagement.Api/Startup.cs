@@ -2,7 +2,16 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NIHR.StudyManagement.Api.Configuration;
+using NIHR.StudyManagement.Api.Mappers;
+using NIHR.StudyManagement.Domain.Abstractions;
+using NIHR.StudyManagement.Domain.Configuration;
+using NIHR.StudyManagement.Domain.Services;
+using NIHR.StudyManagement.Infrastructure.Repository;
 using System.Security.Claims;
+using MySql.EntityFrameworkCore.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 namespace NIHR.StudyManagement.Api;
 
@@ -40,8 +49,9 @@ public class Startup
         var studyManagementApiSettings = studyManagementApiConfigurationSection.Get<StudyManagementApiSettings>();
 
         services.AddOptions<StudyManagementApiSettings>().Bind(studyManagementApiConfigurationSection);
+        services.AddOptions<StudyManagementSettings>().Bind(Configuration.GetSection("StudyManagement"));
 
-        _logger.LogDebug($"Application settings: {System.Text.Json.JsonSerializer.Serialize(studyManagementApiSettings)}");
+        _logger.LogDebug($"Application settings StudyManagementApiSettings: {System.Text.Json.JsonSerializer.Serialize(studyManagementApiSettings)}");
 
         services.AddAuthentication(options =>
         {
@@ -77,7 +87,25 @@ public class Startup
 
         services.AddEndpointsApiExplorer();
 
-        services.AddSwaggerGen();
+        services.AddSwaggerGen(swagger => {
+            swagger.SwaggerDoc("v1", new OpenApiInfo() {
+                Title = "Study Management API spec.",
+                Version = "1.0"
+            });
+
+            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+            swagger.IncludeXmlComments(xmlPath);
+            swagger.UseAllOfToExtendReferenceSchemas();
+        });
+
+        services.AddTransient<IStudyRegistryRepository, StudyRegistryRepository>();
+
+        services.AddTransient<IGovernmentResearchIdentifierService, GovernmentResearchIdentifierService>();
+        services.AddTransient<IGovernmentResearchIdentifierDtoMapper, GovernmentResearchIdentifierDtoMapper>();
+
+        services.AddDbContext<StudyRegistryContext>(options => options.UseMySQL(studyManagementApiSettings.Data.ConnectionString));
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IOptions<StudyManagementApiSettings> studyManagementApiSettings)

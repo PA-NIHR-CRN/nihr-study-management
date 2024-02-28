@@ -9,6 +9,7 @@ namespace NIHR.StudyManagement.Api.Controllers
         [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult Error()
         {
+
             return Ok();
         }
     }
