@@ -53,7 +53,7 @@
               "Home": {
                 "Type": "Api",
                 "Properties": {
-                  "Path": "/api/v1/home",
+                  "Path": "/api/home",
                   "Method": "GET",
                   "RestApiId": { "Ref" : "StudyManagementApi" }
                 }
@@ -61,8 +61,32 @@
               "HomeAuthenticated": {
                 "Type": "Api",
                 "Properties": {
-                  "Path": "/api/v1/home/authenticated",
+                  "Path": "/api/home/authenticated",
                   "Method": "GET",
+                  "RestApiId": { "Ref" : "StudyManagementApi" }
+                }
+              },
+              "CreateIdentifier": {
+                "Type": "Api",
+                "Properties": {
+                  "Path": "/api/identifier/",
+                  "Method": "POST",
+                  "RestApiId": { "Ref" : "StudyManagementApi" }
+                }
+              },
+              "GetIdentifier": {
+                "Type": "Api",
+                "Properties": {
+                  "Path": "/api/identifier/{identifier}",
+                  "Method": "GET",
+                  "RestApiId": { "Ref" : "StudyManagementApi" }
+                }
+              },
+              "AddStudyToExistingIdentifier": {
+                "Type": "Api",
+                "Properties": {
+                  "Path": "/api/identifier/{identifier}",
+                  "Method": "PATCH",
                   "RestApiId": { "Ref" : "StudyManagementApi" }
                 }
               }

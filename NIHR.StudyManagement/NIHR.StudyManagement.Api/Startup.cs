@@ -12,6 +12,7 @@ using MySql.EntityFrameworkCore.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using Amazon;
 
 namespace NIHR.StudyManagement.Api;
 
@@ -105,7 +106,26 @@ public class Startup
         services.AddTransient<IGovernmentResearchIdentifierService, GovernmentResearchIdentifierService>();
         services.AddTransient<IGovernmentResearchIdentifierDtoMapper, GovernmentResearchIdentifierDtoMapper>();
 
-        services.AddDbContext<StudyRegistryContext>(options => options.UseMySQL(studyManagementApiSettings.Data.ConnectionString));
+        services.AddDbContext<StudyRegistryContext>(options =>
+        {
+            // For local development, username/password included in connection string.
+            // For deployed lambda in AWS, password is retrieved from secret manager
+            var connectionString = "";
+
+            if (!string.IsNullOrEmpty(studyManagementApiSettings.Data.PasswordSecretName))
+            {
+                // Retrieve password from AWS Secrets.
+                var password = GetAwsSecretPassword(studyManagementApiSettings.Data.PasswordSecretName);
+
+                connectionString = $"{studyManagementApiSettings.Data.ConnectionString};password={password}";
+            }
+            else
+            {
+                connectionString = studyManagementApiSettings.Data.ConnectionString;
+            }
+
+            options.UseMySQL(connectionString);
+        });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IOptions<StudyManagementApiSettings> studyManagementApiSettings)
@@ -198,5 +218,19 @@ public class Startup
                 return Task.CompletedTask;
             }
         };
+    }
+
+    private string GetAwsSecretPassword(string secretName)
+    {
+        var secretManager = new AwsSecretsManagerClient(RegionEndpoint.EUWest2, secretName);
+
+        var data = secretManager.Load();
+
+        if (data.ContainsKey("password"))
+        {
+            return data["password"];
+        }
+
+        return string.Empty;
     }
 }
