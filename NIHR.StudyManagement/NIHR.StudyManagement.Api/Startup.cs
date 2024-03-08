@@ -8,7 +8,6 @@ using NIHR.StudyManagement.Domain.Configuration;
 using NIHR.StudyManagement.Domain.Services;
 using NIHR.StudyManagement.Infrastructure.Repository;
 using System.Security.Claims;
-using MySql.EntityFrameworkCore.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -91,7 +90,7 @@ public class Startup
         services.AddSwaggerGen(swagger => {
             swagger.SwaggerDoc("v1", new OpenApiInfo() {
                 Title = "Study Management API spec.",
-                Version = "1.0"
+                Version = "1.1"
             });
 
             var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -124,7 +123,9 @@ public class Startup
                 connectionString = studyManagementApiSettings.Data.ConnectionString;
             }
 
-            options.UseMySQL(connectionString);
+            var serverVersion = ServerVersion.AutoDetect(connectionString);
+
+            options.UseMySql(connectionString, serverVersion);
         });
     }
 

@@ -31,6 +31,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
         public virtual DbSet<ResearchStudyTeamMember> ResearchStudyTeamMembers { get; set; } = null!;
         public virtual DbSet<Researcher> Researchers { get; set; } = null!;
         public virtual DbSet<SourceSystem> SourceSystems { get; set; } = null!;
+        public virtual DbSet<GriResearchStudyStatus> GriResearchStudyStatuses { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -78,6 +79,25 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     .HasForeignKey(d => d.SourceSystemId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_griMapping_sourceSystem");
+            });
+
+            modelBuilder.Entity<GriResearchStudyStatus>(entity =>
+            {
+                entity.ToTable("griResearchStudyStatus");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Created).HasColumnName("created");
+
+                entity.Property(e => e.Code)
+                    .HasMaxLength(100)
+                    .HasColumnName("code");
+
+                entity.HasOne(d => d.GriMapping)
+                    .WithMany(p => p.GriResearchStudyStatuses)
+                    .HasForeignKey(d => d.GriMappingId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_griResearchStudyStatus_griMapping");
             });
 
             modelBuilder.Entity<GriResearchStudy>(entity =>

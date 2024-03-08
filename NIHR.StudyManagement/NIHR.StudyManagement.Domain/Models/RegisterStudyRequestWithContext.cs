@@ -18,6 +18,7 @@
             LocalSystemName = "";
             RoleName = "";
             EffectiveFrom = DateTime.Now;
+            StatusCode = "";
         }
     }
 }

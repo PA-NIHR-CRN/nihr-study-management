@@ -18,5 +18,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
         public virtual GriResearchStudy GriResearchStudy { get; set; } = null!;
         public virtual ResearchInitiativeIdentifier ResearchInitiativeIdentifier { get; set; } = null!;
         public virtual SourceSystem SourceSystem { get; set; } = null!;
+
+        public virtual ICollection<GriResearchStudyStatus> GriResearchStudyStatuses { get; set; } = null!;
     }
 }

@@ -18,5 +18,11 @@ namespace NIHR.StudyManagement.Api.Models.Dto
         /// </summary>
         [Required]
         public string ShortTitle { get; set; } = "";
+
+        /// <summary>
+        /// The status at the time the study is being created within the source system.
+        /// </summary>
+        [Required]
+        public string Status { get; set; } = "";
     }
 }

@@ -69,7 +69,8 @@ namespace NIHR.StudyManagement.Domain.Services
                 ShortTitle = request.ShortTitle,
                 LocalSystemName = _settings.DefaultLocalSystemName,
                 RoleName = _settings.DefaultRoleName,
-                ProtocolId = request.ProtocolId
+                ProtocolId = request.ProtocolId,
+                StatusCode = request.StatusCode
             };
 
             return await _governmentResearchIdentifierRepository.AddStudyToIdentifierAsync(domainRequest, cancellationToken);
@@ -86,7 +87,8 @@ namespace NIHR.StudyManagement.Domain.Services
                 ShortTitle = request.ShortTitle,
                 LocalSystemName = _settings.DefaultLocalSystemName,
                 RoleName = _settings.DefaultRoleName,
-                ProtocolId = request.ProtocolId
+                ProtocolId = request.ProtocolId,
+                StatusCode = request.StatusCode
             };
         }
 

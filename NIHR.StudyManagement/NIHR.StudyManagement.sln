@@ -5,9 +5,9 @@ VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NIHR.StudyManagement.Api", "NIHR.StudyManagement.Api\NIHR.StudyManagement.Api.csproj", "{DA9F2262-573C-4F4D-93B7-31A4D86C0310}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NIHR.StudyManagement.Infrastructure", "NIHR.StudyManagement.Infrastructure\NIHR.StudyManagement.Infrastructure.csproj", "{372B90EC-F49E-42F5-B6C2-C6C5F1E462C6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NIHR.StudyManagement.Infrastructure", "NIHR.StudyManagement.Infrastructure\NIHR.StudyManagement.Infrastructure.csproj", "{372B90EC-F49E-42F5-B6C2-C6C5F1E462C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NIHR.StudyManagement.Domain", "NIHR.StudyManagement.Domain\NIHR.StudyManagement.Domain.csproj", "{3A62738A-FE85-41B5-9D65-707C03D4E600}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NIHR.StudyManagement.Domain", "NIHR.StudyManagement.Domain\NIHR.StudyManagement.Domain.csproj", "{3A62738A-FE85-41B5-9D65-707C03D4E600}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -22,7 +22,8 @@ namespace NIHR.StudyManagement.Api.Mappers
                     Email = new Email { Address = chiefInvestigatorPerson.PrimaryEmail },
                     Firstname = chiefInvestigatorPerson.Firstname,
                     Lastname = chiefInvestigatorPerson.Lastname
-                }
+                },
+                StatusCode = requestDto.LocalStudy.Status
             };
 
             return createIdentifierRequest;
@@ -42,7 +43,8 @@ namespace NIHR.StudyManagement.Api.Mappers
                     Email = new Email { Address = chiefInvestigatorPerson.PrimaryEmail},
                     Firstname = chiefInvestigatorPerson.Firstname,
                     Lastname = chiefInvestigatorPerson.Lastname
-                }
+                },
+                StatusCode = requestDto.LocalStudy.Status
             };
 
             return createIdentifierRequest;
@@ -72,7 +74,8 @@ namespace NIHR.StudyManagement.Api.Mappers
                 {
                     Identifier = linkedSystemIdentifier.Identifier,
                     SystemName = linkedSystemIdentifier.SystemName,
-                    CreatedAt = linkedSystemIdentifier.CreatedAt
+                    CreatedAt = linkedSystemIdentifier.CreatedAt,
+                    Status = linkedSystemIdentifier.StatusCode
                 });
             }
 

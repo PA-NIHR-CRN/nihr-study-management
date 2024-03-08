@@ -11,7 +11,7 @@ using NIHR.StudyManagement.Infrastructure.Repository;
 namespace NIHR.StudyManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(StudyRegistryContext))]
-    [Migration("20240220103324_01-Initial")]
+    [Migration("20240308110904_01-Initial")]
     partial class _01Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -93,6 +93,39 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                     b.HasIndex(new[] { "RequestSourceSystemId" }, "fk_griResearchStudy_sourceSystem_idx");
 
                     b.ToTable("griResearchStudy", (string)null);
+                });
+
+            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.GriResearchStudyStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created");
+
+                    b.Property<DateTime>("FromDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("GriMappingId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ToDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GriMappingId");
+
+                    b.ToTable("griResearchStudyStatus", (string)null);
                 });
 
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.Person", b =>
@@ -187,7 +220,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 2, 20, 10, 33, 23, 980, DateTimeKind.Local).AddTicks(5038),
+                            Created = new DateTime(2024, 3, 8, 11, 9, 4, 591, DateTimeKind.Local).AddTicks(1968),
                             Description = "A Chief investigator role",
                             Type = "CHIEF_INVESTIGATOR"
                         });
@@ -218,7 +251,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 2, 20, 10, 33, 23, 980, DateTimeKind.Local).AddTicks(5695),
+                            Created = new DateTime(2024, 3, 8, 11, 9, 4, 591, DateTimeKind.Local).AddTicks(2488),
                             Description = "RESEARCHER"
                         });
                 });
@@ -327,13 +360,13 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 2, 20, 10, 33, 23, 981, DateTimeKind.Local).AddTicks(5896),
+                            Created = new DateTime(2024, 3, 8, 11, 9, 4, 592, DateTimeKind.Local).AddTicks(3764),
                             Description = "PROJECT"
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 2, 20, 10, 33, 23, 981, DateTimeKind.Local).AddTicks(5922),
+                            Created = new DateTime(2024, 3, 8, 11, 9, 4, 592, DateTimeKind.Local).AddTicks(3824),
                             Description = "PROTOCOL"
                         });
                 });
@@ -362,7 +395,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 2, 20, 10, 33, 23, 981, DateTimeKind.Local).AddTicks(6579),
+                            Created = new DateTime(2024, 3, 8, 11, 9, 4, 592, DateTimeKind.Local).AddTicks(4605),
                             Description = "STUDY"
                         });
                 });
@@ -441,14 +474,14 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         {
                             Id = 1,
                             Code = "EDGE",
-                            Created = new DateTime(2024, 2, 20, 10, 33, 23, 982, DateTimeKind.Local).AddTicks(8192),
+                            Created = new DateTime(2024, 3, 8, 11, 9, 4, 594, DateTimeKind.Local).AddTicks(4158),
                             Description = "Edge system"
                         },
                         new
                         {
                             Id = 2,
                             Code = "IRAS",
-                            Created = new DateTime(2024, 2, 20, 10, 33, 23, 982, DateTimeKind.Local).AddTicks(8221),
+                            Created = new DateTime(2024, 3, 8, 11, 9, 4, 594, DateTimeKind.Local).AddTicks(4214),
                             Description = "IRAS system"
                         });
                 });
@@ -497,6 +530,17 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                     b.Navigation("RequestSourceSystem");
 
                     b.Navigation("ResearchInitiative");
+                });
+
+            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.GriResearchStudyStatus", b =>
+                {
+                    b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.GriMapping", "GriMapping")
+                        .WithMany("GriResearchStudyStatuses")
+                        .HasForeignKey("GriMappingId")
+                        .IsRequired()
+                        .HasConstraintName("fk_griResearchStudyStatus_griMapping");
+
+                    b.Navigation("GriMapping");
                 });
 
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.Person", b =>
@@ -586,6 +630,11 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                     b.Navigation("PersonRole");
 
                     b.Navigation("Researcher");
+                });
+
+            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.GriMapping", b =>
+                {
+                    b.Navigation("GriResearchStudyStatuses");
                 });
 
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.GriResearchStudy", b =>

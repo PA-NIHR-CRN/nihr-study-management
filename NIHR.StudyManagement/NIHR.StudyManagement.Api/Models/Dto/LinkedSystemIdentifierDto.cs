@@ -7,5 +7,7 @@
         public string SystemName { get; set; } = "";
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        public string Status { get; set; } = "";
     }
 }

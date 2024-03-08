@@ -7,11 +7,14 @@
 
         public DateTime CreatedAt { get; set; }
 
+        public string StatusCode { get; set; }
+
         public LinkedSystemIdentifier()
         {
             Identifier = "";
             SystemName = "";
             CreatedAt = DateTime.Now;
+            StatusCode = "";
         }
     }
 }

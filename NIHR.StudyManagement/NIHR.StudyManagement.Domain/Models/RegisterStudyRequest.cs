@@ -13,6 +13,8 @@
 
         public string ProtocolId { get; set; }
 
+        public string StatusCode { get; set; }
+
         public RegisterStudyRequest()
         {
             ProjectId = "";
@@ -20,6 +22,7 @@
             ShortTitle = "";
             Sponsor = "";
             ProtocolId = "";
+            StatusCode = "";
         }
     }
 }
