@@ -35,7 +35,8 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-	</ItemGroup>
+	  <PackageReference Include="Confluent.Kafka" Version="2.3.0" />
+  </ItemGroup>
 	<ItemGroup>
     <ProjectReference Include="..\NIHR.StudyManagement.Domain\NIHR.StudyManagement.Domain.csproj" />
     <ProjectReference Include="..\NIHR.StudyManagement.Infrastructure\NIHR.StudyManagement.Infrastructure.csproj" />

@@ -11,6 +11,7 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using NIHR.StudyManagement.Infrastructure.MessageBus;
 using Amazon;
 
 namespace NIHR.StudyManagement.Api;
@@ -50,6 +51,7 @@ public class Startup
 
         services.AddOptions<StudyManagementApiSettings>().Bind(studyManagementApiConfigurationSection);
         services.AddOptions<StudyManagementSettings>().Bind(Configuration.GetSection("StudyManagement"));
+        services.AddOptions<MessageBusSettings>().Bind(Configuration.GetSection("MessageBus"));
 
         _logger.LogDebug($"Application settings StudyManagementApiSettings: {System.Text.Json.JsonSerializer.Serialize(studyManagementApiSettings)}");
 
@@ -101,10 +103,9 @@ public class Startup
         });
 
         services.AddTransient<IStudyRegistryRepository, StudyRegistryRepository>();
-
         services.AddTransient<IGovernmentResearchIdentifierService, GovernmentResearchIdentifierService>();
         services.AddTransient<IGovernmentResearchIdentifierDtoMapper, GovernmentResearchIdentifierDtoMapper>();
-
+        services.AddTransient<IStudyEventMessagePublisher, StudyManagementKafkaMessageProducer>();
         services.AddDbContext<StudyRegistryContext>(options =>
         {
             // For local development, username/password included in connection string.
