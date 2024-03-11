@@ -7,8 +7,10 @@ namespace RDD_672
 {
     internal class Program
     {
-        static string inputPath = @"C:\Users\pgadz\Downloads\realms.xlsx";
-        static string outPath = @"C:\Users\pgadz\Downloads\realms-output.csv";
+        static string realmsInputFile = @"C:\Users\pgadz\Downloads\realms.xlsx";
+        static string realmsOutputFile = @"C:\Users\pgadz\Downloads\realms-output.csv";
+        static string cpmsInputFile = @"C:\Users\pgadz\Downloads\cpms.xlsx";
+        static string cpmsOutputFile = @"C:\Users\pgadz\Downloads\cpms-output.csv";
 
         static void Main(string[] args)
         {
@@ -18,7 +20,7 @@ namespace RDD_672
             //               .SelectMany(k => k);
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-            V4();
+            V5();
         }
 
         private static void insert(List<RealmsRow> realmsRows)
@@ -31,9 +33,19 @@ namespace RDD_672
             }
         }
 
+        private static void insert(List<CpmsRow> cpmsRows)
+        {
+            using (var connection = new MySqlConnection("server=nihrd-rds-aurora-sandbox-study-management.cluster-cyufumnedrbx.eu-west-2.rds.amazonaws.com;database=spike_analysis;user=admin;password=e0FqP|Q8UWIqaP+V:eRSK:Dq::x|"))
+            {
+                var sql = "INSERT INTO cpms (  `CPMS ID`,`IRAS ID` ,`Study Record Status` ,`Lead Admin` ,`Commercial Study` ,`Short Name` ,`Title` ,`Study Status` ,`Planned Opening Date` ,`Actual Opening Date` ,`Planned Closure Date` ,`Actual Closure Date` ,`CI Name` ,`CI Email` ,`CPMS Created Date` ,`Funder Name` ,`Funding Stream Name` ,`Grant Code`   ) VALUES (  @CPMSID,@IRASID ,@StudyRecordStatus ,@LeadAdmin ,@CommercialStudy ,@ShortName ,@Title ,@StudyStatus ,@PlannedOpeningDate ,@ActualOpeningDate ,@PlannedClosureDate ,@ActualClosureDate ,@CIName ,@CIEmail ,@CPMSCreatedDate ,@FunderName ,@FundingStreamName ,@GrantCode )";
+                var rowsAffected = connection.Execute(sql, cpmsRows);
+                Console.WriteLine($"{rowsAffected} row(s) inserted.");
+            }
+        }
+
         private static List<RealmsRow> GetRealmsRows()
         {
-            using (ExcelPackage xlPackage = new ExcelPackage(new FileInfo(inputPath)))
+            using (ExcelPackage xlPackage = new ExcelPackage(new FileInfo(realmsInputFile)))
             {
 
 
@@ -74,16 +86,68 @@ namespace RDD_672
             }
         }
 
+        private static List<CpmsRow> GetCPMSRows()
+        {
+            using (ExcelPackage xlPackage = new ExcelPackage(new FileInfo(cpmsInputFile)))
+            {
+
+
+                var myWorksheet = xlPackage.Workbook.Worksheets.First(); //select sheet here
+                var totalRows = myWorksheet.Dimension.End.Row;
+                var totalColumns = myWorksheet.Dimension.End.Column;
+
+                var realmsRows = new List<CpmsRow>();
+
+                for (int rowNum = 2; rowNum <= totalRows; rowNum++) //select starting row here
+                {
+                    var realmsRow = new CpmsRow()
+                    {
+                        CPMSID= GetValue(myWorksheet, rowNum, 1),
+                        IRASID = GetValue(myWorksheet, rowNum, 2),
+                        StudyRecordStatus = GetValue(myWorksheet, rowNum, 3),
+                        LeadAdmin = GetValue(myWorksheet, rowNum, 4),
+                        CommercialStudy= GetValue(myWorksheet, rowNum, 5),
+                        ShortName = GetValue(myWorksheet, rowNum, 6),
+                        Title = GetValue(myWorksheet, rowNum, 7),
+                        StudyStatus = GetValue(myWorksheet, rowNum, 8),
+                        PlannedOpeningDate = GetValue(myWorksheet, rowNum, 9),
+                        ActualOpeningDate= GetValue(myWorksheet, rowNum, 10),
+                        PlannedClosureDate = GetValue(myWorksheet, rowNum, 11),
+                        ActualClosureDate = GetValue(myWorksheet, rowNum, 12),
+                        CIName= GetValue(myWorksheet, rowNum, 13),
+                        CIEmail= GetValue(myWorksheet, rowNum, 14),
+                        CPMSCreatedDate= GetValue(myWorksheet, rowNum, 15),
+                        FunderName= GetValue(myWorksheet, rowNum, 16),
+                        FundingStreamName = GetValue(myWorksheet, rowNum, 17),
+                        GrantCode= GetValue(myWorksheet, rowNum, 18),
+
+                    };
+
+                    realmsRows.Add(realmsRow);
+
+
+                }
+
+                return realmsRows;
+            }
+        }
+
         private static void V5()
         {
+            //var realmsRows = GetRealmsRows();
 
+            //insert(realmsRows);
+
+            var cpmsRows = GetCPMSRows();
+
+            insert(cpmsRows);
         }
 
         private static void V4()
         {
 
 
-            using (ExcelPackage xlPackage = new ExcelPackage(new FileInfo(inputPath)))
+            using (ExcelPackage xlPackage = new ExcelPackage(new FileInfo(realmsInputFile)))
             {
 
 
@@ -139,9 +203,9 @@ namespace RDD_672
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-            using (ExcelPackage xlPackage = new ExcelPackage(new FileInfo(inputPath)))
+            using (ExcelPackage xlPackage = new ExcelPackage(new FileInfo(realmsInputFile)))
             {
-                using (var outFile = File.OpenWrite(outPath))
+                using (var outFile = File.OpenWrite(realmsOutputFile))
                 {
                     var outWriter = new StreamWriter(outFile);
 
@@ -185,9 +249,9 @@ namespace RDD_672
 
         private static void V2()
         {
-            using (var file = new StreamReader(inputPath))
+            using (var file = new StreamReader(realmsInputFile))
             {
-                using (var outFile = File.OpenWrite(outPath))
+                using (var outFile = File.OpenWrite(realmsOutputFile))
                 {
                     var outWriter = new StreamWriter(outFile);
 
@@ -223,7 +287,7 @@ namespace RDD_672
             var rows = new List<InputResultRow>();
 
             // Read the file and display it line by line.
-            using (var file = new StreamReader(inputPath))
+            using (var file = new StreamReader(realmsInputFile))
             {
                 int lineIndex = 0;
 

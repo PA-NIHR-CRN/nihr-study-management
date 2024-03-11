@@ -1,4 +1,6 @@
-﻿namespace RDD_672
+﻿using System.Xml.Linq;
+
+namespace RDD_672
 {
     public class RealmsRow
     {
@@ -18,5 +20,28 @@
         public string ChiefInvestigatorFormal { get; set; }
         public string Contractor { get; set; }
         public string CurrentCost { get; set; }
+    }
+
+    public class CpmsRow
+    {
+        public string CPMSID { get; set; }
+        public string IRASID { get; set; }
+        public string StudyRecordStatus { get; set; }
+        public string LeadAdmin { get; set; }
+        public string CommercialStudy { get; set; }
+        public string ShortName { get; set; }
+        public string Title { get; set; }
+        public string StudyStatus { get; set; }
+        public string PlannedOpeningDate { get; set; }
+        public string ActualOpeningDate { get; set; }
+        public string PlannedClosureDate { get; set; }
+        public string ActualClosureDate { get; set; }
+        public string CIName { get; set; }
+        public string CIEmail { get; set; }
+        public string CPMSCreatedDate { get; set; }
+        public string FunderName { get; set; }
+        public string FundingStreamName { get; set; }
+        public string GrantCode { get; set; }
+
     }
 }
