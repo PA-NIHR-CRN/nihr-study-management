@@ -13,7 +13,7 @@ namespace RDD_672
         static string cpmsOutputFile = @"C:\Users\pgadz\Downloads\cpms-output.csv";
         const string password = "LXKew.RXIydvqzCQc_uo0khH3rWs";
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             //var data = File.ReadLines(@"C:\Users\pgadz\Downloads\realms.tsv")
             //               .Skip(1)
@@ -21,7 +21,9 @@ namespace RDD_672
             //               .SelectMany(k => k);
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-            ComputeExample3();
+            var program = new Program();
+
+            await program.ComputeExmaple4_Parallel();
         }
 
         private static void insert(List<RealmsRow> realmsRows)
@@ -44,10 +46,127 @@ namespace RDD_672
             }
         }
 
+        private static void insert (List<MatchPair> matchPairs)
+        {
+            using (var connection = new MySqlConnection($"server=nihrd-rds-aurora-sandbox-study-management.cluster-cyufumnedrbx.eu-west-2.rds.amazonaws.com;database=spike_analysis;user=admin;password={password}"))
+            {
+                var tableName = $"results{DateTime.Now.ToString("HHmmss")}";
+                var sql = $"CREATE TABLE `{tableName}` (`netccid` text,`cpmsid` int DEFAULT NULL,`distance` int DEFAULT NULL,`irasmatch` int DEFAULT NULL,`cimatch` int DEFAULT NULL,`percentage` double DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;";
+
+                connection.Execute(sql);
+
+                sql = $"INSERT INTO {tableName} (`netccid`, `cpmsid`, `distance`, `irasmatch`, `cimatch`, `percentage`) VALUES (@netccid, @cpmsid, @distance, @irasmatchparam, @cimatchparam, @PercentageOfLength)";
+
+                var rowsAffected = connection.Execute(sql, matchPairs);
+                Console.WriteLine($"{rowsAffected} row(s) inserted.");
+            }
+        }
+
+        private static List<MatchPair> GetMatchPairs(List<RealmsRow> realmsRows, List<CpmsRow> cpmsRows)
+        {
+            var matchPairs = new List<MatchPair>();
+
+            foreach (var realmsRow in realmsRows)
+            {
+                var lowestMatch = -1;
+                CpmsRow matchedCpmsRow = null;
+
+                foreach (var cpmsRow in cpmsRows)
+                {
+                    var match = (Compute(realmsRow.Title, cpmsRow.Title));
+
+                    if (lowestMatch == -1)
+                    {
+                        lowestMatch = match;
+                    }
+                    else if (match < lowestMatch)
+                    {
+                        lowestMatch = match;
+
+                        matchedCpmsRow = cpmsRow;
+                    }
+                }
+
+                var percentageOfTotal = ((decimal)lowestMatch / (decimal)realmsRow.Title.Length) * 100;
+
+                var matchPair = new MatchPair
+                {
+                    CpmsRow = matchedCpmsRow,
+                    RealmsRow = realmsRow,
+                    Distance = lowestMatch,
+                    PercentageOfLength = percentageOfTotal
+                };
+
+                matchPairs.Add(matchPair);
+            }
+
+            return matchPairs;
+        }
+
+        private async Task ComputeExmaple4_Parallel()
+        {
+            var realmsRows = GetRealmsRows();
+            var cpmsRows = GetCPMSRows();
+            var taskList = new List<Task<List<MatchPair>>>();
+
+            for (int i = 0; i <= realmsRows.Count; i = i + 100)
+            {
+                var realmsRowsForBatch = realmsRows.Skip(i).Take(100).ToList();
+
+                taskList.Add(Task.Run(() => GetMatchPairs(realmsRowsForBatch, cpmsRows)));
+            }
+
+            await Task.WhenAll(taskList);
+
+            var results = new List<MatchPair>();
+
+            foreach (var taskResult in taskList)
+            {
+                results.AddRange(taskResult.Result);
+            }
+
+            foreach (var result in results)
+            {
+                System.Diagnostics.Debug.Print($"{result.RealmsRow.NETSCCID} {result.CpmsRow?.CPMSID} {result.Distance} {result.IrasIdMatch} {result.CiMatch} {result.PercentageOfLength}");
+            }
+
+            insert(results);
+        }
+
+        //private async Task ComputeExmaple4_Parallel()
+        //{
+        //    var realmsRows = GetRealmsRows();
+        //    var cpmsRows = GetCPMSRows();
+
+        //    var batch1RowsToMatch = realmsRows.Take(200);
+        //    var batch2RowsToMatch = realmsRows.Skip(200).Take(200);
+        //    var batch3RowsToMatch = realmsRows.Skip(400).Take(200);
+        //    var batch4RowsToMatch = realmsRows.Skip(600).Take(200);
+        //    var batch5RowsToMatch = realmsRows.Skip(800).Take(200);
+
+        //    var batch1Task = Task.Run(() => GetMatchPairs(batch1RowsToMatch.ToList(), cpmsRows));
+        //    var batch2Task = Task.Run(() => GetMatchPairs(batch2RowsToMatch.ToList(), cpmsRows));
+        //    var batch3Task = Task.Run(() => GetMatchPairs(batch3RowsToMatch.ToList(), cpmsRows));
+        //    var batch4Task = Task.Run(() => GetMatchPairs(batch4RowsToMatch.ToList(), cpmsRows));
+        //    var batch5Task = Task.Run(() => GetMatchPairs(batch5RowsToMatch.ToList(), cpmsRows));
+
+        //    await Task.WhenAll(batch1Task, batch2Task, batch3Task, batch4Task, batch5Task);
+
+        //    var results = new List<MatchPair>();
+
+        //    results.AddRange(batch1Task.Result);
+        //    results.AddRange(batch2Task.Result);
+        //    results.AddRange(batch3Task.Result);
+        //    results.AddRange(batch4Task.Result);
+        //    results.AddRange(batch5Task.Result);
+        //}
+
         private static void ComputeExample3()
         {
             var realmsRows = GetRealmsRows();
             var cpmsRows = GetCPMSRows();
+
+            var matchPairs = new List<MatchPair>();
 
             var matchedResults = new List<Tuple<RealmsRow, CpmsRow>> ();
 
@@ -77,11 +196,22 @@ namespace RDD_672
                     || percentageOfTotal > 50.00M)
                 {
                     //Console.WriteLine($"Realms row not matched {realmsRow.NETSCCID}");
-                    continue;
+                    //continue;
                 }
 
-                matchedResults.Add(new Tuple<RealmsRow, CpmsRow>(realmsRow, matchedCpmsRow));
-                Console.WriteLine($"Realms row matched {realmsRow.NETSCCID} with {matchedCpmsRow.CPMSID} at distance {lowestMatch} length {realmsRow.Title.Length} with percentage {percentageOfTotal}");
+                var matchPair = new MatchPair
+                {
+                    CpmsRow = matchedCpmsRow,
+                    RealmsRow = realmsRow,
+                    Distance = lowestMatch,
+                    PercentageOfLength = percentageOfTotal
+                };
+
+                matchPairs.Add(matchPair);
+
+                //matchedResults.Add(new Tuple<RealmsRow, CpmsRow>(realmsRow, matchedCpmsRow));
+                //System.Diagnostics.Debug.Print($"Realms row matched {realmsRow.NETSCCID} with {matchedCpmsRow?.CPMSID} at distance {lowestMatch} length {realmsRow.Title.Length} with percentage {percentageOfTotal}");
+                System.Diagnostics.Debug.Print($"{realmsRow.NETSCCID} {matchedCpmsRow?.CPMSID} {lowestMatch} {matchPair.IrasIdMatch} {matchPair.CiMatch} {percentageOfTotal}");
             }
 
 
@@ -187,12 +317,24 @@ namespace RDD_672
 
         private static string SanitisePersonName(string personName)
         {
-            return personName
+            // NOT IN USE
+            var sanitised = personName
                 .Replace("Professor", "", StringComparison.OrdinalIgnoreCase)
+                .Replace("Associate", "", StringComparison.OrdinalIgnoreCase)
+                .Replace("Prof", "", StringComparison.OrdinalIgnoreCase)
+                .Replace("Mr", "", StringComparison.OrdinalIgnoreCase)
+                .Replace("Mrs", "", StringComparison.OrdinalIgnoreCase)
                 .Replace("Doctor", "", StringComparison.OrdinalIgnoreCase)
                 .Replace("-", "", StringComparison.OrdinalIgnoreCase)
                 .Replace("Dr", "", StringComparison.OrdinalIgnoreCase)
                 .Trim();
+
+            if(sanitised.StartsWith("ms ", StringComparison.OrdinalIgnoreCase))
+            {
+                sanitised = sanitised.Substring(2);
+            }
+
+            return sanitised.Trim();
         }
 
         private static List<Tuple<RealmsRow, CpmsRow>> MatchOnTitle(List<CpmsRow> cpmsRows, List<RealmsRow> realmsRows)
