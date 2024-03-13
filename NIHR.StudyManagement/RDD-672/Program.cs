@@ -11,6 +11,7 @@ namespace RDD_672
         static string realmsOutputFile = @"C:\Users\pgadz\Downloads\realms-output.csv";
         static string cpmsInputFile = @"C:\Users\pgadz\Downloads\cpms.xlsx";
         static string cpmsOutputFile = @"C:\Users\pgadz\Downloads\cpms-output.csv";
+        const string password = "LXKew.RXIydvqzCQc_uo0khH3rWs";
 
         static void Main(string[] args)
         {
@@ -20,12 +21,12 @@ namespace RDD_672
             //               .SelectMany(k => k);
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-            V5();
+            ComputeExample3();
         }
 
         private static void insert(List<RealmsRow> realmsRows)
         {
-            using (var connection = new MySqlConnection("server=nihrd-rds-aurora-sandbox-study-management.cluster-cyufumnedrbx.eu-west-2.rds.amazonaws.com;database=spike_analysis;user=admin;password=e0FqP|Q8UWIqaP+V:eRSK:Dq::x|"))
+            using (var connection = new MySqlConnection($"server=nihrd-rds-aurora-sandbox-study-management.cluster-cyufumnedrbx.eu-west-2.rds.amazonaws.com;database=spike_analysis;user=admin;password={password}"))
             {
                 var sql = "INSERT INTO realms (NETSCCID, IRAS, Column1, Programme, FundingStream, SubmissionDate, FundDecisionDate, CurrentStartDate, CurrentEndDate, Status, ResearchType,Title, ShortTitle, ChiefInvestigatorFormal, Contractor, CurrentCost) VALUES (@NETSCCID, @IRAS, @Column1, @Programme, @FundingStream, @SubmissionDate, @FundDecisionDate, @CurrentStartDate, @CurrentEndDate, @Status, @ResearchType,@Title, @ShortTitle, @ChiefInvestigatorFormal, @Contractor, @CurrentCost)";
                 var rowsAffected = connection.Execute(sql, realmsRows);
@@ -35,12 +36,182 @@ namespace RDD_672
 
         private static void insert(List<CpmsRow> cpmsRows)
         {
-            using (var connection = new MySqlConnection("server=nihrd-rds-aurora-sandbox-study-management.cluster-cyufumnedrbx.eu-west-2.rds.amazonaws.com;database=spike_analysis;user=admin;password=e0FqP|Q8UWIqaP+V:eRSK:Dq::x|"))
+            using (var connection = new MySqlConnection($"server=nihrd-rds-aurora-sandbox-study-management.cluster-cyufumnedrbx.eu-west-2.rds.amazonaws.com;database=spike_analysis;user=admin;password={password}"))
             {
                 var sql = "INSERT INTO cpms (  `CPMS ID`,`IRAS ID` ,`Study Record Status` ,`Lead Admin` ,`Commercial Study` ,`Short Name` ,`Title` ,`Study Status` ,`Planned Opening Date` ,`Actual Opening Date` ,`Planned Closure Date` ,`Actual Closure Date` ,`CI Name` ,`CI Email` ,`CPMS Created Date` ,`Funder Name` ,`Funding Stream Name` ,`Grant Code`   ) VALUES (  @CPMSID,@IRASID ,@StudyRecordStatus ,@LeadAdmin ,@CommercialStudy ,@ShortName ,@Title ,@StudyStatus ,@PlannedOpeningDate ,@ActualOpeningDate ,@PlannedClosureDate ,@ActualClosureDate ,@CIName ,@CIEmail ,@CPMSCreatedDate ,@FunderName ,@FundingStreamName ,@GrantCode )";
                 var rowsAffected = connection.Execute(sql, cpmsRows);
                 Console.WriteLine($"{rowsAffected} row(s) inserted.");
             }
+        }
+
+        private static void ComputeExample3()
+        {
+            var realmsRows = GetRealmsRows();
+            var cpmsRows = GetCPMSRows();
+
+            var matchedResults = new List<Tuple<RealmsRow, CpmsRow>> ();
+
+            foreach (var realmsRow in realmsRows)
+            {
+                var lowestMatch = -1;
+                CpmsRow matchedCpmsRow = null;
+
+                foreach (var cpmsRow in cpmsRows)
+                {
+                    var match = (Compute(realmsRow.Title, cpmsRow.Title));
+
+                    if(lowestMatch == -1)
+                    {
+                        lowestMatch = match;
+                    }
+                    else if (match < lowestMatch)
+                    {
+                        lowestMatch = match;
+
+                        matchedCpmsRow = cpmsRow;
+                    }
+                }
+
+                var percentageOfTotal = ((decimal)lowestMatch / (decimal)realmsRow.Title.Length) * 100;
+                if (matchedCpmsRow == null
+                    || percentageOfTotal > 50.00M)
+                {
+                    //Console.WriteLine($"Realms row not matched {realmsRow.NETSCCID}");
+                    continue;
+                }
+
+                matchedResults.Add(new Tuple<RealmsRow, CpmsRow>(realmsRow, matchedCpmsRow));
+                Console.WriteLine($"Realms row matched {realmsRow.NETSCCID} with {matchedCpmsRow.CPMSID} at distance {lowestMatch} length {realmsRow.Title.Length} with percentage {percentageOfTotal}");
+            }
+
+
+            Console.WriteLine($"Of {realmsRows.Count}, {matchedResults.Count} were matched in probability tolerance.");
+        }
+
+        static int Compute(string s, string t)
+        {
+            s = s.ToUpper();
+            t = t.ToUpper();
+            int n = s.Length;
+            int m = t.Length;
+            int[,] d = new int[n + 1, m + 1];
+
+            // Verify arguments.
+            if (n == 0)
+            {
+                return m;
+            }
+
+            if (m == 0)
+            {
+                return n;
+            }
+
+            // Initialize arrays.
+            for (int i = 0; i <= n; d[i, 0] = i++)
+            {
+            }
+
+            for (int j = 0; j <= m; d[0, j] = j++)
+            {
+            }
+
+            // Begin looping.
+            for (int i = 1; i <= n; i++)
+            {
+                for (int j = 1; j <= m; j++)
+                {
+                    // Compute cost.
+                    int cost = (t[j - 1] == s[i - 1]) ? 0 : 1;
+                    d[i, j] = Math.Min(
+                    Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
+                    d[i - 1, j - 1] + cost);
+                }
+            }
+            // Return cost.
+            return d[n, m];
+        }
+
+        private static void V6_LoadAndMatch()
+        {
+            var realmsRows = GetRealmsRows();
+
+            var cpmsRows = GetCPMSRows();
+
+            //var matches = MatchOnCI(cpmsRows, realmsRows); // From 44 to 155
+            var matches = MatchOnCI(cpmsRows, realmsRows); // From 
+
+            Console.WriteLine($"{realmsRows.Count} RealmsRows, {cpmsRows.Count} CPMS rows. {matches.Count} matches.");
+
+            //foreach (var match in matches)
+            //{
+            //    Console.WriteLine($"{match.Item1.IRAS} {match.Item2.IRASID}");
+            //}
+        }
+
+        private static List<Tuple<RealmsRow, CpmsRow>> GetMatches(List<CpmsRow> cpmsRows, List<RealmsRow> realmsRows)
+        {
+            //var matches = from realms in realmsRows
+            //              join cpms in cpmsRows on realms.IRAS equals cpms.IRASID
+            //              select new Tuple<RealmsRow, CpmsRow>(realms, cpms);
+            var matches = from realms in realmsRows
+                          from cpms in cpmsRows
+                          where SanitiseIrasId(cpms.IRASID) == SanitiseIrasId(realms.IRAS)
+                          select new Tuple<RealmsRow, CpmsRow>(realms, cpms);
+
+
+            return matches.ToList();
+        }
+
+        private static List<Tuple<RealmsRow, CpmsRow>> MatchOnCI(List<CpmsRow> cpmsRows, List<RealmsRow> realmsRows)
+        {
+            var matches = from realms in realmsRows
+                          from cpms in cpmsRows
+                          where SanitisePersonName(cpms.CIName).Equals(SanitisePersonName(realms.ChiefInvestigatorFormal), StringComparison.OrdinalIgnoreCase)
+                          select new Tuple<RealmsRow, CpmsRow>(realms, cpms);
+
+
+            return matches.ToList();
+        }
+
+        private static List<Tuple<RealmsRow, CpmsRow>> MatchOnShortTitle(List<CpmsRow> cpmsRows, List<RealmsRow> realmsRows)
+        {
+            var matches = from realms in realmsRows
+                          from cpms in cpmsRows
+                          where cpms.ShortName.Equals(realms.ShortTitle, StringComparison.OrdinalIgnoreCase)
+                          select new Tuple<RealmsRow, CpmsRow>(realms, cpms);
+
+
+            return matches.ToList();
+        }
+
+        private static string SanitisePersonName(string personName)
+        {
+            return personName
+                .Replace("Professor", "", StringComparison.OrdinalIgnoreCase)
+                .Replace("Doctor", "", StringComparison.OrdinalIgnoreCase)
+                .Replace("-", "", StringComparison.OrdinalIgnoreCase)
+                .Replace("Dr", "", StringComparison.OrdinalIgnoreCase)
+                .Trim();
+        }
+
+        private static List<Tuple<RealmsRow, CpmsRow>> MatchOnTitle(List<CpmsRow> cpmsRows, List<RealmsRow> realmsRows)
+        {
+            var matches = from realms in realmsRows
+                          from cpms in cpmsRows
+                          where cpms.Title.Equals(realms.Title, StringComparison.OrdinalIgnoreCase)
+                          select new Tuple<RealmsRow, CpmsRow>(realms, cpms);
+
+
+            return matches.ToList();
+        }
+
+        private static string SanitiseIrasId(string irasId)
+        {
+            return irasId
+                    .Replace("IRAS", "", StringComparison.OrdinalIgnoreCase)
+                    .Replace("Project ID", "", StringComparison.OrdinalIgnoreCase)
+                    .Replace(":", "", StringComparison.OrdinalIgnoreCase);
         }
 
         private static List<RealmsRow> GetRealmsRows()
@@ -132,11 +303,11 @@ namespace RDD_672
             }
         }
 
-        private static void V5()
+        private static void V5_LoadAndInsert()
         {
-            //var realmsRows = GetRealmsRows();
+            var realmsRows = GetRealmsRows();
 
-            //insert(realmsRows);
+            insert(realmsRows);
 
             var cpmsRows = GetCPMSRows();
 
