@@ -13,6 +13,8 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using NIHR.StudyManagement.Infrastructure.MessageBus;
 using Amazon;
+using Hl7.Fhir.Serialization;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace NIHR.StudyManagement.Api;
 
@@ -41,7 +43,17 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddControllers();
+        services.AddControllers().AddJsonOptions(options =>
+        {
+            var savedConverters = options.JsonSerializerOptions.Converters.ToList();
+            options.JsonSerializerOptions.Converters.Clear();
+            options.JsonSerializerOptions.ForFhir(Hl7.Fhir.Model.ModelInfo.ModelInspector);
+
+            foreach (var savedConverter in savedConverters)
+            {
+                options.JsonSerializerOptions.Converters.Add(savedConverter);
+            }
+        });
 
         _logger.LogInformation("Configuring services..");
 
@@ -100,12 +112,17 @@ public class Startup
 
             swagger.IncludeXmlComments(xmlPath);
             swagger.UseAllOfToExtendReferenceSchemas();
+
+            swagger.ExampleFilters();
         });
+
+        services.AddSwaggerExamplesFromAssemblyOf<Startup>();
 
         services.AddTransient<IStudyRegistryRepository, StudyRegistryRepository>();
         services.AddTransient<IGovernmentResearchIdentifierService, GovernmentResearchIdentifierService>();
         services.AddTransient<IGovernmentResearchIdentifierDtoMapper, GovernmentResearchIdentifierDtoMapper>();
         services.AddTransient<IStudyEventMessagePublisher, StudyManagementKafkaMessageProducer>();
+        services.AddTransient<IFhirMapper, FhirMapper>();
         services.AddDbContext<StudyRegistryContext>(options =>
         {
             // For local development, username/password included in connection string.
