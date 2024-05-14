@@ -104,7 +104,7 @@ public class Startup
         services.AddSwaggerGen(swagger => {
             swagger.SwaggerDoc("v1", new OpenApiInfo() {
                 Title = "Study Management API spec.",
-                Version = "1.1"
+                Version = "1.2"
             });
 
             var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";

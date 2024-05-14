@@ -1,4 +1,5 @@
 ﻿using Hl7.Fhir.Model;
+using NIHR.StudyManagement.Infrastructure.Repository.EnumsAndConstants;
 using Swashbuckle.AspNetCore.Filters;
 
 namespace NIHR.StudyManagement.Api.Documentation
@@ -9,7 +10,9 @@ namespace NIHR.StudyManagement.Api.Documentation
         {
             var bundle = new Bundle
             {
-                Type = Bundle.BundleType.Batch
+                Type = Bundle.BundleType.Batch,
+                Id = Guid.NewGuid().ToString(),
+                Timestamp = DateTime.UtcNow,
             };
 
             bundle.Entry = new List<Bundle.EntryComponent>();
@@ -21,13 +24,7 @@ namespace NIHR.StudyManagement.Api.Documentation
                 Label = new List<ResearchStudy.LabelComponent> {
                     new ResearchStudy.LabelComponent
                     {
-                         Value = "Investigating the Role of Genetics in Autoimmune Diseases",
-                         //Type = new CodeableConcept()
-                         //{
-                         //    Coding = new List<Coding> { new Coding() {
-                         //        Display = "Investigating the Role of Genetics in Autoimmune Diseases"
-                         //    } }
-                         //}
+                         Value = "Investigating the Role of Genetics in Autoimmune Diseases"
                     }
                 },
                 Status = PublicationStatus.Active
@@ -40,14 +37,7 @@ namespace NIHR.StudyManagement.Api.Documentation
                 Use = Identifier.IdentifierUse.Usual,
                 Type = new CodeableConcept()
                 {
-                    //Coding = new List<Coding>
-                    //{
-                    //    new Coding()
-                    //    {
-                    //        Display = "Protocol ID"
-                    //    }
-                    //},
-                    Text = "Protocol ID"
+                    Text = ResearchInitiativeIdentifierTypes.Protocol
                 },
                 Value = "STU2024OLS"
             });
@@ -58,14 +48,7 @@ namespace NIHR.StudyManagement.Api.Documentation
                 Use = Identifier.IdentifierUse.Usual,
                 Type = new CodeableConcept()
                 {
-                    //Coding = new List<Coding>
-                    //{
-                    //    new Coding()
-                    //    {
-                    //        Display = "EDGE ID"
-                    //    }
-                    //},
-                    Text = "EDGE ID"
+                    Text = ResearchInitiativeIdentifierTypes.Project
                 },
                 Value = "PRJ2024OLS"
             });
@@ -74,12 +57,6 @@ namespace NIHR.StudyManagement.Api.Documentation
             var practitioner = new Practitioner()
             {
                 Id = "practitioner-1",
-                //Identifier = new List<Identifier> {
-                //    new Identifier {
-                //        Use = Identifier.IdentifierUse.Official,
-                //        Value = "practitioner-1"
-                //    }
-                //},
                 Name = new List<HumanName>
                 {
                     new HumanName
@@ -104,12 +81,6 @@ namespace NIHR.StudyManagement.Api.Documentation
             var organization = new Organization
             {
                 Id = "organization-1",
-                //Identifier = new List<Identifier> {
-                //    new Identifier{
-                //        Use = Identifier.IdentifierUse.Official,
-                //        Value = "Fake organization"
-                //    }
-                //},
                 Active = true,
                 Type = new List<CodeableConcept>(),
                 Name = "Fake Organization name"
@@ -121,7 +92,6 @@ namespace NIHR.StudyManagement.Api.Documentation
             var practitionerRole = new PractitionerRole()
             {
                 Id = "practitionerRole-1",
-                //Identifier = new List<Identifier> { new Identifier { Value = "practitionerRole_1" } },
                 Practitioner = new ResourceReference() { Reference = $"#{practitioner.Id}" },
                 Organization = new ResourceReference() { Reference = $"#{organization.Id}" },
                 Code = new List<CodeableConcept> {
@@ -129,9 +99,7 @@ namespace NIHR.StudyManagement.Api.Documentation
                         Coding = new List<Coding>{
 
                             new Coding{
-                                //System = "RTS url",
-                                //Code = "CHF_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5",
-                                Display = "CHIEF INVESTIGATOR"
+                                Display = PersonRoles.ChiefInvestigator
                             }
                         }
                     }
@@ -148,9 +116,7 @@ namespace NIHR.StudyManagement.Api.Documentation
                         Coding = new List<Coding>{
 
                             new Coding{
-                                //System = "RTS url",
-                                //Code = "CHF_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5",
-                                Display = "CHIEF INVESTIGATOR"
+                                Display = PersonRoles.ChiefInvestigator
                             }
                         }
                     }

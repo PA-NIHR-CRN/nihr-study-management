@@ -91,6 +91,7 @@ namespace NIHR.StudyManagement.Domain.Services
                 ChiefInvestigator = request.ChiefInvestigator,
                 ProjectId = request.ProjectId,
                 Identifier = identifier,
+                Identifiers = request.Identifiers,
                 Sponsor = request.Sponsor,
                 ShortTitle = request.ShortTitle,
                 LocalSystemName = _settings.DefaultLocalSystemName,

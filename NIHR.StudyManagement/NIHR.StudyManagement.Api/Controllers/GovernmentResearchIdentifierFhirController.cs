@@ -53,9 +53,9 @@ namespace NIHR.StudyManagement.Api.Controllers
 
             var identifier = await _governmentResearchIdentifierService.RegisterStudyAsync(createIdentifierRequest, cancellationToken);
 
-            var responseDto = _dtoMapper.Map(identifier);
+            var responseDto = _fhirMapper.MapToResearchStudyBundle(identifier);
 
-            return CreatedAtAction(nameof(GetIdentifierAsync), new { identifier = responseDto.Gri }, responseDto);
+            return CreatedAtAction(nameof(GetIdentifierAsync), new { identifier = identifier.Identifier}, responseDto);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace NIHR.StudyManagement.Api.Controllers
             {
                 var getIdentifierResponse = await _governmentResearchIdentifierService.GetAsync(identifier);
 
-                var identifierResponse = _dtoMapper.Map(getIdentifierResponse);
+                var identifierResponse = _fhirMapper.MapToResearchStudyBundle(getIdentifierResponse);
 
                 return Ok(identifierResponse);
             }
