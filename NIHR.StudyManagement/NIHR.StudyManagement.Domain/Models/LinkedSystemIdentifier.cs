@@ -9,12 +9,15 @@
 
         public string StatusCode { get; set; }
 
+        public string IdentifierType { get; set; }
+
         public LinkedSystemIdentifier()
         {
             Identifier = "";
             SystemName = "";
             CreatedAt = DateTime.Now;
             StatusCode = "";
+            IdentifierType = "";
         }
     }
 }

@@ -10,5 +10,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.EnumsAndConstants
     {
         public const string Project = "PROJECT";
         public const string Protocol = "PROTOCOL";
+        public const string Bundle = "BUNDLE";
+        public const string GrisId = "GRIS ID";
     }
 }

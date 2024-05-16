@@ -300,7 +300,8 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
 
                 entity.HasData(
                     new ResearchInitiativeIdentifierType { Id = 1, Description = EnumsAndConstants.ResearchInitiativeIdentifierTypes.Project },
-                    new ResearchInitiativeIdentifierType { Id = 2, Description = EnumsAndConstants.ResearchInitiativeIdentifierTypes.Protocol }
+                    new ResearchInitiativeIdentifierType { Id = 2, Description = EnumsAndConstants.ResearchInitiativeIdentifierTypes.Protocol },
+                    new ResearchInitiativeIdentifierType { Id = 3, Description = EnumsAndConstants.ResearchInitiativeIdentifierTypes.Bundle }
                     );
             });
 

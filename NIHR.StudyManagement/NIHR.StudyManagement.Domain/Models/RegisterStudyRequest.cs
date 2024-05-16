@@ -15,6 +15,8 @@
 
         public string StatusCode { get; set; }
 
+        public List<ResearchInitiativeIdentifierItem> Identifiers { get; set; }
+
         public RegisterStudyRequest()
         {
             ProjectId = "";
@@ -23,6 +25,25 @@
             Sponsor = "";
             ProtocolId = "";
             StatusCode = "";
+            Identifiers = new List<ResearchInitiativeIdentifierItem>();
         }
     }
+
+    public class ResearchInitiativeIdentifierItem
+    {
+        public string Value { get; set; }
+
+        public string Type { get; set; }
+
+        public DateTime Created { get; set; }
+
+        public ResearchInitiativeIdentifierItem()
+        {
+            Value = "";
+            Type = "";
+            Created = DateTime.Now;
+        }
+    }
+
+
 }

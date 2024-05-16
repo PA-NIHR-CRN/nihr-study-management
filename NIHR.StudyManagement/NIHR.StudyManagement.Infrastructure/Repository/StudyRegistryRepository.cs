@@ -31,17 +31,18 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
 
             var studyType = await GetResearchInitiativeTypeAsync(ResearchInitiativeTypes.Study, cancellationToken) ?? throw new EntityNotFoundException(nameof(ResearchInitiativeType));
 
-            var sourceSystem = await GetSourceSystemAsync(SourceSystemNames.Edge, cancellationToken) ?? throw new EntityNotFoundException(nameof(SourceSystem));
+            var edgeSystem = await GetSourceSystemAsync(SourceSystemNames.Edge, cancellationToken) ?? throw new EntityNotFoundException(nameof(SourceSystem));
 
             var personTypeResearcher = await _context.PersonTypes.FirstOrDefaultAsync(x => x.Description == PersonTypes.Researcher, cancellationToken) ?? throw new EntityNotFoundException(nameof(PersonType));
 
             var personRoleCI = await _context.PersonRoles.FirstOrDefaultAsync(x => x.Type == PersonRoles.ChiefInvestigator, cancellationToken) ?? throw new EntityNotFoundException(nameof(PersonRole));
 
-            var projectResearchInitiativeIdentifierType = await _context.ResearchInitiativeIdentifierTypes
-                .FirstOrDefaultAsync(x => x.Description == ResearchInitiativeIdentifierTypes.Project) ?? throw new EntityNotFoundException(nameof(ResearchInitiativeIdentifierType));
+            var researchInitiativeIdentifierTypes = new Dictionary<string, ResearchInitiativeIdentifierType>();
 
-            var protocolResearchInitiativeIdentifierType = await _context.ResearchInitiativeIdentifierTypes
-                .FirstOrDefaultAsync(x => x.Description == ResearchInitiativeIdentifierTypes.Protocol) ?? throw new EntityNotFoundException(nameof(ResearchInitiativeIdentifierType));
+            foreach (var x in _context.ResearchInitiativeIdentifierTypes.Select(x => x))
+            {
+                researchInitiativeIdentifierTypes[x.Description] = x;
+            }
 
             var researchInitiative = new ResearchInitiative
             {
@@ -53,39 +54,44 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                 ResearchInitiative = researchInitiative,
                 ShortTitle = request.ShortTitle,
                 Gri = request.Identifier ?? "",
-                RequestSourceSystem = sourceSystem
+                RequestSourceSystem = edgeSystem
             };
 
-            var griMapping = new GriMapping
-            {
-                 GriResearchStudy = researchStudy,
-                 ResearchInitiativeIdentifier = new ResearchInitiativeIdentifier
-                 {
-                     SourceSystem = sourceSystem,
-                     Value = request.ProjectId,
-                     ResearchInitiativeIdentifierType = projectResearchInitiativeIdentifierType
-                 },
-                 SourceSystem = sourceSystem
-            };
+            GriMapping mainGriMappingForStatus = null;
 
-            var griMappingForProtocol = new GriMapping
+            foreach (var identifier in request.Identifiers)
             {
-                GriResearchStudy = researchStudy,
-                ResearchInitiativeIdentifier = new ResearchInitiativeIdentifier
+                var griMapping = new GriMapping
                 {
-                    SourceSystem = sourceSystem,
-                    Value = request.ProtocolId,
-                    ResearchInitiativeIdentifierType = protocolResearchInitiativeIdentifierType
-                },
-                SourceSystem = sourceSystem
-            };
+                    GriResearchStudy = researchStudy,
+                    ResearchInitiativeIdentifier = new ResearchInitiativeIdentifier
+                    {
+                        SourceSystem = edgeSystem,
+                        Value = identifier.Value,
+                        ResearchInitiativeIdentifierType = researchInitiativeIdentifierTypes[identifier.Type]
+                    },
+                    SourceSystem = edgeSystem
+                };
 
-            var griResearchStudyStatus = new GriResearchStudyStatus
+                await _context.AddAsync(griMapping, cancellationToken);
+
+                if (identifier.Type == ResearchInitiativeIdentifierTypes.Project)
+                {
+                    mainGriMappingForStatus = griMapping;
+                }
+            }
+
+            if(mainGriMappingForStatus != null)
             {
-                Code = request.StatusCode,
-                GriMapping = griMapping,
-                FromDate = DateTime.Now
-            };
+                var griResearchStudyStatus = new GriResearchStudyStatus
+                {
+                    Code = request.StatusCode,
+                    GriMapping = mainGriMappingForStatus,
+                    FromDate = DateTime.Now
+                };
+
+                await _context.AddAsync(griResearchStudyStatus, cancellationToken);
+            }
 
             var chiefInvestigator = await GetPersonAsync(request.ChiefInvestigator, cancellationToken) ?? new PersonDb
             {
@@ -107,11 +113,6 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                 PersonRole = personRoleCI
             };
 
-            await _context.AddAsync(griMappingForProtocol, cancellationToken);
-
-            await _context.AddAsync(griMapping, cancellationToken);
-
-            await _context.AddAsync(griResearchStudyStatus, cancellationToken);
 
             await _context.AddAsync(teamMember, cancellationToken);
 
@@ -209,6 +210,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     CreatedAt = x.Created,
                     SystemName = x.SourceSystem.Description,
                     Identifier = x.ResearchInitiativeIdentifier.Value,
+                    IdentifierType = x.ResearchInitiativeIdentifier.ResearchInitiativeIdentifierType.Description,
                     StatusCode = x.GriResearchStudyStatuses.FirstOrDefault(status => !status.ToDate.HasValue)?.Code ?? ""
                 });
             }
@@ -267,6 +269,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                  .Include(context => context.ResearchStudyTeamMembers).ThenInclude(x => x.PersonRole)
                  .Include(study => study.GriMappings).ThenInclude(mapping => mapping.SourceSystem)
                  .Include(study => study.GriMappings).ThenInclude(mapping => mapping.ResearchInitiativeIdentifier)
+                    .ThenInclude(x => x.ResearchInitiativeIdentifierType)
                  .Include(study => study.GriMappings).ThenInclude(mapping => mapping.GriResearchStudyStatuses)
                 .FirstOrDefaultAsync(x => x.Gri == identifier, cancellationToken);
 
