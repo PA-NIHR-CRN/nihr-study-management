@@ -1,19 +1,12 @@
 ﻿using Hl7.Fhir.Model;
-using Hl7.Fhir.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
+using NIHR.StudyManagement.Api.Documentation;
 using NIHR.StudyManagement.Api.Mappers;
 using NIHR.StudyManagement.Api.Models.Dto;
 using NIHR.StudyManagement.Domain.Abstractions;
 using NIHR.StudyManagement.Domain.Exceptions;
 using Swashbuckle.AspNetCore.Filters;
-using static System.Net.Mime.MediaTypeNames;
-using System.Reflection.Emit;
-using System.Runtime.Intrinsics.X86;
-using System.Xml.Linq;
-using System;
-using NIHR.StudyManagement.Api.Documentation;
 
 namespace NIHR.StudyManagement.Api.Controllers
 {
@@ -22,7 +15,7 @@ namespace NIHR.StudyManagement.Api.Controllers
     /// and it's associated records e.g. IRAS or LPMS records.
     /// </summary>
 
-    //[Authorize]
+    [Authorize]
     [Route("api/identifier/fhir")]
     public class GovernmentResearchIdentifierFhirController : ApiControllerBase
     {
