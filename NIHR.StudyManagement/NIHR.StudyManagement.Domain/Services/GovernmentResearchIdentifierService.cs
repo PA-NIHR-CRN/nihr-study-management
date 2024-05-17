@@ -2,6 +2,7 @@
 using NIHR.StudyManagement.Domain.Abstractions;
 using NIHR.StudyManagement.Domain.Configuration;
 using NIHR.StudyManagement.Domain.Constants;
+using NIHR.StudyManagement.Domain.EnumsAndConstants;
 using NIHR.StudyManagement.Domain.Exceptions;
 using NIHR.StudyManagement.Domain.Models;
 using System.Security.Cryptography;
@@ -66,20 +67,45 @@ namespace NIHR.StudyManagement.Domain.Services
 
             var domainRequest = new AddStudyToExistingIdentifierRequestWithContext
             {
-                ChiefInvestigator = request.ChiefInvestigator,
-                ProjectId = request.ProjectId,
-                Identifier = request.Identifier,
-                Sponsor = request.Sponsor,
-                ShortTitle = request.ShortTitle,
-                LocalSystemName = _settings.DefaultLocalSystemName,
-                RoleName = _settings.DefaultRoleName,
-                ProtocolId = request.ProtocolId,
-                StatusCode = request.StatusCode
+                RequestContext = request
             };
+
+            // Create a list of identifiers to add
+            foreach (var requestLinkedIdentifier in request.Identifiers)
+            {
+                if(requestLinkedIdentifier.Type == ResearchInitiativeIdentifierTypes.Bundle
+                    || requestLinkedIdentifier.Type == ResearchInitiativeIdentifierTypes.GrisId)
+                {
+                    continue;
+                }
+
+                // Check against existing identifiers
+                var isNewIdentifier = true;
+
+                foreach (var existingLinkedIdentifier in existingIdentifier.LinkedSystemIdentifiers)
+                {
+                    if(existingLinkedIdentifier.IdentifierType.Equals(requestLinkedIdentifier.Type, StringComparison.Ordinal)
+                        && existingLinkedIdentifier.Identifier.Equals(requestLinkedIdentifier.Value, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isNewIdentifier = false;
+                        break;
+                    }
+                }
+
+                if(isNewIdentifier)
+                {
+                    domainRequest.LinkedSystemIdentifiersToAdd.Add(new LinkedSystemIdentifier {
+                        CreatedAt = DateTime.Now,
+                        Identifier = requestLinkedIdentifier.Value,
+                        IdentifierType = requestLinkedIdentifier.Type,
+                        SystemName = request.ApiSystemName
+                    });
+                }
+            }
 
             var researchStudy = await _governmentResearchIdentifierRepository.AddStudyToIdentifierAsync(domainRequest, cancellationToken);
 
-            await _messagePublisher.PublishAsync(GrisNsipEventTypes.StudyRegistered, _settings.DefaultLocalSystemName, researchStudy, cancellationToken);
+            await _messagePublisher.PublishAsync(GrisNsipEventTypes.StudyRegistered, request.ApiSystemName, researchStudy, cancellationToken);
 
             return researchStudy;
         }
@@ -89,12 +115,12 @@ namespace NIHR.StudyManagement.Domain.Services
             return new RegisterStudyRequestWithContext
             {
                 ChiefInvestigator = request.ChiefInvestigator,
+                ApiSystemName = request.ApiSystemName,
                 ProjectId = request.ProjectId,
                 Identifier = identifier,
                 Identifiers = request.Identifiers,
                 Sponsor = request.Sponsor,
                 ShortTitle = request.ShortTitle,
-                LocalSystemName = _settings.DefaultLocalSystemName,
                 RoleName = _settings.DefaultRoleName,
                 ProtocolId = request.ProtocolId,
                 StatusCode = request.StatusCode
@@ -111,7 +137,7 @@ namespace NIHR.StudyManagement.Domain.Services
 
             var researchStudy = await _governmentResearchIdentifierRepository.CreateAsync(domainRequest, cancellationToken);
 
-            await _messagePublisher.PublishAsync(GrisNsipEventTypes.StudyRegistered, _settings.DefaultLocalSystemName, researchStudy, cancellationToken);
+            await _messagePublisher.PublishAsync(GrisNsipEventTypes.StudyRegistered, request.ApiSystemName, researchStudy, cancellationToken);
 
             return researchStudy;
         }

@@ -1,12 +1,19 @@
 ﻿using Hl7.Fhir.Model;
+using Hl7.Fhir.Support;
+using NIHR.StudyManagement.Api.ExtensionMethods;
+using NIHR.StudyManagement.Api.Models;
+using NIHR.StudyManagement.Domain.EnumsAndConstants;
 using NIHR.StudyManagement.Domain.Models;
 using NIHR.StudyManagement.Infrastructure.Repository.EnumsAndConstants;
 
 namespace NIHR.StudyManagement.Api.Mappers
 {
+
     public class FhirMapper : IFhirMapper
     {
-        public RegisterStudyRequest MapCreateRequestBundle(Bundle bundle)
+        public RegisterStudyRequest MapCreateRequestBundle(Bundle bundle,
+            string apiSystemName,
+            string identifier)
         {
             if(bundle == null)
             {
@@ -21,26 +28,49 @@ namespace NIHR.StudyManagement.Api.Mappers
 
             if (researchStudy == null) { throw new ArgumentException("Could not map bundle."); }
 
-            var registerStudyRequest = new RegisterStudyRequest
+            var identifiers = GetIdentifiers(bundle, researchStudy);
+
+            var grisIdentifier = "";
+
+            foreach (var linkedIdentifier in identifiers)
             {
-                ShortTitle = researchStudy.Label?.First()?.Value ?? "",
-                ProjectId = GetProjectId(researchStudy),
-                ProtocolId = GetProtocolId(researchStudy),
-                StatusCode = researchStudy.Status.HasValue
+                if(linkedIdentifier.Type == ResearchInitiativeIdentifierTypes.GrisId)
+                {
+                    grisIdentifier = linkedIdentifier.Value;
+
+                    if(grisIdentifier != identifier)
+                    {
+                        throw new ArgumentException($"Identifier '{grisIdentifier}' does not match the identifier '{identifier}' specified in the route.");
+                    }
+                    break;
+                }
+            }
+
+            var registerStudyRequest = string.IsNullOrEmpty(grisIdentifier)
+                ? new RegisterStudyRequest()
+                : new RegisterStudyToExistingIdentifierRequest() { Identifier = grisIdentifier };
+
+            registerStudyRequest.ShortTitle = researchStudy.Label?.First()?.Value ?? "";
+            registerStudyRequest.ApiSystemName = apiSystemName;
+            registerStudyRequest.ProjectId = GetProjectId(researchStudy);
+            registerStudyRequest.ProtocolId = GetProtocolId(researchStudy);
+            registerStudyRequest.Identifiers = identifiers;
+            registerStudyRequest.StatusCode = researchStudy.Status.HasValue
                             ? researchStudy.Status.Value.ToString()
-                            : "",
-                Identifiers = GetIdentifiers(bundle, researchStudy),
-                ChiefInvestigator = GetChiefInvestigator(bundle)
-            };
+                            : "";
+
+            registerStudyRequest.ChiefInvestigator = GetChiefInvestigator(bundle);
 
             return registerStudyRequest;
         }
 
-        public Bundle MapToResearchStudyBundle(GovernmentResearchIdentifier x)
+        public Bundle MapToResearchStudyBundle(GovernmentResearchIdentifier x, HttpRequestResponseFhirContext httpRequestResponseFhirContext)
         {
             var bundle = new Bundle
             {
-                Type = Bundle.BundleType.Document
+                Id = Guid.NewGuid().ToString(),
+                Type = Bundle.BundleType.Searchset,
+                Timestamp = DateTime.Now
             };
 
             bundle.Entry = new List<Bundle.EntryComponent>();
@@ -52,7 +82,10 @@ namespace NIHR.StudyManagement.Api.Mappers
                 Label = new List<ResearchStudy.LabelComponent> {
                     new ResearchStudy.LabelComponent
                     {
-                         Value = x.ShortTitle
+                         Value = x.ShortTitle,
+                         Type = new CodeableConcept{
+                             Text = FhirResourceAttributeDescriptions.LabelShortTitle
+                         }
                     }
                 },
                 Status = PublicationStatus.Active
@@ -61,11 +94,25 @@ namespace NIHR.StudyManagement.Api.Mappers
 
             study.Identifier.AddRange(GetLinkedIdentifiers(x));
 
-            var firstPractitioner = AddTeamMembers(x, bundle);
+            // Add the GRIS ID as an identifier in the response
+            study.Identifier.Add(new Identifier
+            {
+                Use = Identifier.IdentifierUse.Official,
+                Type = new CodeableConcept()
+                {
+                    Text = ResearchInitiativeIdentifierTypes.GrisId
+                },
+                Value = x.Identifier,
+                Period = new Period {
+                    Start = x.Created.ToFhirDate()
+                }
+            });
+
+            var firstPractitioner = AddTeamMembers(x, bundle, httpRequestResponseFhirContext);
 
             var practitionerRole = GetPractitionerRole(x, firstPractitioner?.Id ?? "");
 
-            bundle.Entry.Add(new Bundle.EntryComponent() { Resource = practitionerRole });
+            bundle.AddNewEntryComponent(practitionerRole, httpRequestResponseFhirContext);
 
             study.AssociatedParty = new List<ResearchStudy.AssociatedPartyComponent> {
                 new ResearchStudy.AssociatedPartyComponent{
@@ -82,7 +129,7 @@ namespace NIHR.StudyManagement.Api.Mappers
                 }
             };
 
-            bundle.Entry.Add(new Bundle.EntryComponent() { Resource = study });
+            bundle.AddNewEntryComponent(study, httpRequestResponseFhirContext);
 
             return bundle;
         }
@@ -107,7 +154,8 @@ namespace NIHR.StudyManagement.Api.Mappers
             return identifiers;
         }
 
-        private static Practitioner? AddTeamMembers(GovernmentResearchIdentifier x, Bundle bundle)
+        private static Practitioner? AddTeamMembers(GovernmentResearchIdentifier x, Bundle bundle,
+            HttpRequestResponseFhirContext httpRequestResponseFhirContext)
         {
             Practitioner firstPractitioner = null;
 
@@ -136,7 +184,7 @@ namespace NIHR.StudyManagement.Api.Mappers
                     }
                 };
 
-                bundle.Entry.Add(new Bundle.EntryComponent() { Resource = practitioner });
+                bundle.AddNewEntryComponent(practitioner, httpRequestResponseFhirContext);
 
                 firstPractitioner = practitioner;
             }
@@ -181,7 +229,11 @@ namespace NIHR.StudyManagement.Api.Mappers
                     {
                         Text = y.IdentifierType
                     },
-                    Value = y.Identifier
+                    Value = y.Identifier,
+                    System = y.SystemName,
+                    Period = new Period {
+                        Start = y.CreatedAt.ToFhirDate(),
+                    }
                 };
             }
         }

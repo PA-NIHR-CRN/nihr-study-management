@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NIHR.StudyManagement.Infrastructure.Repository.EnumsAndConstants
+namespace NIHR.StudyManagement.Domain.EnumsAndConstants
 {
     public class ResearchInitiativeIdentifierTypes
     {
