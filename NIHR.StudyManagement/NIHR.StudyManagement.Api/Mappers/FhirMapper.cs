@@ -1,11 +1,32 @@
 ﻿using Hl7.Fhir.Model;
+using Hl7.Fhir.Serialization;
+using NIHR.StudyManagement.Domain.Abstractions;
 using NIHR.StudyManagement.Domain.Models;
 using NIHR.StudyManagement.Infrastructure.Repository.EnumsAndConstants;
+using System.Text.Json;
 
 namespace NIHR.StudyManagement.Api.Mappers
 {
     public class FhirMapper : IFhirMapper
     {
+        private readonly JsonSerializerOptions _jsonSerializerOptions;
+
+        public FhirMapper(JsonSerializerOptions jsonSerializerOptions)
+        {
+            this._jsonSerializerOptions = jsonSerializerOptions;
+        }
+
+        public string MapToResearchStudyBundleAsJson(GovernmentResearchIdentifier governmentResearchIdentifier)
+        {
+            // Map to bundle object
+            var bundle = MapToResearchStudyBundle(governmentResearchIdentifier);
+
+            // Serialize the bundle using FHIR serialization options.
+            var bundleJson = JsonSerializer.Serialize(bundle, _jsonSerializerOptions);
+
+            return bundleJson;
+        }
+
         public RegisterStudyRequest MapCreateRequestBundle(Bundle bundle)
         {
             if(bundle == null)

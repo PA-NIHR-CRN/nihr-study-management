@@ -3,7 +3,7 @@ using Amazon.SecretsManager;
 using Amazon;
 using Amazon.SecretsManager.Model;
 
-namespace NIHR.StudyManagement.Api.Configuration;
+namespace NIHR.StudyManagement.Infrastructure.AWS;
 
 public class AwsSecretsManagerClient
 {

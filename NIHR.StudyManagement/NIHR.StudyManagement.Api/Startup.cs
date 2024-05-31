@@ -1,20 +1,21 @@
+using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using NIHR.StudyManagement.Api.Configuration;
 using NIHR.StudyManagement.Api.Mappers;
 using NIHR.StudyManagement.Domain.Abstractions;
 using NIHR.StudyManagement.Domain.Configuration;
 using NIHR.StudyManagement.Domain.Services;
-using NIHR.StudyManagement.Infrastructure.Repository;
-using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
-using System.Reflection;
+using NIHR.StudyManagement.Infrastructure;
 using NIHR.StudyManagement.Infrastructure.MessageBus;
-using Amazon;
-using Hl7.Fhir.Serialization;
+using NIHR.StudyManagement.Infrastructure.Repository;
 using Swashbuckle.AspNetCore.Filters;
+using System.Reflection;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace NIHR.StudyManagement.Api;
 
@@ -118,11 +119,20 @@ public class Startup
 
         services.AddSwaggerExamplesFromAssemblyOf<Startup>();
 
-        services.AddTransient<IStudyRegistryRepository, StudyRegistryRepository>();
+        // As per firely documentation, register the JsonSerializerOptions as a singleton to mitigate performance issues.
+        services.AddSingleton<JsonSerializerOptions>(x => new JsonSerializerOptions().ForFhir(Hl7.Fhir.Model.ModelInfo.ModelInspector));
+
+        services.AddScoped<IStudyRegistryRepository, StudyRegistryRepository>();
+        services.AddScoped<IStudyRecordOutboxRepository, StudyRecordOutboxRepository>();
+        services.AddScoped<INsipGrisMessageHelper, StudyManagementKafkaMessageProducer>();
+        services.AddScoped<IOutboxProcessor, StudyRecordOutboxProcessor>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         services.AddTransient<IGovernmentResearchIdentifierService, GovernmentResearchIdentifierService>();
         services.AddTransient<IGovernmentResearchIdentifierDtoMapper, GovernmentResearchIdentifierDtoMapper>();
         services.AddTransient<IStudyEventMessagePublisher, StudyManagementKafkaMessageProducer>();
         services.AddTransient<IFhirMapper, FhirMapper>();
+
         services.AddDbContext<StudyRegistryContext>(options =>
         {
             // For local development, username/password included in connection string.
@@ -132,7 +142,7 @@ public class Startup
             if (!string.IsNullOrEmpty(studyManagementApiSettings.Data.PasswordSecretName))
             {
                 // Retrieve password from AWS Secrets.
-                var password = GetAwsSecretPassword(studyManagementApiSettings.Data.PasswordSecretName);
+                var password = SharedApplicationnStartup.GetAwsSecretPassword(studyManagementApiSettings.Data.PasswordSecretName);
 
                 connectionString = $"{studyManagementApiSettings.Data.ConnectionString};password={password}";
             }
@@ -237,19 +247,5 @@ public class Startup
                 return Task.CompletedTask;
             }
         };
-    }
-
-    private string GetAwsSecretPassword(string secretName)
-    {
-        var secretManager = new AwsSecretsManagerClient(RegionEndpoint.EUWest2, secretName);
-
-        var data = secretManager.Load();
-
-        if (data.ContainsKey("password"))
-        {
-            return data["password"];
-        }
-
-        return string.Empty;
     }
 }

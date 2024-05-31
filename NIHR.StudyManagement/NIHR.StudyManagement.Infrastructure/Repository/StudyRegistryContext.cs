@@ -21,6 +21,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
         public virtual DbSet<GriMapping> GriMappings { get; set; } = null!;
         public virtual DbSet<GriResearchStudy> GriResearchStudies { get; set; } = null!;
         public virtual DbSet<Person> People { get; set; } = null!;
+        public virtual DbSet<StudyRecordOutboxEntity> StudyRecordOutboxEntries { get; set; } = null!;
         public virtual DbSet<PersonName> PersonNames { get; set; } = null!;
         public virtual DbSet<PersonRole> PersonRoles { get; set; } = null!;
         public virtual DbSet<PersonType> PersonTypes { get; set; } = null!;
@@ -402,6 +403,29 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     new SourceSystem { Id = 1, Code = SourceSystemNames.Edge, Description = "Edge system" },
                     new SourceSystem { Id = 2, Code = SourceSystemNames.Iras, Description = "IRAS system" }
                     );
+            });
+
+            modelBuilder.Entity<StudyRecordOutboxEntity>(entity =>
+            {
+                entity.ToTable("studyrecordoutboxentry");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Created).HasColumnName("created");
+
+                entity.Property(e => e.EventType).HasColumnName("eventtype");
+
+                entity.Property(e => e.SourceSystem).HasColumnName("sourcesystem");
+
+                entity.Property(e => e.ProcessingStartDate).HasColumnName("processingStartDate").IsRequired(false);
+
+                entity.Property(e => e.ProcessingCompletedDate).HasColumnName("processingCompletedDate").IsRequired(false);
+
+                entity.Property(e => e.Status).HasColumnName("status");
+
+                entity.Property(e => e.Payload)
+                    .HasColumnType("json")
+                    .HasColumnName("payload");
             });
 
             OnModelCreatingPartial(modelBuilder);

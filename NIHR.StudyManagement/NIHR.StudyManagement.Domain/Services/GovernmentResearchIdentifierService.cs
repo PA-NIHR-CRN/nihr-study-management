@@ -10,18 +10,20 @@ namespace NIHR.StudyManagement.Domain.Services
 {
     public class GovernmentResearchIdentifierService : IGovernmentResearchIdentifierService
     {
-        private readonly IStudyRegistryRepository _governmentResearchIdentifierRepository;
-        private readonly IStudyEventMessagePublisher _messagePublisher;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IFhirMapper _fhirMapper;
 
         private readonly StudyManagementSettings _settings;
 
         public GovernmentResearchIdentifierService(IStudyRegistryRepository governmentResearchIdentifierRepository,
             IOptions<StudyManagementSettings> settings,
-            IStudyEventMessagePublisher messagePublisher)
+            IStudyEventMessagePublisher messagePublisher,
+            IUnitOfWork unitOfWork,
+            IFhirMapper fhirMapper)
         {
-            this._governmentResearchIdentifierRepository = governmentResearchIdentifierRepository;
             this._settings = settings.Value;
-            this._messagePublisher = messagePublisher;
+            this._unitOfWork = unitOfWork;
+            this._fhirMapper = fhirMapper;
 
             if (string.IsNullOrEmpty(this._settings.DefaultRoleName)) throw new ArgumentNullException(nameof(_settings.DefaultRoleName));
 
@@ -77,9 +79,19 @@ namespace NIHR.StudyManagement.Domain.Services
                 StatusCode = request.StatusCode
             };
 
-            var researchStudy = await _governmentResearchIdentifierRepository.AddStudyToIdentifierAsync(domainRequest, cancellationToken);
+            var researchStudy = await _unitOfWork.StudyRegistryRepository.AddStudyToIdentifierAsync(domainRequest, cancellationToken);
 
-            await _messagePublisher.PublishAsync(GrisNsipEventTypes.StudyRegistered, _settings.DefaultLocalSystemName, researchStudy, cancellationToken);
+            var bundleJson = _fhirMapper.MapToResearchStudyBundleAsJson(researchStudy);
+
+            await _unitOfWork.StudyRecordOutboxRepository.AddToOutboxAsync(new AddToOuxboxRequest
+            {
+                Payload = bundleJson,
+                EventType = GrisNsipEventTypes.StudyRegistered,
+                SourceSystem = domainRequest.LocalSystemName
+            },
+            cancellationToken);
+
+            await _unitOfWork.CommitAsync();
 
             return researchStudy;
         }
@@ -109,16 +121,24 @@ namespace NIHR.StudyManagement.Domain.Services
 
             var domainRequest =  Map(request, gri);
 
-            var researchStudy = await _governmentResearchIdentifierRepository.CreateAsync(domainRequest, cancellationToken);
+            var researchStudy = await _unitOfWork.StudyRegistryRepository.CreateAsync(domainRequest, cancellationToken);
 
-            await _messagePublisher.PublishAsync(GrisNsipEventTypes.StudyRegistered, _settings.DefaultLocalSystemName, researchStudy, cancellationToken);
+            var bundleJson = _fhirMapper.MapToResearchStudyBundleAsJson(researchStudy);
+
+            await _unitOfWork.StudyRecordOutboxRepository.AddToOutboxAsync(new AddToOuxboxRequest {
+                EventType = GrisNsipEventTypes.StudyRegistered,
+                Payload = bundleJson,
+                SourceSystem = domainRequest.LocalSystemName
+            }, cancellationToken);
+
+            await _unitOfWork.CommitAsync();
 
             return researchStudy;
         }
 
         public async Task<GovernmentResearchIdentifier> GetAsync(string identifier, CancellationToken cancellationToken = default)
         {
-            var existingIdentifier = await _governmentResearchIdentifierRepository.GetAsync(identifier, cancellationToken);
+            var existingIdentifier = await _unitOfWork.StudyRegistryRepository.GetAsync(identifier, cancellationToken);
 
             if (existingIdentifier == null)
             {
@@ -130,7 +150,7 @@ namespace NIHR.StudyManagement.Domain.Services
 
         private async Task<GovernmentResearchIdentifier> GetByIdentifierAsync(string identifier, CancellationToken cancellationToken)
         {
-            return await _governmentResearchIdentifierRepository.GetAsync(identifier, cancellationToken);
+            return await _unitOfWork.StudyRegistryRepository.GetAsync(identifier, cancellationToken);
         }
 
         /// <summary>
