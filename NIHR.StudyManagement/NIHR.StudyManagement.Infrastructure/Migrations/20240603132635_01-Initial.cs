@@ -98,7 +98,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "studyrecordoutboxentry",
+                name: "studyRecordOutboxEntry",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
@@ -116,7 +116,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_studyrecordoutboxentry", x => x.id);
+                    table.PrimaryKey("PK_studyRecordOutboxEntry", x => x.id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -357,35 +357,35 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "personRole",
                 columns: new[] { "id", "created", "description", "type" },
-                values: new object[] { 1, new DateTime(2024, 6, 3, 8, 53, 10, 916, DateTimeKind.Local).AddTicks(4961), "A Chief investigator role", "CHIEF_INVESTIGATOR" });
+                values: new object[] { 1, new DateTime(2024, 6, 3, 14, 26, 35, 608, DateTimeKind.Local).AddTicks(8989), "A Chief investigator role", "CHIEF_INVESTIGATOR" });
 
             migrationBuilder.InsertData(
                 table: "personType",
                 columns: new[] { "id", "created", "description" },
-                values: new object[] { 1, new DateTime(2024, 6, 3, 8, 53, 10, 916, DateTimeKind.Local).AddTicks(5771), "RESEARCHER" });
+                values: new object[] { 1, new DateTime(2024, 6, 3, 14, 26, 35, 608, DateTimeKind.Local).AddTicks(9899), "RESEARCHER" });
 
             migrationBuilder.InsertData(
                 table: "researchInitiativeIdentifierType",
                 columns: new[] { "id", "created", "description" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2024, 6, 3, 8, 53, 10, 917, DateTimeKind.Local).AddTicks(8383), "PROJECT" },
-                    { 2, new DateTime(2024, 6, 3, 8, 53, 10, 917, DateTimeKind.Local).AddTicks(8435), "PROTOCOL" },
-                    { 3, new DateTime(2024, 6, 3, 8, 53, 10, 917, DateTimeKind.Local).AddTicks(8438), "BUNDLE" }
+                    { 1, new DateTime(2024, 6, 3, 14, 26, 35, 610, DateTimeKind.Local).AddTicks(2019), "PROJECT" },
+                    { 2, new DateTime(2024, 6, 3, 14, 26, 35, 610, DateTimeKind.Local).AddTicks(2055), "PROTOCOL" },
+                    { 3, new DateTime(2024, 6, 3, 14, 26, 35, 610, DateTimeKind.Local).AddTicks(2059), "BUNDLE" }
                 });
 
             migrationBuilder.InsertData(
                 table: "researchInitiativeType",
                 columns: new[] { "id", "created", "description" },
-                values: new object[] { 1, new DateTime(2024, 6, 3, 8, 53, 10, 917, DateTimeKind.Local).AddTicks(9106), "STUDY" });
+                values: new object[] { 1, new DateTime(2024, 6, 3, 14, 26, 35, 610, DateTimeKind.Local).AddTicks(2809), "STUDY" });
 
             migrationBuilder.InsertData(
                 table: "sourceSystem",
                 columns: new[] { "id", "code", "created", "description" },
                 values: new object[,]
                 {
-                    { 1, "EDGE", new DateTime(2024, 6, 3, 8, 53, 10, 919, DateTimeKind.Local).AddTicks(6151), "Edge system" },
-                    { 2, "IRAS", new DateTime(2024, 6, 3, 8, 53, 10, 919, DateTimeKind.Local).AddTicks(6212), "IRAS system" }
+                    { 1, "EDGE", new DateTime(2024, 6, 3, 14, 26, 35, 611, DateTimeKind.Local).AddTicks(5598), "Edge system" },
+                    { 2, "IRAS", new DateTime(2024, 6, 3, 14, 26, 35, 611, DateTimeKind.Local).AddTicks(5637), "IRAS system" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -476,7 +476,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 name: "researchStudyTeamMember");
 
             migrationBuilder.DropTable(
-                name: "studyrecordoutboxentry");
+                name: "studyRecordOutboxEntry");
 
             migrationBuilder.DropTable(
                 name: "griMapping");

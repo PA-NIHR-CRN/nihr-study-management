@@ -407,7 +407,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
 
             modelBuilder.Entity<StudyRecordOutboxEntity>(entity =>
             {
-                entity.ToTable("studyrecordoutboxentry");
+                entity.ToTable("studyRecordOutboxEntry");
 
                 entity.Property(e => e.Id).HasColumnName("id");
 

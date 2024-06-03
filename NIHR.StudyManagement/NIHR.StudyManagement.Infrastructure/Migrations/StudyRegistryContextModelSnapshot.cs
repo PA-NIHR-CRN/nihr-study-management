@@ -218,7 +218,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 6, 3, 8, 53, 10, 916, DateTimeKind.Local).AddTicks(4961),
+                            Created = new DateTime(2024, 6, 3, 14, 26, 35, 608, DateTimeKind.Local).AddTicks(8989),
                             Description = "A Chief investigator role",
                             Type = "CHIEF_INVESTIGATOR"
                         });
@@ -249,7 +249,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 6, 3, 8, 53, 10, 916, DateTimeKind.Local).AddTicks(5771),
+                            Created = new DateTime(2024, 6, 3, 14, 26, 35, 608, DateTimeKind.Local).AddTicks(9899),
                             Description = "RESEARCHER"
                         });
                 });
@@ -358,19 +358,19 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 6, 3, 8, 53, 10, 917, DateTimeKind.Local).AddTicks(8383),
+                            Created = new DateTime(2024, 6, 3, 14, 26, 35, 610, DateTimeKind.Local).AddTicks(2019),
                             Description = "PROJECT"
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 6, 3, 8, 53, 10, 917, DateTimeKind.Local).AddTicks(8435),
+                            Created = new DateTime(2024, 6, 3, 14, 26, 35, 610, DateTimeKind.Local).AddTicks(2055),
                             Description = "PROTOCOL"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 6, 3, 8, 53, 10, 917, DateTimeKind.Local).AddTicks(8438),
+                            Created = new DateTime(2024, 6, 3, 14, 26, 35, 610, DateTimeKind.Local).AddTicks(2059),
                             Description = "BUNDLE"
                         });
                 });
@@ -399,7 +399,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 6, 3, 8, 53, 10, 917, DateTimeKind.Local).AddTicks(9106),
+                            Created = new DateTime(2024, 6, 3, 14, 26, 35, 610, DateTimeKind.Local).AddTicks(2809),
                             Description = "STUDY"
                         });
                 });
@@ -478,14 +478,14 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         {
                             Id = 1,
                             Code = "EDGE",
-                            Created = new DateTime(2024, 6, 3, 8, 53, 10, 919, DateTimeKind.Local).AddTicks(6151),
+                            Created = new DateTime(2024, 6, 3, 14, 26, 35, 611, DateTimeKind.Local).AddTicks(5598),
                             Description = "Edge system"
                         },
                         new
                         {
                             Id = 2,
                             Code = "IRAS",
-                            Created = new DateTime(2024, 6, 3, 8, 53, 10, 919, DateTimeKind.Local).AddTicks(6212),
+                            Created = new DateTime(2024, 6, 3, 14, 26, 35, 611, DateTimeKind.Local).AddTicks(5637),
                             Description = "IRAS system"
                         });
                 });
@@ -530,7 +530,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("studyrecordoutboxentry", (string)null);
+                    b.ToTable("studyRecordOutboxEntry", (string)null);
                 });
 
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.GriMapping", b =>
