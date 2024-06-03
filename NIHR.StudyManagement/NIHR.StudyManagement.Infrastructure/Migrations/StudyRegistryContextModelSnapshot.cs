@@ -218,7 +218,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 5, 28, 13, 49, 50, 369, DateTimeKind.Local).AddTicks(1557),
+                            Created = new DateTime(2024, 6, 3, 8, 53, 10, 916, DateTimeKind.Local).AddTicks(4961),
                             Description = "A Chief investigator role",
                             Type = "CHIEF_INVESTIGATOR"
                         });
@@ -249,7 +249,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 5, 28, 13, 49, 50, 369, DateTimeKind.Local).AddTicks(2840),
+                            Created = new DateTime(2024, 6, 3, 8, 53, 10, 916, DateTimeKind.Local).AddTicks(5771),
                             Description = "RESEARCHER"
                         });
                 });
@@ -358,19 +358,19 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 5, 28, 13, 49, 50, 370, DateTimeKind.Local).AddTicks(1844),
+                            Created = new DateTime(2024, 6, 3, 8, 53, 10, 917, DateTimeKind.Local).AddTicks(8383),
                             Description = "PROJECT"
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 5, 28, 13, 49, 50, 370, DateTimeKind.Local).AddTicks(1874),
+                            Created = new DateTime(2024, 6, 3, 8, 53, 10, 917, DateTimeKind.Local).AddTicks(8435),
                             Description = "PROTOCOL"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 5, 28, 13, 49, 50, 370, DateTimeKind.Local).AddTicks(1876),
+                            Created = new DateTime(2024, 6, 3, 8, 53, 10, 917, DateTimeKind.Local).AddTicks(8438),
                             Description = "BUNDLE"
                         });
                 });
@@ -399,7 +399,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 5, 28, 13, 49, 50, 370, DateTimeKind.Local).AddTicks(2276),
+                            Created = new DateTime(2024, 6, 3, 8, 53, 10, 917, DateTimeKind.Local).AddTicks(9106),
                             Description = "STUDY"
                         });
                 });
@@ -478,19 +478,19 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         {
                             Id = 1,
                             Code = "EDGE",
-                            Created = new DateTime(2024, 5, 28, 13, 49, 50, 370, DateTimeKind.Local).AddTicks(9736),
+                            Created = new DateTime(2024, 6, 3, 8, 53, 10, 919, DateTimeKind.Local).AddTicks(6151),
                             Description = "Edge system"
                         },
                         new
                         {
                             Id = 2,
                             Code = "IRAS",
-                            Created = new DateTime(2024, 5, 28, 13, 49, 50, 370, DateTimeKind.Local).AddTicks(9768),
+                            Created = new DateTime(2024, 6, 3, 8, 53, 10, 919, DateTimeKind.Local).AddTicks(6212),
                             Description = "IRAS system"
                         });
                 });
 
-            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.StudyRecordOutboxEntry", b =>
+            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.StudyRecordOutboxEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -498,7 +498,8 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         .HasColumnName("id");
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created");
 
                     b.Property<string>("EventType")
                         .IsRequired()

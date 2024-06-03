@@ -1,0 +1,15 @@
+version: '1'
+
+services:
+  OutboxProcessor:
+    container_name: nihr_study_management_outbox_processor
+    image: nihr_study_management_outbox_processor
+    environment:
+      Data__ConnectionString: server=${CONNECTION_STRING}
+      MessageBus__Topic: ${OUTBOX_MSK_TOPIC}
+      MessageBus_BootstrapServers: ${MSK_BOOTSTRAP_SERVERS}
+      OutboxProcessor__SleepInterval: ${OUTBOX_PROCESSOR_SLEEP_INTERVAL}
+
+
+
+

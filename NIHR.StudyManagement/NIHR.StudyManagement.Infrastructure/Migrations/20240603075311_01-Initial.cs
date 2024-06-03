@@ -112,7 +112,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                     processingStartDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     processingCompletedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     status = table.Column<int>(type: "int", nullable: false),
-                    Created = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    created = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -357,35 +357,35 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "personRole",
                 columns: new[] { "id", "created", "description", "type" },
-                values: new object[] { 1, new DateTime(2024, 5, 28, 13, 49, 50, 369, DateTimeKind.Local).AddTicks(1557), "A Chief investigator role", "CHIEF_INVESTIGATOR" });
+                values: new object[] { 1, new DateTime(2024, 6, 3, 8, 53, 10, 916, DateTimeKind.Local).AddTicks(4961), "A Chief investigator role", "CHIEF_INVESTIGATOR" });
 
             migrationBuilder.InsertData(
                 table: "personType",
                 columns: new[] { "id", "created", "description" },
-                values: new object[] { 1, new DateTime(2024, 5, 28, 13, 49, 50, 369, DateTimeKind.Local).AddTicks(2840), "RESEARCHER" });
+                values: new object[] { 1, new DateTime(2024, 6, 3, 8, 53, 10, 916, DateTimeKind.Local).AddTicks(5771), "RESEARCHER" });
 
             migrationBuilder.InsertData(
                 table: "researchInitiativeIdentifierType",
                 columns: new[] { "id", "created", "description" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2024, 5, 28, 13, 49, 50, 370, DateTimeKind.Local).AddTicks(1844), "PROJECT" },
-                    { 2, new DateTime(2024, 5, 28, 13, 49, 50, 370, DateTimeKind.Local).AddTicks(1874), "PROTOCOL" },
-                    { 3, new DateTime(2024, 5, 28, 13, 49, 50, 370, DateTimeKind.Local).AddTicks(1876), "BUNDLE" }
+                    { 1, new DateTime(2024, 6, 3, 8, 53, 10, 917, DateTimeKind.Local).AddTicks(8383), "PROJECT" },
+                    { 2, new DateTime(2024, 6, 3, 8, 53, 10, 917, DateTimeKind.Local).AddTicks(8435), "PROTOCOL" },
+                    { 3, new DateTime(2024, 6, 3, 8, 53, 10, 917, DateTimeKind.Local).AddTicks(8438), "BUNDLE" }
                 });
 
             migrationBuilder.InsertData(
                 table: "researchInitiativeType",
                 columns: new[] { "id", "created", "description" },
-                values: new object[] { 1, new DateTime(2024, 5, 28, 13, 49, 50, 370, DateTimeKind.Local).AddTicks(2276), "STUDY" });
+                values: new object[] { 1, new DateTime(2024, 6, 3, 8, 53, 10, 917, DateTimeKind.Local).AddTicks(9106), "STUDY" });
 
             migrationBuilder.InsertData(
                 table: "sourceSystem",
                 columns: new[] { "id", "code", "created", "description" },
                 values: new object[,]
                 {
-                    { 1, "EDGE", new DateTime(2024, 5, 28, 13, 49, 50, 370, DateTimeKind.Local).AddTicks(9736), "Edge system" },
-                    { 2, "IRAS", new DateTime(2024, 5, 28, 13, 49, 50, 370, DateTimeKind.Local).AddTicks(9768), "IRAS system" }
+                    { 1, "EDGE", new DateTime(2024, 6, 3, 8, 53, 10, 919, DateTimeKind.Local).AddTicks(6151), "Edge system" },
+                    { 2, "IRAS", new DateTime(2024, 6, 3, 8, 53, 10, 919, DateTimeKind.Local).AddTicks(6212), "IRAS system" }
                 });
 
             migrationBuilder.CreateIndex(
