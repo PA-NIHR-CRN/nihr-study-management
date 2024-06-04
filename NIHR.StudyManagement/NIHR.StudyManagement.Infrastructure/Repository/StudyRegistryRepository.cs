@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using NIHR.StudyManagement.Domain.Abstractions;
 using NIHR.StudyManagement.Domain.Configuration;
+using NIHR.StudyManagement.Domain.EnumsAndConstants;
 using NIHR.StudyManagement.Domain.Exceptions;
 using NIHR.StudyManagement.Domain.Models;
 using NIHR.StudyManagement.Infrastructure.Repository.EnumsAndConstants;
@@ -31,7 +32,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
 
             var studyType = await GetResearchInitiativeTypeAsync(ResearchInitiativeTypes.Study, cancellationToken) ?? throw new EntityNotFoundException(nameof(ResearchInitiativeType));
 
-            var edgeSystem = await GetSourceSystemAsync(SourceSystemNames.Edge, cancellationToken) ?? throw new EntityNotFoundException(nameof(SourceSystem));
+            var edgeSystem = await GetSourceSystemAsync(request.ApiSystemName, cancellationToken) ?? throw new EntityNotFoundException(nameof(SourceSystem));
 
             var personTypeResearcher = await _context.PersonTypes.FirstOrDefaultAsync(x => x.Description == PersonTypes.Researcher, cancellationToken) ?? throw new EntityNotFoundException(nameof(PersonType));
 
@@ -126,68 +127,50 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
 
-            var griResearchStudy = await GetGriResearchStudyByIdentifierAsync(request.Identifier, cancellationToken) ?? throw new GriNotFoundException();
+            var griResearchStudy = await GetGriResearchStudyByIdentifierAsync(request.RequestContext.Identifier, cancellationToken) ?? throw new GriNotFoundException();
 
             var studyType = await GetResearchInitiativeTypeAsync(ResearchInitiativeTypes.Study, cancellationToken) ?? throw new EntityNotFoundException(nameof(ResearchInitiativeType));
 
-            var sourceSystem = await GetSourceSystemAsync(SourceSystemNames.Edge, cancellationToken) ?? throw new EntityNotFoundException(nameof(SourceSystem));
+            var sourceSystem = await GetSourceSystemAsync(request.RequestContext.ApiSystemName, cancellationToken) ?? throw new EntityNotFoundException(nameof(SourceSystem));
 
-            var personTypeResearcher = await _context.PersonTypes.FirstOrDefaultAsync(x => x.Description == PersonTypes.Researcher, cancellationToken) ?? throw new EntityNotFoundException(nameof(PersonType));
+            var researchInitiativeIdentifierTypes = new Dictionary<string, ResearchInitiativeIdentifierType>();
 
-            var personRoleCI = await _context.PersonRoles.FirstOrDefaultAsync(x => x.Type == PersonRoles.ChiefInvestigator, cancellationToken) ?? throw new EntityNotFoundException(nameof(PersonRole));
-
-            var projectResearchInitiativeIdentifierType = await _context.ResearchInitiativeIdentifierTypes
-                .FirstOrDefaultAsync(x => x.Description == ResearchInitiativeIdentifierTypes.Project) ?? throw new EntityNotFoundException(nameof(ResearchInitiativeIdentifierType));
-
-            var protocolResearchInitiativeIdentifierType = await _context.ResearchInitiativeIdentifierTypes
-                .FirstOrDefaultAsync(x => x.Description == ResearchInitiativeIdentifierTypes.Protocol) ?? throw new EntityNotFoundException(nameof(ResearchInitiativeIdentifierType));
-
-            var griMapping = new GriMapping
+            foreach (var x in _context.ResearchInitiativeIdentifierTypes.Select(x => x))
             {
-                GriResearchStudy = griResearchStudy,
-                ResearchInitiativeIdentifier = new ResearchInitiativeIdentifier
+                researchInitiativeIdentifierTypes[x.Description] = x;
+            }
+
+            foreach (var identifierToAdd in request.LinkedSystemIdentifiersToAdd)
+            {
+                var identifierType = researchInitiativeIdentifierTypes[identifierToAdd.IdentifierType];
+
+                var griMapping = new GriMapping
                 {
-                    SourceSystem = sourceSystem,
-                    Value = request.ProjectId,
-                    ResearchInitiativeIdentifierType = projectResearchInitiativeIdentifierType
-                },
-                SourceSystem = sourceSystem
-            };
+                    GriResearchStudy = griResearchStudy,
+                    ResearchInitiativeIdentifier = new ResearchInitiativeIdentifier
+                    {
+                        SourceSystem = sourceSystem,
+                        Value = identifierToAdd.Identifier,
+                        ResearchInitiativeIdentifierType = identifierType
+                    },
+                    SourceSystem = sourceSystem
+                };
 
-            var griResearchStudyStatus = new GriResearchStudyStatus
-            {
-                Code = request.StatusCode,
-                GriMapping = griMapping,
-                FromDate = DateTime.Now
-            };
-
-            var chiefInvestigator = await GetPersonAsync(request.ChiefInvestigator, cancellationToken) ?? new PersonDb
-            {
-                PersonNames = new PersonName[] { new PersonName {
-                        Given = request.ChiefInvestigator.Firstname,
-                        Family = request.ChiefInvestigator.Lastname,
-                        Email = request.ChiefInvestigator.Email.Address
-                    } },
-                PersonType = personTypeResearcher
-            };
-
-            var teamMember = new ResearchStudyTeamMember
-            {
-                GriMapping = griResearchStudy,
-                Researcher = new Researcher
+                var griResearchStudyStatus = new GriResearchStudyStatus
                 {
-                    Person = chiefInvestigator
-                },
-                PersonRole = personRoleCI
-            };
+                    Code = request.RequestContext.StatusCode,
+                    GriMapping = griMapping,
+                    FromDate = DateTime.Now
+                };
 
-            await _context.AddAsync(teamMember, cancellationToken);
-            await _context.AddAsync(griMapping, cancellationToken);
-            await _context.AddAsync(griResearchStudyStatus, cancellationToken);
+                await _context.AddAsync(griMapping, cancellationToken);
+
+                await _context.AddAsync(griResearchStudyStatus, cancellationToken);
+            }
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return await GetAsync(request.Identifier);
+            return await GetAsync(request.RequestContext.Identifier);
         }
 
         public async Task<GovernmentResearchIdentifier> GetAsync(string identifier, CancellationToken cancellationToken = default)
@@ -208,7 +191,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                 linkedSystemIdentifiers.Add(new LinkedSystemIdentifier
                 {
                     CreatedAt = x.Created,
-                    SystemName = x.SourceSystem.Description,
+                    SystemName = x.SourceSystem.Code,
                     Identifier = x.ResearchInitiativeIdentifier.Value,
                     IdentifierType = x.ResearchInitiativeIdentifier.ResearchInitiativeIdentifierType.Description,
                     StatusCode = x.GriResearchStudyStatuses.FirstOrDefault(status => !status.ToDate.HasValue)?.Code ?? ""

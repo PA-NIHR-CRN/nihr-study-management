@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NIHR.StudyManagement.Api.EnumsAndConstants;
 
 namespace NIHR.StudyManagement.Api.Controllers
 {
@@ -11,6 +12,22 @@ namespace NIHR.StudyManagement.Api.Controllers
         {
 
             return Ok();
+        }
+
+        protected string ApiConsumerSystemName
+        {
+            get
+            {
+                foreach (var userClaim in this.User.Claims)
+                {
+                    if (userClaim.Type == UserTokenClaimNames.ApiSystemName)
+                    {
+                        return userClaim.Value;
+                    }
+                }
+
+                return "";
+            }
         }
     }
 }

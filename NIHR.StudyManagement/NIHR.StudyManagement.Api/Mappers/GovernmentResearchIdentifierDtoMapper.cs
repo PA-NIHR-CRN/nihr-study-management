@@ -29,27 +29,6 @@ namespace NIHR.StudyManagement.Api.Mappers
             return createIdentifierRequest;
         }
 
-        public RegisterStudyRequest Map(RegisterStudyRequestDto requestDto)
-        {
-            var chiefInvestigatorPerson = requestDto.TeamMembers.First();
-
-            var createIdentifierRequest = new RegisterStudyRequest()
-            {
-                ShortTitle = requestDto.LocalStudy.ShortTitle,
-                ProjectId = requestDto.LocalStudy.ProjectId,
-                ProtocolId = requestDto.ProtocolId,
-                ChiefInvestigator = new PersonWithPrimaryEmail
-                {
-                    Email = new Email { Address = chiefInvestigatorPerson.PrimaryEmail},
-                    Firstname = chiefInvestigatorPerson.Firstname,
-                    Lastname = chiefInvestigatorPerson.Lastname
-                },
-                StatusCode = requestDto.LocalStudy.Status
-            };
-
-            return createIdentifierRequest;
-        }
-
         public GovernmentResearchIdentifierDto Map(GovernmentResearchIdentifier governmentResearchIdentifier)
         {
             var identifier = new GovernmentResearchIdentifierDto

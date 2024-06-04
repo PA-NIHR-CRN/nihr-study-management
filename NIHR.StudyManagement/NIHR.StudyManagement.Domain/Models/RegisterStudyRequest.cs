@@ -15,6 +15,8 @@
 
         public string StatusCode { get; set; }
 
+        public string ApiSystemName { get; set; }
+
         public List<ResearchInitiativeIdentifierItem> Identifiers { get; set; }
 
         public RegisterStudyRequest()
