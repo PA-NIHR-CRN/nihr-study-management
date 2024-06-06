@@ -14,7 +14,6 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
         public int Id { get; set; }
         public int PersonTypeId { get; set; }
 
-        public virtual PersonType PersonType { get; set; } = null!;
         public virtual ICollection<PersonName> PersonNames { get; set; }
         public virtual ICollection<Researcher> Researchers { get; set; }
     }

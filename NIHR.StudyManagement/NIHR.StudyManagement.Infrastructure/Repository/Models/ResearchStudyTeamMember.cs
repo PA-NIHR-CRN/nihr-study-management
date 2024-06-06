@@ -7,8 +7,8 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
     {
         public int Id { get; set; }
         public int GriMappingId { get; set; }
-        public int ResearcherId { get; set; }
-        public int PersonRoleId { get; set; }
+        public int PractitionerId { get; set; }
+        public int RoleTypeId { get; set; }
 
         public DateTime EffectiveFrom { get; set; } = DateTime.Now;
 

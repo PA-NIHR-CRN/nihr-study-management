@@ -5,6 +5,16 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using NIHR.StudyManagement.Infrastructure.Repository.EnumsAndConstants;
 using NIHR.StudyManagement.Infrastructure.Repository.Models;
 
+
+/// Changes
+/// griResearchStudyStatus (Rename to researchStudyStatus)
+///     Drop GriMappingId and reference ResearchStudyId
+/// griResearchStudy (Rename to researchStudy)
+///     Drop researchInitiativeId & reference
+/// griMapping (rename to researchStudyIdentifiers)
+/// researchInitiative (drop table)     
+/// researchInitiativeIdentifier (drop table, migrate to researchStudyIdentifiers)
+/// researchInitiativeType (drop table)
 namespace NIHR.StudyManagement.Infrastructure.Repository
 {
     public partial class StudyRegistryContext : DbContext
@@ -18,16 +28,16 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
         {
         }
 
-        public virtual DbSet<GriMapping> GriMappings { get; set; } = null!;
+        //public virtual DbSet<GriMapping> GriMappings { get; set; } = null!;
         public virtual DbSet<GriResearchStudy> GriResearchStudies { get; set; } = null!;
         public virtual DbSet<Person> People { get; set; } = null!;
         public virtual DbSet<PersonName> PersonNames { get; set; } = null!;
         public virtual DbSet<PersonRole> PersonRoles { get; set; } = null!;
-        public virtual DbSet<PersonType> PersonTypes { get; set; } = null!;
-        public virtual DbSet<ResearchInitiative> ResearchInitiatives { get; set; } = null!;
-        public virtual DbSet<ResearchInitiativeIdentifier> ResearchInitiativeIdentifiers { get; set; } = null!;
+
+        public virtual DbSet<OrganisationEntity> OrganisationEntities { get; set; } = null!;
+
         public virtual DbSet<ResearchInitiativeIdentifierType> ResearchInitiativeIdentifierTypes { get; set; } = null!;
-        public virtual DbSet<ResearchInitiativeType> ResearchInitiativeTypes { get; set; } = null!;
+
         public virtual DbSet<ResearchStudyTeamMember> ResearchStudyTeamMembers { get; set; } = null!;
         public virtual DbSet<Researcher> Researchers { get; set; } = null!;
         public virtual DbSet<SourceSystem> SourceSystems { get; set; } = null!;
@@ -44,11 +54,15 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
         {
             modelBuilder.Entity<GriMapping>(entity =>
             {
-                entity.ToTable("griMapping");
+                entity.ToTable("researchStudyIdentifier");
 
                 entity.HasIndex(e => e.GriResearchStudyId, "fk_griMapping_griResearchStudy_idx");
 
-                entity.HasIndex(e => e.ResearchInitiativeIdentifierId, "fk_griMapping_researchInitiativeIdentifier_idx");
+                //entity.HasIndex(e => e.IdentifierId, "fk_griMapping_researchInitiativeIdentifier_idx");
+
+                entity.Property(e => e.Value)
+                    .HasMaxLength(150)
+                    .HasColumnName("value");
 
                 entity.HasIndex(e => e.SourceSystemId, "fk_griMapping_sourceSystem_idx");
 
@@ -56,23 +70,23 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
 
                 entity.Property(e => e.GriResearchStudyId).HasColumnName("griResearchStudy_id");
 
-                entity.Property(e => e.ResearchInitiativeIdentifierId).HasColumnName("researchInitiativeIdentifier_id");
+                //entity.Property(e => e.IdentifierId).HasColumnName("researchInitiativeIdentifier_id");
 
                 entity.Property(e => e.SourceSystemId).HasColumnName("sourceSystem_id");
 
                 entity.Property(e => e.Created).HasColumnName("created");
 
                 entity.HasOne(d => d.GriResearchStudy)
-                    .WithMany(p => p.GriMappings)
+                    .WithMany(p => p.ResearchStudyIdentifiers)
                     .HasForeignKey(d => d.GriResearchStudyId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_griMapping_griResearchStudy");
 
-                entity.HasOne(d => d.ResearchInitiativeIdentifier)
-                    .WithMany(p => p.GriMappings)
-                    .HasForeignKey(d => d.ResearchInitiativeIdentifierId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_griMapping_researchInitiativeIdentifier");
+                //entity.HasOne(d => d.Identifier)
+                //    .WithMany(p => p.Identifiers)
+                //    .HasForeignKey(d => d.IdentifierId)
+                //    .OnDelete(DeleteBehavior.ClientSetNull)
+                //    .HasConstraintName("fk_griMapping_researchInitiativeIdentifier");
 
                 entity.HasOne(d => d.SourceSystem)
                     .WithMany(p => p.GriMappings)
@@ -83,7 +97,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
 
             modelBuilder.Entity<GriResearchStudyStatus>(entity =>
             {
-                entity.ToTable("griResearchStudyStatus");
+                entity.ToTable("researchStudyIdentifierStatus");
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
@@ -93,18 +107,16 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     .HasMaxLength(100)
                     .HasColumnName("code");
 
-                entity.HasOne(d => d.GriMapping)
-                    .WithMany(p => p.GriResearchStudyStatuses)
-                    .HasForeignKey(d => d.GriMappingId)
+                entity.HasOne(d => d.ResearchStudyIdentifier)
+                    .WithMany(p => p.IdentifierStatuses)
+                    .HasForeignKey(d => d.ResearchStudyIdentifierId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_griResearchStudyStatus_griMapping");
             });
 
             modelBuilder.Entity<GriResearchStudy>(entity =>
             {
-                entity.ToTable("griResearchStudy");
-
-                entity.HasIndex(e => e.ResearchInitiativeId, "fk_griResearchStudy_researchInitiative_idx");
+                entity.ToTable("researchStudy");
 
                 entity.HasIndex(e => e.RequestSourceSystemId, "fk_griResearchStudy_sourceSystem_idx");
 
@@ -118,8 +130,6 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
 
                 entity.Property(e => e.RequestSourceSystemId).HasColumnName("requestSourceSystem_id");
 
-                entity.Property(e => e.ResearchInitiativeId).HasColumnName("researchInitiative_id");
-
                 entity.Property(e => e.ShortTitle)
                     .HasMaxLength(150)
                     .HasColumnName("shortTitle");
@@ -129,12 +139,6 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     .HasForeignKey(d => d.RequestSourceSystemId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_griResearchStudy_sourceSystem");
-
-                entity.HasOne(d => d.ResearchInitiative)
-                    .WithMany(p => p.GriResearchStudies)
-                    .HasForeignKey(d => d.ResearchInitiativeId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_griResearchStudy_researchInitiative");
             });
 
             modelBuilder.Entity<Person>(entity =>
@@ -148,12 +152,6 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                 entity.Property(e => e.PersonTypeId).HasColumnName("personType_id");
 
                 entity.Property(e => e.Created).HasColumnName("created");
-
-                entity.HasOne(d => d.PersonType)
-                    .WithMany(p => p.People)
-                    .HasForeignKey(d => d.PersonTypeId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_person_type");
             });
 
             modelBuilder.Entity<PersonName>(entity =>
@@ -171,7 +169,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     .HasColumnName("family");
 
                 entity.Property(e => e.Given)
-                    .HasMaxLength(10)
+                    .HasMaxLength(100)
                     .HasColumnName("given");
 
                 entity.Property(e => e.Email)
@@ -189,106 +187,56 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
 
             modelBuilder.Entity<PersonRole>(entity =>
             {
-                entity.ToTable("personRole");
+                entity.ToTable("roleType");
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Created).HasColumnName("created");
 
                 entity.Property(e => e.Description)
-                    .HasMaxLength(150)
+                    .HasMaxLength(500)
                     .HasColumnName("description");
 
-                entity.Property(e => e.Type)
-                    .HasMaxLength(45)
-                    .HasColumnName("type");
+                entity.Property(e => e.Code)
+                    .HasMaxLength(150)
+                    .HasColumnName("code");
 
                 entity.HasData(
+                    new PersonRole {
+                        Id = 1,
+                        Description = "Chief Investigator",
+                        Code = "CHF_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5",
+                    },
                     new PersonRole
                     {
-                        Id = 1,
-                        Description = "A Chief investigator role",
-                        Type = EnumsAndConstants.PersonRoles.ChiefInvestigator,
-                    });
-            });
-
-            modelBuilder.Entity<PersonType>(entity =>
-            {
-                entity.ToTable("personType");
-
-                entity.Property(e => e.Id).HasColumnName("id");
-
-                entity.Property(e => e.Created).HasColumnName("created");
-
-                entity.Property(e => e.Description)
-                    .HasMaxLength(45)
-                    .HasColumnName("description");
-
-                entity.HasData(
-                    new PersonType
+                        Id = 2,
+                        Description = "Study Coordinator",
+                        Code = "STDY_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5",
+                    },
+                    new PersonRole
                     {
-                        Id = 1,
-                        Description = EnumsAndConstants.PersonTypes.Researcher
-                    });
-            });
-
-            modelBuilder.Entity<ResearchInitiative>(entity =>
-            {
-                entity.ToTable("researchInitiative");
-
-                entity.HasIndex(e => e.ResearchInitiativeTypeId, "fk_researchInitiative_type_idx");
-
-                entity.Property(e => e.Id).HasColumnName("id");
-
-                entity.Property(e => e.Created).HasColumnName("created");
-
-                entity.Property(e => e.ResearchInitiativeTypeId).HasColumnName("researchInitiativeType_id");
-
-                entity.HasOne(d => d.ResearchInitiativeType)
-                    .WithMany(p => p.ResearchInitiatives)
-                    .HasForeignKey(d => d.ResearchInitiativeTypeId)
-                    .HasConstraintName("fk_researchInitiative_type");
-            });
-
-            modelBuilder.Entity<ResearchInitiativeIdentifier>(entity =>
-            {
-                entity.HasKey(e => e.Int)
-                    .HasName("PRIMARY");
-
-                entity.ToTable("researchInitiativeIdentifier");
-
-                entity.HasIndex(e => e.SourceSystemId, "fk_researchInitiativeIdentifier_sourceSystem_idx");
-
-                entity.HasIndex(e => e.ResearchInitiativeIdentifierTypeId, "fk_researchInitiativeIdentifier_type_idx");
-
-                entity.Property(e => e.Int).HasColumnName("int");
-
-                entity.Property(e => e.Created).HasColumnName("created");
-
-                entity.Property(e => e.ResearchInitiativeIdentifierTypeId).HasColumnName("researchInitiativeIdentifierType_id");
-
-                entity.Property(e => e.SourceSystemId).HasColumnName("sourceSystem_id");
-
-                entity.Property(e => e.Value)
-                    .HasMaxLength(150)
-                    .HasColumnName("value");
-
-                entity.HasOne(d => d.ResearchInitiativeIdentifierType)
-                    .WithMany(p => p.ResearchInitiativeIdentifiers)
-                    .HasForeignKey(d => d.ResearchInitiativeIdentifierTypeId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_researchInitiativeIdentifier_type");
-
-                entity.HasOne(d => d.SourceSystem)
-                    .WithMany(p => p.ResearchInitiativeIdentifiers)
-                    .HasForeignKey(d => d.SourceSystemId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_researchInitiativeIdentifier_sourceSystem");
+                        Id = 3,
+                        Description = "Research Activity Coordinator",
+                        Code = "RSRCH_ACT_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5",
+                    },
+                    new PersonRole
+                    {
+                        Id = 4,
+                        Description = "Principal Investigator",
+                        Code = "PRNCPL_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5",
+                    },
+                    new PersonRole
+                    {
+                        Id = 5,
+                        Description = "Company Representative",
+                        Code = "CMPNY_RP@2.16.840.1.113883.2.1.3.8.5.2.3.5",
+                    }
+                    );
             });
 
             modelBuilder.Entity<ResearchInitiativeIdentifierType>(entity =>
             {
-                entity.ToTable("researchInitiativeIdentifierType");
+                entity.ToTable("researchStudyIdentifierType");
 
                 entity.Property(e => e.Created).HasColumnName("created");
 
@@ -305,38 +253,44 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     );
             });
 
-            modelBuilder.Entity<ResearchInitiativeType>(entity =>
+            modelBuilder.Entity<OrganisationEntity>(entity =>
             {
-                entity.ToTable("researchInitiativeType");
+                entity.ToTable("organisation");
 
                 entity.Property(e => e.Created).HasColumnName("created");
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Description)
-                    .HasMaxLength(45)
+                    .HasMaxLength(500)
                     .HasColumnName("description");
 
-                entity.HasData(new ResearchInitiativeType { Id = 1, Description = EnumsAndConstants.ResearchInitiativeTypes.Study });
+                entity.Property(e => e.Code)
+                    .HasMaxLength(150)
+                    .HasColumnName("code");
+
+                entity.HasData(
+                    new OrganisationEntity { Id = 1, Description = "Development organisation", Code = "org01"}
+                    );
             });
 
             modelBuilder.Entity<ResearchStudyTeamMember>(entity =>
             {
-                entity.ToTable("researchStudyTeamMember");
+                entity.ToTable("practitionerRole");
 
                 entity.HasIndex(e => e.GriMappingId, "fk_researchStudyTeamMember_griResearch_idx");
 
-                entity.HasIndex(e => e.PersonRoleId, "fk_researchStudyTeamMember_personRol_idx");
+                entity.HasIndex(e => e.RoleTypeId, "fk_researchStudyTeamMember_personRol_idx");
 
-                entity.HasIndex(e => e.ResearcherId, "researchStudyTeamMember_researcher_idx");
+                entity.HasIndex(e => e.PractitionerId, "researchStudyTeamMember_researcher_idx");
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.GriMappingId).HasColumnName("griMapping_id");
+                entity.Property(e => e.GriMappingId).HasColumnName("researchStudy_id");
 
-                entity.Property(e => e.PersonRoleId).HasColumnName("personRole_id");
+                entity.Property(e => e.RoleTypeId).HasColumnName("roleType_id");
 
-                entity.Property(e => e.ResearcherId).HasColumnName("researcher_id");
+                entity.Property(e => e.PractitionerId).HasColumnName("practitioner_id");
 
                 entity.Property(e => e.Created).HasColumnName("created");
 
@@ -352,20 +306,20 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
 
                 entity.HasOne(d => d.PersonRole)
                     .WithMany(p => p.ResearchStudyTeamMembers)
-                    .HasForeignKey(d => d.PersonRoleId)
+                    .HasForeignKey(d => d.RoleTypeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_researchStudyTeamMember_personRol");
 
                 entity.HasOne(d => d.Researcher)
                     .WithMany(p => p.ResearchStudyTeamMembers)
-                    .HasForeignKey(d => d.ResearcherId)
+                    .HasForeignKey(d => d.PractitionerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("researchStudyTeamMember_researcher");
             });
 
             modelBuilder.Entity<Researcher>(entity =>
             {
-                entity.ToTable("researcher");
+                entity.ToTable("practitioner");
 
                 entity.HasIndex(e => e.PersonId, "fk_researcher_person_idx");
 

@@ -105,7 +105,7 @@ namespace NIHR.StudyManagement.Domain.Services
 
             var researchStudy = await _governmentResearchIdentifierRepository.AddStudyToIdentifierAsync(domainRequest, cancellationToken);
 
-            await _messagePublisher.PublishAsync(GrisNsipEventTypes.StudyRegistered, request.ApiSystemName, researchStudy, cancellationToken);
+            //await _messagePublisher.PublishAsync(GrisNsipEventTypes.StudyRegistered, request.ApiSystemName, researchStudy, cancellationToken);
 
             return researchStudy;
         }
@@ -115,7 +115,7 @@ namespace NIHR.StudyManagement.Domain.Services
             return new RegisterStudyRequestWithContext
             {
                 ChiefInvestigator = request.ChiefInvestigator,
-                ApiSystemName = request.ApiSystemName,
+                ApiSystemName = string.IsNullOrEmpty(request.ApiSystemName) ? _settings.DefaultLocalSystemName : request.ApiSystemName,
                 ProjectId = request.ProjectId,
                 Identifier = identifier,
                 Identifiers = request.Identifiers,
@@ -137,7 +137,7 @@ namespace NIHR.StudyManagement.Domain.Services
 
             var researchStudy = await _governmentResearchIdentifierRepository.CreateAsync(domainRequest, cancellationToken);
 
-            await _messagePublisher.PublishAsync(GrisNsipEventTypes.StudyRegistered, request.ApiSystemName, researchStudy, cancellationToken);
+            //await _messagePublisher.PublishAsync(GrisNsipEventTypes.StudyRegistered, request.ApiSystemName, researchStudy, cancellationToken);
 
             return researchStudy;
         }

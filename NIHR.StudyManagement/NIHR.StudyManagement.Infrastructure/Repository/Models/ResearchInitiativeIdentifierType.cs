@@ -7,12 +7,12 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
     {
         public ResearchInitiativeIdentifierType()
         {
-            ResearchInitiativeIdentifiers = new HashSet<ResearchInitiativeIdentifier>();
+            Identifiers = new HashSet<GriMapping>();
         }
 
         public int Id { get; set; }
         public string Description { get; set; } = null!;
 
-        public virtual ICollection<ResearchInitiativeIdentifier> ResearchInitiativeIdentifiers { get; set; }
+        public virtual ICollection<GriMapping> Identifiers { get; set; }
     }
 }

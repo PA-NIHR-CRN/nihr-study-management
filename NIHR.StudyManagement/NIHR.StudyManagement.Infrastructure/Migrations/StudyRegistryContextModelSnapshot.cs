@@ -34,23 +34,28 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("griResearchStudy_id");
 
-                    b.Property<int>("ResearchInitiativeIdentifierId")
-                        .HasColumnType("int")
-                        .HasColumnName("researchInitiativeIdentifier_id");
+                    b.Property<int>("IdentifierTypeId")
+                        .HasColumnType("int");
 
                     b.Property<int>("SourceSystemId")
                         .HasColumnType("int")
                         .HasColumnName("sourceSystem_id");
 
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)")
+                        .HasColumnName("value");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("IdentifierTypeId");
 
                     b.HasIndex(new[] { "GriResearchStudyId" }, "fk_griMapping_griResearchStudy_idx");
 
-                    b.HasIndex(new[] { "ResearchInitiativeIdentifierId" }, "fk_griMapping_researchInitiativeIdentifier_idx");
-
                     b.HasIndex(new[] { "SourceSystemId" }, "fk_griMapping_sourceSystem_idx");
 
-                    b.ToTable("griMapping", (string)null);
+                    b.ToTable("researchStudyIdentifier", (string)null);
                 });
 
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.GriResearchStudy", b =>
@@ -74,10 +79,6 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("requestSourceSystem_id");
 
-                    b.Property<int>("ResearchInitiativeId")
-                        .HasColumnType("int")
-                        .HasColumnName("researchInitiative_id");
-
                     b.Property<string>("ShortTitle")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -86,11 +87,9 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "ResearchInitiativeId" }, "fk_griResearchStudy_researchInitiative_idx");
-
                     b.HasIndex(new[] { "RequestSourceSystemId" }, "fk_griResearchStudy_sourceSystem_idx");
 
-                    b.ToTable("griResearchStudy", (string)null);
+                    b.ToTable("researchStudy", (string)null);
                 });
 
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.GriResearchStudyStatus", b =>
@@ -113,7 +112,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                     b.Property<DateTime>("FromDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("GriMappingId")
+                    b.Property<int>("ResearchStudyIdentifierId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("ToDate")
@@ -121,9 +120,9 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GriMappingId");
+                    b.HasIndex("ResearchStudyIdentifierId");
 
-                    b.ToTable("griResearchStudyStatus", (string)null);
+                    b.ToTable("researchStudyIdentifierStatus", (string)null);
                 });
 
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.Person", b =>
@@ -173,8 +172,8 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.Property<string>("Given")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
                         .HasColumnName("given");
 
                     b.Property<int>("PersonId")
@@ -195,62 +194,60 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id");
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created");
-
-                    b.Property<string>("Description")
+                    b.Property<string>("Code")
+                        .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("varchar(150)")
-                        .HasColumnName("description");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(45)
-                        .HasColumnType("varchar(45)")
-                        .HasColumnName("type");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("personRole", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Created = new DateTime(2024, 3, 8, 11, 9, 4, 591, DateTimeKind.Local).AddTicks(1968),
-                            Description = "A Chief investigator role",
-                            Type = "CHIEF_INVESTIGATOR"
-                        });
-                });
-
-            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.PersonType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
+                        .HasColumnName("code");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created");
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(45)
-                        .HasColumnType("varchar(45)")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
                         .HasColumnName("description");
 
                     b.HasKey("Id");
 
-                    b.ToTable("personType", (string)null);
+                    b.ToTable("roleType", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 3, 8, 11, 9, 4, 591, DateTimeKind.Local).AddTicks(2488),
-                            Description = "RESEARCHER"
+                            Code = "CHF_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5",
+                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(7616),
+                            Description = "Chief Investigator"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Code = "STDY_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5",
+                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(7667),
+                            Description = "Study Coordinator"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Code = "RSRCH_ACT_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5",
+                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(7671),
+                            Description = "Research Activity Coordinator"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Code = "PRNCPL_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5",
+                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(7673),
+                            Description = "Principal Investigator"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Code = "CMPNY_RP@2.16.840.1.113883.2.1.3.8.5.2.3.5",
+                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(7676),
+                            Description = "Company Representative"
                         });
                 });
 
@@ -273,64 +270,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.HasIndex(new[] { "PersonId" }, "fk_researcher_person_idx");
 
-                    b.ToTable("researcher", (string)null);
-                });
-
-            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchInitiative", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created");
-
-                    b.Property<int?>("ResearchInitiativeTypeId")
-                        .HasColumnType("int")
-                        .HasColumnName("researchInitiativeType_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex(new[] { "ResearchInitiativeTypeId" }, "fk_researchInitiative_type_idx");
-
-                    b.ToTable("researchInitiative", (string)null);
-                });
-
-            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchInitiativeIdentifier", b =>
-                {
-                    b.Property<int>("Int")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("int");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created");
-
-                    b.Property<int>("ResearchInitiativeIdentifierTypeId")
-                        .HasColumnType("int")
-                        .HasColumnName("researchInitiativeIdentifierType_id");
-
-                    b.Property<int>("SourceSystemId")
-                        .HasColumnType("int")
-                        .HasColumnName("sourceSystem_id");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)")
-                        .HasColumnName("value");
-
-                    b.HasKey("Int")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex(new[] { "SourceSystemId" }, "fk_researchInitiativeIdentifier_sourceSystem_idx");
-
-                    b.HasIndex(new[] { "ResearchInitiativeIdentifierTypeId" }, "fk_researchInitiativeIdentifier_type_idx");
-
-                    b.ToTable("researchInitiativeIdentifier", (string)null);
+                    b.ToTable("practitioner", (string)null);
                 });
 
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchInitiativeIdentifierType", b =>
@@ -352,49 +292,26 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("researchInitiativeIdentifierType", (string)null);
+                    b.ToTable("researchStudyIdentifierType", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 3, 8, 11, 9, 4, 592, DateTimeKind.Local).AddTicks(3764),
+                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(8604),
                             Description = "PROJECT"
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 3, 8, 11, 9, 4, 592, DateTimeKind.Local).AddTicks(3824),
+                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(8621),
                             Description = "PROTOCOL"
-                        });
-                });
-
-            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchInitiativeType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(45)
-                        .HasColumnType("varchar(45)")
-                        .HasColumnName("description");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("researchInitiativeType", (string)null);
-
-                    b.HasData(
+                        },
                         new
                         {
-                            Id = 1,
-                            Created = new DateTime(2024, 3, 8, 11, 9, 4, 592, DateTimeKind.Local).AddTicks(4605),
-                            Description = "STUDY"
+                            Id = 3,
+                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(8624),
+                            Description = "BUNDLE"
                         });
                 });
 
@@ -419,25 +336,25 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.Property<int>("GriMappingId")
                         .HasColumnType("int")
-                        .HasColumnName("griMapping_id");
+                        .HasColumnName("researchStudy_id");
 
-                    b.Property<int>("PersonRoleId")
+                    b.Property<int>("PractitionerId")
                         .HasColumnType("int")
-                        .HasColumnName("personRole_id");
+                        .HasColumnName("practitioner_id");
 
-                    b.Property<int>("ResearcherId")
+                    b.Property<int>("RoleTypeId")
                         .HasColumnType("int")
-                        .HasColumnName("researcher_id");
+                        .HasColumnName("roleType_id");
 
                     b.HasKey("Id");
 
                     b.HasIndex(new[] { "GriMappingId" }, "fk_researchStudyTeamMember_griResearch_idx");
 
-                    b.HasIndex(new[] { "PersonRoleId" }, "fk_researchStudyTeamMember_personRol_idx");
+                    b.HasIndex(new[] { "RoleTypeId" }, "fk_researchStudyTeamMember_personRol_idx");
 
-                    b.HasIndex(new[] { "ResearcherId" }, "researchStudyTeamMember_researcher_idx");
+                    b.HasIndex(new[] { "PractitionerId" }, "researchStudyTeamMember_researcher_idx");
 
-                    b.ToTable("researchStudyTeamMember", (string)null);
+                    b.ToTable("practitionerRole", (string)null);
                 });
 
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.SourceSystem", b =>
@@ -472,14 +389,14 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         {
                             Id = 1,
                             Code = "EDGE",
-                            Created = new DateTime(2024, 3, 8, 11, 9, 4, 594, DateTimeKind.Local).AddTicks(4158),
+                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 320, DateTimeKind.Local).AddTicks(1457),
                             Description = "Edge system"
                         },
                         new
                         {
                             Id = 2,
                             Code = "IRAS",
-                            Created = new DateTime(2024, 3, 8, 11, 9, 4, 594, DateTimeKind.Local).AddTicks(4214),
+                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 320, DateTimeKind.Local).AddTicks(1507),
                             Description = "IRAS system"
                         });
                 });
@@ -487,16 +404,16 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.GriMapping", b =>
                 {
                     b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.GriResearchStudy", "GriResearchStudy")
-                        .WithMany("GriMappings")
+                        .WithMany("ResearchStudyIdentifiers")
                         .HasForeignKey("GriResearchStudyId")
                         .IsRequired()
                         .HasConstraintName("fk_griMapping_griResearchStudy");
 
-                    b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchInitiativeIdentifier", "ResearchInitiativeIdentifier")
-                        .WithMany("GriMappings")
-                        .HasForeignKey("ResearchInitiativeIdentifierId")
-                        .IsRequired()
-                        .HasConstraintName("fk_griMapping_researchInitiativeIdentifier");
+                    b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchInitiativeIdentifierType", "IdentifierType")
+                        .WithMany("Identifiers")
+                        .HasForeignKey("IdentifierTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.SourceSystem", "SourceSystem")
                         .WithMany("GriMappings")
@@ -506,7 +423,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.Navigation("GriResearchStudy");
 
-                    b.Navigation("ResearchInitiativeIdentifier");
+                    b.Navigation("IdentifierType");
 
                     b.Navigation("SourceSystem");
                 });
@@ -519,37 +436,18 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_griResearchStudy_sourceSystem");
 
-                    b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchInitiative", "ResearchInitiative")
-                        .WithMany("GriResearchStudies")
-                        .HasForeignKey("ResearchInitiativeId")
-                        .IsRequired()
-                        .HasConstraintName("fk_griResearchStudy_researchInitiative");
-
                     b.Navigation("RequestSourceSystem");
-
-                    b.Navigation("ResearchInitiative");
                 });
 
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.GriResearchStudyStatus", b =>
                 {
-                    b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.GriMapping", "GriMapping")
-                        .WithMany("GriResearchStudyStatuses")
-                        .HasForeignKey("GriMappingId")
+                    b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.GriMapping", "ResearchStudyIdentifier")
+                        .WithMany("IdentifierStatuses")
+                        .HasForeignKey("ResearchStudyIdentifierId")
                         .IsRequired()
                         .HasConstraintName("fk_griResearchStudyStatus_griMapping");
 
-                    b.Navigation("GriMapping");
-                });
-
-            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.Person", b =>
-                {
-                    b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.PersonType", "PersonType")
-                        .WithMany("People")
-                        .HasForeignKey("PersonTypeId")
-                        .IsRequired()
-                        .HasConstraintName("fk_person_type");
-
-                    b.Navigation("PersonType");
+                    b.Navigation("ResearchStudyIdentifier");
                 });
 
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.PersonName", b =>
@@ -574,35 +472,6 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                     b.Navigation("Person");
                 });
 
-            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchInitiative", b =>
-                {
-                    b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchInitiativeType", "ResearchInitiativeType")
-                        .WithMany("ResearchInitiatives")
-                        .HasForeignKey("ResearchInitiativeTypeId")
-                        .HasConstraintName("fk_researchInitiative_type");
-
-                    b.Navigation("ResearchInitiativeType");
-                });
-
-            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchInitiativeIdentifier", b =>
-                {
-                    b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchInitiativeIdentifierType", "ResearchInitiativeIdentifierType")
-                        .WithMany("ResearchInitiativeIdentifiers")
-                        .HasForeignKey("ResearchInitiativeIdentifierTypeId")
-                        .IsRequired()
-                        .HasConstraintName("fk_researchInitiativeIdentifier_type");
-
-                    b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.SourceSystem", "SourceSystem")
-                        .WithMany("ResearchInitiativeIdentifiers")
-                        .HasForeignKey("SourceSystemId")
-                        .IsRequired()
-                        .HasConstraintName("fk_researchInitiativeIdentifier_sourceSystem");
-
-                    b.Navigation("ResearchInitiativeIdentifierType");
-
-                    b.Navigation("SourceSystem");
-                });
-
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchStudyTeamMember", b =>
                 {
                     b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.GriResearchStudy", "GriMapping")
@@ -611,17 +480,17 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_researchStudyTeamMember_griResearch");
 
-                    b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.PersonRole", "PersonRole")
-                        .WithMany("ResearchStudyTeamMembers")
-                        .HasForeignKey("PersonRoleId")
-                        .IsRequired()
-                        .HasConstraintName("fk_researchStudyTeamMember_personRol");
-
                     b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.Researcher", "Researcher")
                         .WithMany("ResearchStudyTeamMembers")
-                        .HasForeignKey("ResearcherId")
+                        .HasForeignKey("PractitionerId")
                         .IsRequired()
                         .HasConstraintName("researchStudyTeamMember_researcher");
+
+                    b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.PersonRole", "PersonRole")
+                        .WithMany("ResearchStudyTeamMembers")
+                        .HasForeignKey("RoleTypeId")
+                        .IsRequired()
+                        .HasConstraintName("fk_researchStudyTeamMember_personRol");
 
                     b.Navigation("GriMapping");
 
@@ -632,12 +501,12 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.GriMapping", b =>
                 {
-                    b.Navigation("GriResearchStudyStatuses");
+                    b.Navigation("IdentifierStatuses");
                 });
 
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.GriResearchStudy", b =>
                 {
-                    b.Navigation("GriMappings");
+                    b.Navigation("ResearchStudyIdentifiers");
 
                     b.Navigation("ResearchStudyTeamMembers");
                 });
@@ -654,34 +523,14 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                     b.Navigation("ResearchStudyTeamMembers");
                 });
 
-            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.PersonType", b =>
-                {
-                    b.Navigation("People");
-                });
-
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.Researcher", b =>
                 {
                     b.Navigation("ResearchStudyTeamMembers");
                 });
 
-            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchInitiative", b =>
-                {
-                    b.Navigation("GriResearchStudies");
-                });
-
-            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchInitiativeIdentifier", b =>
-                {
-                    b.Navigation("GriMappings");
-                });
-
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchInitiativeIdentifierType", b =>
                 {
-                    b.Navigation("ResearchInitiativeIdentifiers");
-                });
-
-            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchInitiativeType", b =>
-                {
-                    b.Navigation("ResearchInitiatives");
+                    b.Navigation("Identifiers");
                 });
 
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.SourceSystem", b =>
@@ -689,8 +538,6 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                     b.Navigation("GriMappings");
 
                     b.Navigation("GriResearchStudies");
-
-                    b.Navigation("ResearchInitiativeIdentifiers");
                 });
 #pragma warning restore 612, 618
         }

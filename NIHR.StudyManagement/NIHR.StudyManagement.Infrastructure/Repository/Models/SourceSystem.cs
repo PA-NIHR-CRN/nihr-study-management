@@ -9,7 +9,6 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
         {
             GriMappings = new HashSet<GriMapping>();
             GriResearchStudies = new HashSet<GriResearchStudy>();
-            ResearchInitiativeIdentifiers = new HashSet<ResearchInitiativeIdentifier>();
         }
 
         public int Id { get; set; }
@@ -18,6 +17,5 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
 
         public virtual ICollection<GriMapping> GriMappings { get; set; }
         public virtual ICollection<GriResearchStudy> GriResearchStudies { get; set; }
-        public virtual ICollection<ResearchInitiativeIdentifier> ResearchInitiativeIdentifiers { get; set; }
     }
 }

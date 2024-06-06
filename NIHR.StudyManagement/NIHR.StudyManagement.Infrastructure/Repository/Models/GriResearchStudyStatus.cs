@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
 
-        public int GriMappingId { get; set; }
+        public int ResearchStudyIdentifierId { get; set; }
 
         public string Code { get; set; }
 
@@ -12,6 +12,6 @@
 
         public DateTime? ToDate { get; set; }
 
-        public virtual GriMapping GriMapping { get; set; } = null!;
+        public virtual GriMapping ResearchStudyIdentifier { get; set; } = null!;
     }
 }

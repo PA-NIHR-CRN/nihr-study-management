@@ -11,9 +11,18 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
         }
 
         public int Id { get; set; }
-        public string Type { get; set; } = null!;
+        public string Code { get; set; } = null!;
         public string? Description { get; set; }
 
         public virtual ICollection<ResearchStudyTeamMember> ResearchStudyTeamMembers { get; set; }
+    }
+
+    public partial class OrganisationEntity : DbEntity
+    {
+        public int Id { get; set; }
+
+        public string Code { get; set; } = null!;
+
+        public string? Description { get; set; }
     }
 }
