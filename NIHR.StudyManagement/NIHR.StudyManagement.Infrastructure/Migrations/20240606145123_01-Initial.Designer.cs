@@ -11,7 +11,7 @@ using NIHR.StudyManagement.Infrastructure.Repository;
 namespace NIHR.StudyManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(StudyRegistryContext))]
-    [Migration("20240606142051_01-Initial")]
+    [Migration("20240606145123_01-Initial")]
     partial class _01Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -30,8 +30,8 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)")
                         .HasColumnName("code");
 
                     b.Property<DateTime>("Created")
@@ -39,8 +39,8 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         .HasColumnName("created");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)")
                         .HasColumnName("description");
 
                     b.HasKey("Id");
@@ -52,7 +52,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         {
                             Id = 1,
                             Code = "org01",
-                            Created = new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(1431),
+                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 482, DateTimeKind.Local).AddTicks(216),
                             Description = "Development organisation"
                         });
                 });
@@ -86,20 +86,20 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)")
                         .HasColumnName("email");
 
                     b.Property<string>("Family")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)")
                         .HasColumnName("family");
 
                     b.Property<string>("Given")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)")
                         .HasColumnName("given");
 
                     b.Property<int>("PersonId")
@@ -146,20 +146,14 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created");
 
-                    b.Property<string>("Gri")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("gri");
-
                     b.Property<int>("RequestSourceSystemId")
                         .HasColumnType("int")
                         .HasColumnName("sourceSystem_id");
 
                     b.Property<string>("ShortTitle")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)")
                         .HasColumnName("shortTitle");
 
                     b.HasKey("Id");
@@ -185,7 +179,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.Property<int>("ResearchStudyId")
                         .HasColumnType("int")
-                        .HasColumnName("griResearchStudy_id");
+                        .HasColumnName("researchStudy_id");
 
                     b.Property<int>("SourceSystemId")
                         .HasColumnType("int")
@@ -193,8 +187,8 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)")
                         .HasColumnName("value");
 
                     b.HasKey("Id");
@@ -217,8 +211,8 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)")
                         .HasColumnName("code");
 
                     b.Property<DateTime>("Created")
@@ -254,8 +248,8 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(45)
-                        .HasColumnType("varchar(45)")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)")
                         .HasColumnName("description");
 
                     b.HasKey("Id");
@@ -266,25 +260,25 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(962),
+                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(9689),
                             Description = "PROJECT"
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(973),
+                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(9701),
                             Description = "PROTOCOL"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(975),
+                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(9703),
                             Description = "BUNDLE"
                         },
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(1009),
+                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(9705),
                             Description = "GRIS ID"
                         });
                 });
@@ -340,8 +334,8 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)")
                         .HasColumnName("code");
 
                     b.Property<DateTime>("Created")
@@ -349,8 +343,8 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         .HasColumnName("created");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)")
                         .HasColumnName("description");
 
                     b.HasKey("Id");
@@ -362,35 +356,35 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         {
                             Id = 1,
                             Code = "CHF_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5",
-                            Created = new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(310),
+                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(8566),
                             Description = "Chief Investigator"
                         },
                         new
                         {
                             Id = 2,
                             Code = "STDY_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5",
-                            Created = new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(355),
+                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(8616),
                             Description = "Study Coordinator"
                         },
                         new
                         {
                             Id = 3,
                             Code = "RSRCH_ACT_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5",
-                            Created = new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(357),
+                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(8620),
                             Description = "Research Activity Coordinator"
                         },
                         new
                         {
                             Id = 4,
                             Code = "PRNCPL_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5",
-                            Created = new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(359),
+                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(8623),
                             Description = "Principal Investigator"
                         },
                         new
                         {
                             Id = 5,
                             Code = "CMPNY_RP@2.16.840.1.113883.2.1.3.8.5.2.3.5",
-                            Created = new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(361),
+                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(8625),
                             Description = "Company Representative"
                         });
                 });
@@ -404,8 +398,8 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasMaxLength(45)
-                        .HasColumnType("varchar(45)")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)")
                         .HasColumnName("code");
 
                     b.Property<DateTime>("Created")
@@ -414,8 +408,8 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(45)
-                        .HasColumnType("varchar(45)")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)")
                         .HasColumnName("description");
 
                     b.HasKey("Id");
@@ -427,14 +421,14 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         {
                             Id = 1,
                             Code = "EDGE",
-                            Created = new DateTime(2024, 6, 6, 15, 20, 51, 401, DateTimeKind.Local).AddTicks(2925),
+                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 483, DateTimeKind.Local).AddTicks(343),
                             Description = "Edge system"
                         },
                         new
                         {
                             Id = 2,
                             Code = "IRAS",
-                            Created = new DateTime(2024, 6, 6, 15, 20, 51, 401, DateTimeKind.Local).AddTicks(2979),
+                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 483, DateTimeKind.Local).AddTicks(382),
                             Description = "IRAS system"
                         });
                 });
@@ -512,7 +506,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchStudyTeamMemberEntity", b =>
                 {
-                    b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.PractitionerEntity", "Practitiooner")
+                    b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.PractitionerEntity", "Practitioner")
                         .WithMany("ResearchStudyTeamMembers")
                         .HasForeignKey("PractitionerId")
                         .IsRequired()
@@ -532,7 +526,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
                     b.Navigation("PersonRole");
 
-                    b.Navigation("Practitiooner");
+                    b.Navigation("Practitioner");
 
                     b.Navigation("ResearchStudy");
                 });

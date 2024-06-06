@@ -1,10 +1,10 @@
 ﻿
+using NIHR.StudyManagement.Domain.EnumsAndConstants;
+
 namespace NIHR.StudyManagement.Domain.Models
 {
     public class GovernmentResearchIdentifier : DomainEntity
     {
-        public string Identifier { get; set; }
-
         public string ShortTitle { get; set; }
 
         public string Sponsor { get; set; }
@@ -15,11 +15,26 @@ namespace NIHR.StudyManagement.Domain.Models
         
         public GovernmentResearchIdentifier()
         {
-            Identifier = "";
             ShortTitle = "";
             Sponsor = "";
             TeamMembers = new List<TeamMember>();
             LinkedSystemIdentifiers = new List<LinkedSystemIdentifier>();
+        }
+
+        public string GrisId
+        {
+            get
+            {
+                foreach (var identifier in LinkedSystemIdentifiers)
+                {
+                    if(identifier.IdentifierType == ResearchInitiativeIdentifierTypes.GrisId)
+                    {
+                        return identifier.Identifier;
+                    }
+                }
+
+                return "";
+            }
         }
     }
 }

@@ -43,7 +43,6 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
             var researchStudy = new ResearchStudyEntity
             {
                 ShortTitle = request.ShortTitle,
-                Gri = griId,
                 RequestSourceSystem = localSystem
             };
 
@@ -86,7 +85,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                 var teamMemberToAdd = new ResearchStudyTeamMemberEntity
                 {
                     ResearchStudy = researchStudy,
-                    Practitiooner = new PractitionerEntity
+                    Practitioner = new PractitionerEntity
                     {
                         Person = personEntity
                     },
@@ -175,7 +174,6 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
             {
                 Created = griResearchStudy.Created,
                 LinkedSystemIdentifiers = linkedSystemIdentifiers,
-                Identifier = griResearchStudy.Gri,
                 ShortTitle = griResearchStudy.ShortTitle,
                 TeamMembers = Map(griResearchStudy.ResearchStudyTeamMembers)
             };
@@ -203,10 +201,10 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     {
                         Email = new Email
                         {
-                            Address = teamMember.Practitiooner.Person.PersonNames.First().Email
+                            Address = teamMember.Practitioner.Person.PersonNames.First().Email
                         },
-                        Firstname = teamMember.Practitiooner.Person.PersonNames.First().Given,
-                        Lastname = teamMember.Practitiooner.Person.PersonNames.First().Family
+                        Firstname = teamMember.Practitioner.Person.PersonNames.First().Given,
+                        Lastname = teamMember.Practitioner.Person.PersonNames.First().Family
                     }
                 });
             }
@@ -217,18 +215,31 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
         private async Task<ResearchStudyEntity?> GetGriResearchStudyByIdentifierAsync(string? identifier,
             CancellationToken cancellationToken)
         {
-            var griResearchStudy = await _context.ResearchStudies
-                .Include(context => context.ResearchStudyTeamMembers)
-                    .ThenInclude(x => x.Practitiooner)
-                    .ThenInclude(researcher => researcher.Person)
-                    .ThenInclude(person => person.PersonNames)
-                 .Include(context => context.ResearchStudyTeamMembers).ThenInclude(x => x.PersonRole)
-                 .Include(study => study.ResearchStudyIdentifiers).ThenInclude(mapping => mapping.SourceSystem)
-                 .Include(study => study.ResearchStudyIdentifiers).ThenInclude(x => x.IdentifierType)
-                 .Include(study => study.ResearchStudyIdentifiers).ThenInclude(mapping => mapping.IdentifierStatuses)
-                .FirstOrDefaultAsync(x => x.Gri == identifier, cancellationToken);
+            var griResearchStudyIdentifier = await _context.ResearchStudyIdentifiers
+                .Include(record => record.SourceSystem)
+                .Include(record => record.IdentifierStatuses)
+                .Include(record => record.IdentifierType)
+                .Include(record => record.ResearchStudy)
+                    .ThenInclude(study => study.ResearchStudyTeamMembers)
+                    .ThenInclude(team => team.Practitioner)
+                    .ThenInclude(team => team.Person)
+                    .ThenInclude(team => team.PersonNames)
+                .FirstOrDefaultAsync(researchStudyIdentifier => researchStudyIdentifier.IdentifierType.Description == ResearchInitiativeIdentifierTypes.GrisId
+                    && researchStudyIdentifier.Value == identifier, cancellationToken);
 
-            return griResearchStudy;
+
+            //var griResearchStudy = await _context.
+            //    .Include(context => context.ResearchStudyTeamMembers)
+            //        .ThenInclude(x => x.Practitiooner)
+            //        .ThenInclude(researcher => researcher.Person)
+            //        .ThenInclude(person => person.PersonNames)
+            //     .Include(context => context.ResearchStudyTeamMembers).ThenInclude(x => x.PersonRole)
+            //     .Include(study => study.ResearchStudyIdentifiers).ThenInclude(mapping => mapping.SourceSystem)
+            //     .Include(study => study.ResearchStudyIdentifiers).ThenInclude(x => x.IdentifierType)
+            //     .Include(study => study.ResearchStudyIdentifiers).ThenInclude(mapping => mapping.IdentifierStatuses)
+            //    .FirstOrDefaultAsync(x => x.Gri == identifier, cancellationToken);
+
+            return griResearchStudyIdentifier?.ResearchStudy;
         }
 
         private async Task<PersonDb?> GetPersonAsync(PersonWithPrimaryEmail person,

@@ -138,8 +138,7 @@ namespace NIHR.StudyManagement.Api.Mappers
             // Initialise and set short title
             var study = new ResearchStudy()
             {
-                Id = x.Identifier,
-                Label = new List<ResearchStudy.LabelComponent> {
+                  Label = new List<ResearchStudy.LabelComponent> {
                     new ResearchStudy.LabelComponent
                     {
                          Value = x.ShortTitle,
@@ -153,20 +152,6 @@ namespace NIHR.StudyManagement.Api.Mappers
             study.Identifier = new List<Identifier>();
 
             study.Identifier.AddRange(GetLinkedIdentifiers(x));
-
-            // Add the GRIS ID as an identifier in the response
-            study.Identifier.Add(new Identifier
-            {
-                Use = Identifier.IdentifierUse.Official,
-                Type = new CodeableConcept()
-                {
-                    Text = ResearchInitiativeIdentifierTypes.GrisId
-                },
-                Value = x.Identifier,
-                Period = new Period {
-                    Start = x.Created.ToFhirDate()
-                }
-            });
 
             var firstPractitioner = AddTeamMembers(x, bundle, httpRequestResponseFhirContext);
 
@@ -283,15 +268,16 @@ namespace NIHR.StudyManagement.Api.Mappers
         {
             foreach (var y in x.LinkedSystemIdentifiers)
             {
-                if(y.IdentifierType == ResearchInitiativeIdentifierTypes.Bundle
-                    || y.IdentifierType == ResearchInitiativeIdentifierTypes.GrisId)
+                if(y.IdentifierType == ResearchInitiativeIdentifierTypes.Bundle)
                 {
                     continue;
                 }
 
                 yield return new Identifier
                 {
-                    Use = Identifier.IdentifierUse.Usual,
+                    Use = y.IdentifierType == ResearchInitiativeIdentifierTypes.GrisId
+                    ? Identifier.IdentifierUse.Official
+                    : Identifier.IdentifierUse.Usual,
                     Type = new CodeableConcept()
                     {
                         Text = y.IdentifierType

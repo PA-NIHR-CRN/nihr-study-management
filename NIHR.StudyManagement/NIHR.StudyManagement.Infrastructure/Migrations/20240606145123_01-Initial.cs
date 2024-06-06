@@ -19,9 +19,9 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    code = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false)
+                    code = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
+                    description = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     created = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -51,7 +51,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    description = table.Column<string>(type: "varchar(45)", maxLength: 45, nullable: false)
+                    description = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     created = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -67,9 +67,9 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    code = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false)
+                    code = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
+                    description = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     created = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -85,9 +85,9 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    code = table.Column<string>(type: "varchar(45)", maxLength: 45, nullable: false)
+                    code = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    description = table.Column<string>(type: "varchar(45)", maxLength: 45, nullable: false)
+                    description = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     created = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -104,11 +104,11 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     person_id = table.Column<int>(type: "int", nullable: false),
-                    family = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                    family = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    given = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                    given = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    email = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false)
+                    email = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     created = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -149,9 +149,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    gri = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    shortTitle = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false)
+                    shortTitle = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     sourceSystem_id = table.Column<int>(type: "int", nullable: false),
                     created = table.Column<DateTime>(type: "datetime(6)", nullable: false)
@@ -207,9 +205,9 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    griResearchStudy_id = table.Column<int>(type: "int", nullable: false),
+                    researchStudy_id = table.Column<int>(type: "int", nullable: false),
                     sourceSystem_id = table.Column<int>(type: "int", nullable: false),
-                    value = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false)
+                    value = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     IdentifierTypeId = table.Column<int>(type: "int", nullable: false),
                     created = table.Column<DateTime>(type: "datetime(6)", nullable: false)
@@ -219,7 +217,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                     table.PrimaryKey("PK_researchStudyIdentifier", x => x.id);
                     table.ForeignKey(
                         name: "fk_researchStudyIdentifier_researchStudy",
-                        column: x => x.griResearchStudy_id,
+                        column: x => x.researchStudy_id,
                         principalTable: "researchStudy",
                         principalColumn: "id");
                     table.ForeignKey(
@@ -243,7 +241,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     ResearchStudyIdentifierId = table.Column<int>(type: "int", nullable: false),
-                    code = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                    code = table.Column<string>(type: "varchar(250)", maxLength: 250, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     FromDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     ToDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -263,17 +261,17 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "organisation",
                 columns: new[] { "id", "code", "created", "description" },
-                values: new object[] { 1, "org01", new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(1431), "Development organisation" });
+                values: new object[] { 1, "org01", new DateTime(2024, 6, 6, 15, 51, 23, 482, DateTimeKind.Local).AddTicks(216), "Development organisation" });
 
             migrationBuilder.InsertData(
                 table: "researchStudyIdentifierType",
                 columns: new[] { "id", "created", "description" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(962), "PROJECT" },
-                    { 2, new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(973), "PROTOCOL" },
-                    { 3, new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(975), "BUNDLE" },
-                    { 4, new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(1009), "GRIS ID" }
+                    { 1, new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(9689), "PROJECT" },
+                    { 2, new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(9701), "PROTOCOL" },
+                    { 3, new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(9703), "BUNDLE" },
+                    { 4, new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(9705), "GRIS ID" }
                 });
 
             migrationBuilder.InsertData(
@@ -281,11 +279,11 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 columns: new[] { "id", "code", "created", "description" },
                 values: new object[,]
                 {
-                    { 1, "CHF_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(310), "Chief Investigator" },
-                    { 2, "STDY_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(355), "Study Coordinator" },
-                    { 3, "RSRCH_ACT_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(357), "Research Activity Coordinator" },
-                    { 4, "PRNCPL_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(359), "Principal Investigator" },
-                    { 5, "CMPNY_RP@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(361), "Company Representative" }
+                    { 1, "CHF_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(8566), "Chief Investigator" },
+                    { 2, "STDY_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(8616), "Study Coordinator" },
+                    { 3, "RSRCH_ACT_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(8620), "Research Activity Coordinator" },
+                    { 4, "PRNCPL_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(8623), "Principal Investigator" },
+                    { 5, "CMPNY_RP@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(8625), "Company Representative" }
                 });
 
             migrationBuilder.InsertData(
@@ -293,8 +291,8 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 columns: new[] { "id", "code", "created", "description" },
                 values: new object[,]
                 {
-                    { 1, "EDGE", new DateTime(2024, 6, 6, 15, 20, 51, 401, DateTimeKind.Local).AddTicks(2925), "Edge system" },
-                    { 2, "IRAS", new DateTime(2024, 6, 6, 15, 20, 51, 401, DateTimeKind.Local).AddTicks(2979), "IRAS system" }
+                    { 1, "EDGE", new DateTime(2024, 6, 6, 15, 51, 23, 483, DateTimeKind.Local).AddTicks(343), "Edge system" },
+                    { 2, "IRAS", new DateTime(2024, 6, 6, 15, 51, 23, 483, DateTimeKind.Local).AddTicks(382), "IRAS system" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -330,7 +328,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "idx_researchStudyIdentifier_researchStudyId",
                 table: "researchStudyIdentifier",
-                column: "griResearchStudy_id");
+                column: "researchStudy_id");
 
             migrationBuilder.CreateIndex(
                 name: "idx_researchStudyIdentifier_sourceSystemId",

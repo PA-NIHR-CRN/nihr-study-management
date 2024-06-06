@@ -16,6 +16,6 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
 
         public virtual ResearchStudyEntity ResearchStudy { get; set; } = null!;
         public virtual RoleTypeEntity PersonRole { get; set; } = null!;
-        public virtual PractitionerEntity Practitiooner { get; set; } = null!;
+        public virtual PractitionerEntity Practitioner { get; set; } = null!;
     }
 }

@@ -39,7 +39,9 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
         public virtual DbSet<ResearchStudyIdentifierTypeEntity> ResearchInitiativeIdentifierTypes { get; set; } = null!;
 
         public virtual DbSet<ResearchStudyTeamMemberEntity> ResearchStudyTeamMembers { get; set; } = null!;
-        public virtual DbSet<PractitionerEntity> Researchers { get; set; } = null!;
+
+        public virtual DbSet<ResearchStudyIdentifierEntity> ResearchStudyIdentifiers { get; set; } = null!;
+
         public virtual DbSet<SourceSystemEntity> SourceSystems { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -58,7 +60,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                 entity.HasIndex(e => e.ResearchStudyId, "idx_researchStudyIdentifier_researchStudyId");
 
                 entity.Property(e => e.Value)
-                    .HasMaxLength(150)
+                    .HasMaxLength(250)
                     .HasColumnName("value");
 
                 entity.HasIndex(e => e.SourceSystemId, "idx_researchStudyIdentifier_sourceSystemId");
@@ -93,7 +95,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                 entity.Property(e => e.Created).HasColumnName("created");
 
                 entity.Property(e => e.Code)
-                    .HasMaxLength(100)
+                    .HasMaxLength(250)
                     .HasColumnName("code");
 
                 entity.HasOne(d => d.ResearchStudyIdentifier)
@@ -113,14 +115,10 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
 
                 entity.Property(e => e.Created).HasColumnName("created");
 
-                entity.Property(e => e.Gri)
-                    .HasMaxLength(100)
-                    .HasColumnName("gri");
-
                 entity.Property(e => e.RequestSourceSystemId).HasColumnName("sourceSystem_id");
 
                 entity.Property(e => e.ShortTitle)
-                    .HasMaxLength(150)
+                    .HasMaxLength(250)
                     .HasColumnName("shortTitle");
 
                 entity.HasOne(d => d.RequestSourceSystem)
@@ -150,15 +148,15 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                 entity.Property(e => e.Created).HasColumnName("created");
 
                 entity.Property(e => e.Family)
-                    .HasMaxLength(100)
+                    .HasMaxLength(250)
                     .HasColumnName("family");
 
                 entity.Property(e => e.Given)
-                    .HasMaxLength(100)
+                    .HasMaxLength(250)
                     .HasColumnName("given");
 
                 entity.Property(e => e.Email)
-                    .HasMaxLength(150)
+                    .HasMaxLength(250)
                     .HasColumnName("email");
 
                 entity.Property(e => e.PersonId).HasColumnName("person_id");
@@ -179,11 +177,11 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                 entity.Property(e => e.Created).HasColumnName("created");
 
                 entity.Property(e => e.Description)
-                    .HasMaxLength(500)
+                    .HasMaxLength(250)
                     .HasColumnName("description");
 
                 entity.Property(e => e.Code)
-                    .HasMaxLength(150)
+                    .HasMaxLength(250)
                     .HasColumnName("code");
 
                 entity.HasData(
@@ -228,7 +226,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Description)
-                    .HasMaxLength(45)
+                    .HasMaxLength(250)
                     .HasColumnName("description");
 
                 entity.HasData(
@@ -248,11 +246,11 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Description)
-                    .HasMaxLength(500)
+                    .HasMaxLength(250)
                     .HasColumnName("description");
 
                 entity.Property(e => e.Code)
-                    .HasMaxLength(150)
+                    .HasMaxLength(250)
                     .HasColumnName("code");
 
                 entity.HasData(
@@ -296,7 +294,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_researchStudyTeamMember_personRole");
 
-                entity.HasOne(d => d.Practitiooner)
+                entity.HasOne(d => d.Practitioner)
                     .WithMany(p => p.ResearchStudyTeamMembers)
                     .HasForeignKey(d => d.PractitionerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
@@ -331,11 +329,11 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                 entity.Property(e => e.Created).HasColumnName("created");
 
                 entity.Property(e => e.Code)
-                    .HasMaxLength(45)
+                    .HasMaxLength(250)
                     .HasColumnName("code");
 
                 entity.Property(e => e.Description)
-                    .HasMaxLength(45)
+                    .HasMaxLength(250)
                     .HasColumnName("description");
 
                 entity.HasData(
