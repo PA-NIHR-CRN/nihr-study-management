@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace NIHR.StudyManagement.Infrastructure.Repository.Models
 {
-    public partial class PersonName : DbEntity
+    public partial class PersonNameEntity : DbEntity
     {
         public int Id { get; set; }
         public int PersonId { get; set; }
@@ -12,6 +12,6 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
 
         public string Email { get; set; } = null!;
 
-        public virtual Person Person { get; set; } = null!;
+        public virtual PersonEntity Person { get; set; } = null!;
     }
 }

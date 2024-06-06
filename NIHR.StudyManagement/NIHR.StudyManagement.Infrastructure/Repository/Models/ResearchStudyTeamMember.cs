@@ -14,8 +14,8 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
 
         public DateTime? EffectiveTo { get; set; }
 
-        public virtual GriResearchStudy GriMapping { get; set; } = null!;
-        public virtual PersonRole PersonRole { get; set; } = null!;
+        public virtual ResearchStudyEntity GriMapping { get; set; } = null!;
+        public virtual RoleTypeEntity PersonRole { get; set; } = null!;
         public virtual Researcher Researcher { get; set; } = null!;
     }
 }

@@ -8,7 +8,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
         public DateTime Created { get; set; } = DateTime.Now;
     }
 
-    public partial class GriMapping : DbEntity
+    public partial class ResearchStudyIdentifierEntity : DbEntity
     {
         public int Id { get; set; }
         public int GriResearchStudyId { get; set; }
@@ -19,12 +19,12 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
 
         public int IdentifierTypeId { get; set; }
 
-        public virtual ResearchInitiativeIdentifierType IdentifierType { get; set; } = null!;
+        public virtual ResearchStudyIdentifierTypeEntity IdentifierType { get; set; } = null!;
 
-        public virtual GriResearchStudy GriResearchStudy { get; set; } = null!;
+        public virtual ResearchStudyEntity GriResearchStudy { get; set; } = null!;
         //public virtual ResearchInitiativeIdentifier Identifier { get; set; } = null!;
         public virtual SourceSystem SourceSystem { get; set; } = null!;
 
-        public virtual ICollection<GriResearchStudyStatus> IdentifierStatuses { get; set; } = null!;
+        public virtual ICollection<ResearchStudyIdentifierStatusEntity> IdentifierStatuses { get; set; } = null!;
     }
 }

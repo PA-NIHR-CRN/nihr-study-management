@@ -125,6 +125,42 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                     b.ToTable("researchStudyIdentifierStatus", (string)null);
                 });
 
+            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.OrganisationEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("description");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("organisation", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Code = "org01",
+                            Created = new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(7842),
+                            Description = "Development organisation"
+                        });
+                });
+
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.Person", b =>
                 {
                     b.Property<int>("Id")
@@ -136,13 +172,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created");
 
-                    b.Property<int>("PersonTypeId")
-                        .HasColumnType("int")
-                        .HasColumnName("personType_id");
-
                     b.HasKey("Id");
-
-                    b.HasIndex(new[] { "PersonTypeId" }, "fk_person_type_idx");
 
                     b.ToTable("person", (string)null);
                 });
@@ -218,35 +248,35 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         {
                             Id = 1,
                             Code = "CHF_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5",
-                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(7616),
+                            Created = new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(6917),
                             Description = "Chief Investigator"
                         },
                         new
                         {
                             Id = 2,
                             Code = "STDY_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5",
-                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(7667),
+                            Created = new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(6957),
                             Description = "Study Coordinator"
                         },
                         new
                         {
                             Id = 3,
                             Code = "RSRCH_ACT_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5",
-                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(7671),
+                            Created = new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(6960),
                             Description = "Research Activity Coordinator"
                         },
                         new
                         {
                             Id = 4,
                             Code = "PRNCPL_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5",
-                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(7673),
+                            Created = new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(6962),
                             Description = "Principal Investigator"
                         },
                         new
                         {
                             Id = 5,
                             Code = "CMPNY_RP@2.16.840.1.113883.2.1.3.8.5.2.3.5",
-                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(7676),
+                            Created = new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(6963),
                             Description = "Company Representative"
                         });
                 });
@@ -298,20 +328,26 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(8604),
+                            Created = new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(7448),
                             Description = "PROJECT"
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(8621),
+                            Created = new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(7456),
                             Description = "PROTOCOL"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(8624),
+                            Created = new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(7459),
                             Description = "BUNDLE"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Created = new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(7461),
+                            Description = "GRIS ID"
                         });
                 });
 
@@ -389,14 +425,14 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         {
                             Id = 1,
                             Code = "EDGE",
-                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 320, DateTimeKind.Local).AddTicks(1457),
+                            Created = new DateTime(2024, 6, 6, 12, 29, 30, 196, DateTimeKind.Local).AddTicks(6503),
                             Description = "Edge system"
                         },
                         new
                         {
                             Id = 2,
                             Code = "IRAS",
-                            Created = new DateTime(2024, 6, 6, 10, 19, 20, 320, DateTimeKind.Local).AddTicks(1507),
+                            Created = new DateTime(2024, 6, 6, 12, 29, 30, 196, DateTimeKind.Local).AddTicks(6519),
                             Description = "IRAS system"
                         });
                 });

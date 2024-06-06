@@ -13,7 +13,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
         public int Id { get; set; }
         public int PersonId { get; set; }
 
-        public virtual Person Person { get; set; } = null!;
+        public virtual PersonEntity Person { get; set; } = null!;
         public virtual ICollection<ResearchStudyTeamMember> ResearchStudyTeamMembers { get; set; }
     }
 }

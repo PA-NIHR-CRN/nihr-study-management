@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace NIHR.StudyManagement.Infrastructure.Repository.Models
 {
-    public partial class PersonRole : DbEntity
+    public partial class RoleTypeEntity : DbEntity
     {
-        public PersonRole()
+        public RoleTypeEntity()
         {
             ResearchStudyTeamMembers = new HashSet<ResearchStudyTeamMember>();
         }

@@ -29,19 +29,19 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
         }
 
         //public virtual DbSet<GriMapping> GriMappings { get; set; } = null!;
-        public virtual DbSet<GriResearchStudy> GriResearchStudies { get; set; } = null!;
-        public virtual DbSet<Person> People { get; set; } = null!;
-        public virtual DbSet<PersonName> PersonNames { get; set; } = null!;
-        public virtual DbSet<PersonRole> PersonRoles { get; set; } = null!;
+        public virtual DbSet<ResearchStudyEntity> ResearchStudies { get; set; } = null!;
+        public virtual DbSet<PersonEntity> People { get; set; } = null!;
+        public virtual DbSet<PersonNameEntity> PersonNames { get; set; } = null!;
+        public virtual DbSet<RoleTypeEntity> PersonRoles { get; set; } = null!;
 
         public virtual DbSet<OrganisationEntity> OrganisationEntities { get; set; } = null!;
 
-        public virtual DbSet<ResearchInitiativeIdentifierType> ResearchInitiativeIdentifierTypes { get; set; } = null!;
+        public virtual DbSet<ResearchStudyIdentifierTypeEntity> ResearchInitiativeIdentifierTypes { get; set; } = null!;
 
         public virtual DbSet<ResearchStudyTeamMember> ResearchStudyTeamMembers { get; set; } = null!;
         public virtual DbSet<Researcher> Researchers { get; set; } = null!;
         public virtual DbSet<SourceSystem> SourceSystems { get; set; } = null!;
-        public virtual DbSet<GriResearchStudyStatus> GriResearchStudyStatuses { get; set; } = null!;
+        public virtual DbSet<ResearchStudyIdentifierStatusEntity> GriResearchStudyStatuses { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -52,7 +52,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<GriMapping>(entity =>
+            modelBuilder.Entity<ResearchStudyIdentifierEntity>(entity =>
             {
                 entity.ToTable("researchStudyIdentifier");
 
@@ -95,7 +95,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     .HasConstraintName("fk_griMapping_sourceSystem");
             });
 
-            modelBuilder.Entity<GriResearchStudyStatus>(entity =>
+            modelBuilder.Entity<ResearchStudyIdentifierStatusEntity>(entity =>
             {
                 entity.ToTable("researchStudyIdentifierStatus");
 
@@ -114,7 +114,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     .HasConstraintName("fk_griResearchStudyStatus_griMapping");
             });
 
-            modelBuilder.Entity<GriResearchStudy>(entity =>
+            modelBuilder.Entity<ResearchStudyEntity>(entity =>
             {
                 entity.ToTable("researchStudy");
 
@@ -141,20 +141,16 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     .HasConstraintName("fk_griResearchStudy_sourceSystem");
             });
 
-            modelBuilder.Entity<Person>(entity =>
+            modelBuilder.Entity<PersonEntity>(entity =>
             {
                 entity.ToTable("person");
 
-                entity.HasIndex(e => e.PersonTypeId, "fk_person_type_idx");
-
                 entity.Property(e => e.Id).HasColumnName("id");
-
-                entity.Property(e => e.PersonTypeId).HasColumnName("personType_id");
 
                 entity.Property(e => e.Created).HasColumnName("created");
             });
 
-            modelBuilder.Entity<PersonName>(entity =>
+            modelBuilder.Entity<PersonNameEntity>(entity =>
             {
                 entity.ToTable("personName");
 
@@ -185,7 +181,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     .HasConstraintName("fk_personName_person");
             });
 
-            modelBuilder.Entity<PersonRole>(entity =>
+            modelBuilder.Entity<RoleTypeEntity>(entity =>
             {
                 entity.ToTable("roleType");
 
@@ -202,30 +198,30 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     .HasColumnName("code");
 
                 entity.HasData(
-                    new PersonRole {
+                    new RoleTypeEntity {
                         Id = 1,
                         Description = "Chief Investigator",
                         Code = "CHF_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5",
                     },
-                    new PersonRole
+                    new RoleTypeEntity
                     {
                         Id = 2,
                         Description = "Study Coordinator",
                         Code = "STDY_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5",
                     },
-                    new PersonRole
+                    new RoleTypeEntity
                     {
                         Id = 3,
                         Description = "Research Activity Coordinator",
                         Code = "RSRCH_ACT_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5",
                     },
-                    new PersonRole
+                    new RoleTypeEntity
                     {
                         Id = 4,
                         Description = "Principal Investigator",
                         Code = "PRNCPL_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5",
                     },
-                    new PersonRole
+                    new RoleTypeEntity
                     {
                         Id = 5,
                         Description = "Company Representative",
@@ -234,7 +230,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     );
             });
 
-            modelBuilder.Entity<ResearchInitiativeIdentifierType>(entity =>
+            modelBuilder.Entity<ResearchStudyIdentifierTypeEntity>(entity =>
             {
                 entity.ToTable("researchStudyIdentifierType");
 
@@ -247,9 +243,10 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     .HasColumnName("description");
 
                 entity.HasData(
-                    new ResearchInitiativeIdentifierType { Id = 1, Description = Domain.EnumsAndConstants.ResearchInitiativeIdentifierTypes.Project },
-                    new ResearchInitiativeIdentifierType { Id = 2, Description = Domain.EnumsAndConstants.ResearchInitiativeIdentifierTypes.Protocol },
-                    new ResearchInitiativeIdentifierType { Id = 3, Description = Domain.EnumsAndConstants.ResearchInitiativeIdentifierTypes.Bundle }
+                    new ResearchStudyIdentifierTypeEntity { Id = 1, Description = Domain.EnumsAndConstants.ResearchInitiativeIdentifierTypes.Project },
+                    new ResearchStudyIdentifierTypeEntity { Id = 2, Description = Domain.EnumsAndConstants.ResearchInitiativeIdentifierTypes.Protocol },
+                    new ResearchStudyIdentifierTypeEntity { Id = 3, Description = Domain.EnumsAndConstants.ResearchInitiativeIdentifierTypes.Bundle },
+                    new ResearchStudyIdentifierTypeEntity { Id = 4, Description = Domain.EnumsAndConstants.ResearchInitiativeIdentifierTypes.GrisId }
                     );
             });
 

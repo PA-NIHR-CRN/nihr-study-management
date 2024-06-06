@@ -14,12 +14,29 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "organisation",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    code = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    created = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_organisation", x => x.id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "person",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    personType_id = table.Column<int>(type: "int", nullable: false),
                     created = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
@@ -244,13 +261,19 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.InsertData(
+                table: "organisation",
+                columns: new[] { "id", "code", "created", "description" },
+                values: new object[] { 1, "org01", new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(7842), "Development organisation" });
+
+            migrationBuilder.InsertData(
                 table: "researchStudyIdentifierType",
                 columns: new[] { "id", "created", "description" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(8604), "PROJECT" },
-                    { 2, new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(8621), "PROTOCOL" },
-                    { 3, new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(8624), "BUNDLE" }
+                    { 1, new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(7448), "PROJECT" },
+                    { 2, new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(7456), "PROTOCOL" },
+                    { 3, new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(7459), "BUNDLE" },
+                    { 4, new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(7461), "GRIS ID" }
                 });
 
             migrationBuilder.InsertData(
@@ -258,11 +281,11 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 columns: new[] { "id", "code", "created", "description" },
                 values: new object[,]
                 {
-                    { 1, "CHF_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(7616), "Chief Investigator" },
-                    { 2, "STDY_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(7667), "Study Coordinator" },
-                    { 3, "RSRCH_ACT_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(7671), "Research Activity Coordinator" },
-                    { 4, "PRNCPL_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(7673), "Principal Investigator" },
-                    { 5, "CMPNY_RP@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 10, 19, 20, 316, DateTimeKind.Local).AddTicks(7676), "Company Representative" }
+                    { 1, "CHF_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(6917), "Chief Investigator" },
+                    { 2, "STDY_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(6957), "Study Coordinator" },
+                    { 3, "RSRCH_ACT_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(6960), "Research Activity Coordinator" },
+                    { 4, "PRNCPL_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(6962), "Principal Investigator" },
+                    { 5, "CMPNY_RP@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(6963), "Company Representative" }
                 });
 
             migrationBuilder.InsertData(
@@ -270,14 +293,9 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 columns: new[] { "id", "code", "created", "description" },
                 values: new object[,]
                 {
-                    { 1, "EDGE", new DateTime(2024, 6, 6, 10, 19, 20, 320, DateTimeKind.Local).AddTicks(1457), "Edge system" },
-                    { 2, "IRAS", new DateTime(2024, 6, 6, 10, 19, 20, 320, DateTimeKind.Local).AddTicks(1507), "IRAS system" }
+                    { 1, "EDGE", new DateTime(2024, 6, 6, 12, 29, 30, 196, DateTimeKind.Local).AddTicks(6503), "Edge system" },
+                    { 2, "IRAS", new DateTime(2024, 6, 6, 12, 29, 30, 196, DateTimeKind.Local).AddTicks(6519), "IRAS system" }
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "fk_person_type_idx",
-                table: "person",
-                column: "personType_id");
 
             migrationBuilder.CreateIndex(
                 name: "fk_personName_person_idx",
@@ -332,6 +350,9 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "organisation");
+
             migrationBuilder.DropTable(
                 name: "personName");
 

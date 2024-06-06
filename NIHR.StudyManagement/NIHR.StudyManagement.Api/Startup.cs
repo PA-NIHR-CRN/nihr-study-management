@@ -120,7 +120,6 @@ public class Startup
 
         services.AddTransient<IStudyRegistryRepository, StudyRegistryRepository>();
         services.AddTransient<IGovernmentResearchIdentifierService, GovernmentResearchIdentifierService>();
-        services.AddTransient<IGovernmentResearchIdentifierDtoMapper, GovernmentResearchIdentifierDtoMapper>();
         services.AddTransient<IStudyEventMessagePublisher, StudyManagementKafkaMessageProducer>();
         services.AddTransient<IFhirMapper, FhirMapper>();
         services.AddDbContext<StudyRegistryContext>(options =>

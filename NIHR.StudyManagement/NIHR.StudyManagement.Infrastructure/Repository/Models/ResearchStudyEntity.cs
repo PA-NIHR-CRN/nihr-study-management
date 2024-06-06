@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 
 namespace NIHR.StudyManagement.Infrastructure.Repository.Models
-{
-    public partial class GriResearchStudy : DbEntity
+{   
+    public partial class ResearchStudyEntity : DbEntity
     {
-        public GriResearchStudy()
+        public ResearchStudyEntity()
         {
-            ResearchStudyIdentifiers = new HashSet<GriMapping>();
+            ResearchStudyIdentifiers = new HashSet<ResearchStudyIdentifierEntity>();
             ResearchStudyTeamMembers = new HashSet<ResearchStudyTeamMember>();
         }
 
@@ -17,7 +17,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
         public int RequestSourceSystemId { get; set; }
 
         public virtual SourceSystem RequestSourceSystem { get; set; } = null!;
-        public virtual ICollection<GriMapping> ResearchStudyIdentifiers { get; set; }
+        public virtual ICollection<ResearchStudyIdentifierEntity> ResearchStudyIdentifiers { get; set; }
         public virtual ICollection<ResearchStudyTeamMember> ResearchStudyTeamMembers { get; set; }
     }
 }
