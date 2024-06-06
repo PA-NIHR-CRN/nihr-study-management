@@ -7,14 +7,14 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
     {
         public RoleTypeEntity()
         {
-            ResearchStudyTeamMembers = new HashSet<ResearchStudyTeamMember>();
+            ResearchStudyTeamMembers = new HashSet<ResearchStudyTeamMemberEntity>();
         }
 
         public int Id { get; set; }
         public string Code { get; set; } = null!;
         public string? Description { get; set; }
 
-        public virtual ICollection<ResearchStudyTeamMember> ResearchStudyTeamMembers { get; set; }
+        public virtual ICollection<ResearchStudyTeamMemberEntity> ResearchStudyTeamMembers { get; set; }
     }
 
     public partial class OrganisationEntity : DbEntity

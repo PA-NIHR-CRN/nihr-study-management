@@ -153,15 +153,15 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     shortTitle = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    requestSourceSystem_id = table.Column<int>(type: "int", nullable: false),
+                    sourceSystem_id = table.Column<int>(type: "int", nullable: false),
                     created = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_researchStudy", x => x.id);
                     table.ForeignKey(
-                        name: "fk_griResearchStudy_sourceSystem",
-                        column: x => x.requestSourceSystem_id,
+                        name: "fk_researchStudy_sourceSystem",
+                        column: x => x.sourceSystem_id,
                         principalTable: "sourceSystem",
                         principalColumn: "id");
                 })
@@ -184,19 +184,19 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_practitionerRole", x => x.id);
                     table.ForeignKey(
-                        name: "fk_researchStudyTeamMember_griResearch",
-                        column: x => x.researchStudy_id,
-                        principalTable: "researchStudy",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "fk_researchStudyTeamMember_personRol",
+                        name: "fk_researchStudyTeamMember_personRole",
                         column: x => x.roleType_id,
                         principalTable: "roleType",
                         principalColumn: "id");
                     table.ForeignKey(
-                        name: "researchStudyTeamMember_researcher",
+                        name: "fk_researchStudyTeamMember_practitioner",
                         column: x => x.practitioner_id,
                         principalTable: "practitioner",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "fk_researchStudyTeamMember_researchStudy",
+                        column: x => x.researchStudy_id,
+                        principalTable: "researchStudy",
                         principalColumn: "id");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
@@ -218,14 +218,9 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_researchStudyIdentifier", x => x.id);
                     table.ForeignKey(
-                        name: "fk_griMapping_griResearchStudy",
+                        name: "fk_researchStudyIdentifier_researchStudy",
                         column: x => x.griResearchStudy_id,
                         principalTable: "researchStudy",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "fk_griMapping_sourceSystem",
-                        column: x => x.sourceSystem_id,
-                        principalTable: "sourceSystem",
                         principalColumn: "id");
                     table.ForeignKey(
                         name: "FK_researchStudyIdentifier_researchStudyIdentifierType_Identifi~",
@@ -233,6 +228,11 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         principalTable: "researchStudyIdentifierType",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_researchStudyIdentifier_sourceSystem",
+                        column: x => x.sourceSystem_id,
+                        principalTable: "sourceSystem",
+                        principalColumn: "id");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -253,7 +253,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_researchStudyIdentifierStatus", x => x.id);
                     table.ForeignKey(
-                        name: "fk_griResearchStudyStatus_griMapping",
+                        name: "fk_researchStudyIdentifierStatus_researchStudy",
                         column: x => x.ResearchStudyIdentifierId,
                         principalTable: "researchStudyIdentifier",
                         principalColumn: "id");
@@ -263,17 +263,17 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "organisation",
                 columns: new[] { "id", "code", "created", "description" },
-                values: new object[] { 1, "org01", new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(7842), "Development organisation" });
+                values: new object[] { 1, "org01", new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(1431), "Development organisation" });
 
             migrationBuilder.InsertData(
                 table: "researchStudyIdentifierType",
                 columns: new[] { "id", "created", "description" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(7448), "PROJECT" },
-                    { 2, new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(7456), "PROTOCOL" },
-                    { 3, new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(7459), "BUNDLE" },
-                    { 4, new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(7461), "GRIS ID" }
+                    { 1, new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(962), "PROJECT" },
+                    { 2, new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(973), "PROTOCOL" },
+                    { 3, new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(975), "BUNDLE" },
+                    { 4, new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(1009), "GRIS ID" }
                 });
 
             migrationBuilder.InsertData(
@@ -281,11 +281,11 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 columns: new[] { "id", "code", "created", "description" },
                 values: new object[,]
                 {
-                    { 1, "CHF_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(6917), "Chief Investigator" },
-                    { 2, "STDY_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(6957), "Study Coordinator" },
-                    { 3, "RSRCH_ACT_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(6960), "Research Activity Coordinator" },
-                    { 4, "PRNCPL_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(6962), "Principal Investigator" },
-                    { 5, "CMPNY_RP@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 12, 29, 30, 195, DateTimeKind.Local).AddTicks(6963), "Company Representative" }
+                    { 1, "CHF_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(310), "Chief Investigator" },
+                    { 2, "STDY_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(355), "Study Coordinator" },
+                    { 3, "RSRCH_ACT_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(357), "Research Activity Coordinator" },
+                    { 4, "PRNCPL_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(359), "Principal Investigator" },
+                    { 5, "CMPNY_RP@2.16.840.1.113883.2.1.3.8.5.2.3.5", new DateTime(2024, 6, 6, 15, 20, 51, 400, DateTimeKind.Local).AddTicks(361), "Company Representative" }
                 });
 
             migrationBuilder.InsertData(
@@ -293,12 +293,12 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 columns: new[] { "id", "code", "created", "description" },
                 values: new object[,]
                 {
-                    { 1, "EDGE", new DateTime(2024, 6, 6, 12, 29, 30, 196, DateTimeKind.Local).AddTicks(6503), "Edge system" },
-                    { 2, "IRAS", new DateTime(2024, 6, 6, 12, 29, 30, 196, DateTimeKind.Local).AddTicks(6519), "IRAS system" }
+                    { 1, "EDGE", new DateTime(2024, 6, 6, 15, 20, 51, 401, DateTimeKind.Local).AddTicks(2925), "Edge system" },
+                    { 2, "IRAS", new DateTime(2024, 6, 6, 15, 20, 51, 401, DateTimeKind.Local).AddTicks(2979), "IRAS system" }
                 });
 
             migrationBuilder.CreateIndex(
-                name: "fk_personName_person_idx",
+                name: "idx_personName_id",
                 table: "personName",
                 column: "person_id");
 
@@ -308,32 +308,32 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                 column: "person_id");
 
             migrationBuilder.CreateIndex(
-                name: "fk_researchStudyTeamMember_griResearch_idx",
-                table: "practitionerRole",
-                column: "researchStudy_id");
-
-            migrationBuilder.CreateIndex(
-                name: "fk_researchStudyTeamMember_personRol_idx",
-                table: "practitionerRole",
-                column: "roleType_id");
-
-            migrationBuilder.CreateIndex(
-                name: "researchStudyTeamMember_researcher_idx",
+                name: "idx_researchStudyTeamMember_PractitionerId",
                 table: "practitionerRole",
                 column: "practitioner_id");
 
             migrationBuilder.CreateIndex(
-                name: "fk_griResearchStudy_sourceSystem_idx",
-                table: "researchStudy",
-                column: "requestSourceSystem_id");
+                name: "idx_researchStudyTeamMember_researchStudyId",
+                table: "practitionerRole",
+                column: "researchStudy_id");
 
             migrationBuilder.CreateIndex(
-                name: "fk_griMapping_griResearchStudy_idx",
+                name: "idx_researchStudyTeamMember_roleTypeId",
+                table: "practitionerRole",
+                column: "roleType_id");
+
+            migrationBuilder.CreateIndex(
+                name: "idx_researchStudy_sourceSystem",
+                table: "researchStudy",
+                column: "sourceSystem_id");
+
+            migrationBuilder.CreateIndex(
+                name: "idx_researchStudyIdentifier_researchStudyId",
                 table: "researchStudyIdentifier",
                 column: "griResearchStudy_id");
 
             migrationBuilder.CreateIndex(
-                name: "fk_griMapping_sourceSystem_idx",
+                name: "idx_researchStudyIdentifier_sourceSystemId",
                 table: "researchStudyIdentifier",
                 column: "sourceSystem_id");
 

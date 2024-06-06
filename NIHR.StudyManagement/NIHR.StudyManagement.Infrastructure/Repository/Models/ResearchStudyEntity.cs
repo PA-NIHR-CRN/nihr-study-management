@@ -8,7 +8,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
         public ResearchStudyEntity()
         {
             ResearchStudyIdentifiers = new HashSet<ResearchStudyIdentifierEntity>();
-            ResearchStudyTeamMembers = new HashSet<ResearchStudyTeamMember>();
+            ResearchStudyTeamMembers = new HashSet<ResearchStudyTeamMemberEntity>();
         }
 
         public int Id { get; set; }
@@ -16,8 +16,8 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
         public string ShortTitle { get; set; } = null!;
         public int RequestSourceSystemId { get; set; }
 
-        public virtual SourceSystem RequestSourceSystem { get; set; } = null!;
+        public virtual SourceSystemEntity RequestSourceSystem { get; set; } = null!;
         public virtual ICollection<ResearchStudyIdentifierEntity> ResearchStudyIdentifiers { get; set; }
-        public virtual ICollection<ResearchStudyTeamMember> ResearchStudyTeamMembers { get; set; }
+        public virtual ICollection<ResearchStudyTeamMemberEntity> ResearchStudyTeamMembers { get; set; }
     }
 }

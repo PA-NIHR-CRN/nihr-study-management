@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace NIHR.StudyManagement.Infrastructure.Repository.Models
 {
-    public partial class ResearchStudyTeamMember : DbEntity
+    public partial class ResearchStudyTeamMemberEntity : DbEntity
     {
         public int Id { get; set; }
-        public int GriMappingId { get; set; }
+        public int ResearchStudyId { get; set; }
         public int PractitionerId { get; set; }
         public int RoleTypeId { get; set; }
 
@@ -14,8 +14,8 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
 
         public DateTime? EffectiveTo { get; set; }
 
-        public virtual ResearchStudyEntity GriMapping { get; set; } = null!;
+        public virtual ResearchStudyEntity ResearchStudy { get; set; } = null!;
         public virtual RoleTypeEntity PersonRole { get; set; } = null!;
-        public virtual Researcher Researcher { get; set; } = null!;
+        public virtual PractitionerEntity Practitiooner { get; set; } = null!;
     }
 }

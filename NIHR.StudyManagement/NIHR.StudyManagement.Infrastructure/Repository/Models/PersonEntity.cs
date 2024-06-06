@@ -8,12 +8,12 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
         public PersonEntity()
         {
             PersonNames = new HashSet<PersonNameEntity>();
-            Researchers = new HashSet<Researcher>();
+            Researchers = new HashSet<PractitionerEntity>();
         }
 
         public int Id { get; set; }
 
         public virtual ICollection<PersonNameEntity> PersonNames { get; set; }
-        public virtual ICollection<Researcher> Researchers { get; set; }
+        public virtual ICollection<PractitionerEntity> Researchers { get; set; }
     }
 }

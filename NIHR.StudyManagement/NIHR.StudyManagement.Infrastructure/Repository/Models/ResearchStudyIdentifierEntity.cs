@@ -11,7 +11,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
     public partial class ResearchStudyIdentifierEntity : DbEntity
     {
         public int Id { get; set; }
-        public int GriResearchStudyId { get; set; }
+        public int ResearchStudyId { get; set; }
         public int SourceSystemId { get; set; }
         //public int IdentifierId { get; set; }
 
@@ -21,9 +21,9 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
 
         public virtual ResearchStudyIdentifierTypeEntity IdentifierType { get; set; } = null!;
 
-        public virtual ResearchStudyEntity GriResearchStudy { get; set; } = null!;
+        public virtual ResearchStudyEntity ResearchStudy { get; set; } = null!;
         //public virtual ResearchInitiativeIdentifier Identifier { get; set; } = null!;
-        public virtual SourceSystem SourceSystem { get; set; } = null!;
+        public virtual SourceSystemEntity SourceSystem { get; set; } = null!;
 
         public virtual ICollection<ResearchStudyIdentifierStatusEntity> IdentifierStatuses { get; set; } = null!;
     }

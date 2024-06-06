@@ -3,17 +3,17 @@ using System.Collections.Generic;
 
 namespace NIHR.StudyManagement.Infrastructure.Repository.Models
 {
-    public partial class Researcher : DbEntity
+    public partial class PractitionerEntity : DbEntity
     {
-        public Researcher()
+        public PractitionerEntity()
         {
-            ResearchStudyTeamMembers = new HashSet<ResearchStudyTeamMember>();
+            ResearchStudyTeamMembers = new HashSet<ResearchStudyTeamMemberEntity>();
         }
 
         public int Id { get; set; }
         public int PersonId { get; set; }
 
         public virtual PersonEntity Person { get; set; } = null!;
-        public virtual ICollection<ResearchStudyTeamMember> ResearchStudyTeamMembers { get; set; }
+        public virtual ICollection<ResearchStudyTeamMemberEntity> ResearchStudyTeamMembers { get; set; }
     }
 }
