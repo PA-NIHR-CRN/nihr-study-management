@@ -6,6 +6,8 @@
 
         public Role Role { get; set; }
 
+        public Organisation? Organisation { get; set; }
+
         public DateTime EffectiveFrom { get; set; }
 
         public DateTime? EffectiveTo { get; set; }

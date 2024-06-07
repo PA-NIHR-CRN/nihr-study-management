@@ -11,7 +11,7 @@ using NIHR.StudyManagement.Infrastructure.Repository;
 namespace NIHR.StudyManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(StudyRegistryContext))]
-    [Migration("20240606145123_01-Initial")]
+    [Migration("20240607091645_01-Initial")]
     partial class _01Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,6 +39,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         .HasColumnName("created");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("varchar(250)")
                         .HasColumnName("description");
@@ -52,7 +53,7 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         {
                             Id = 1,
                             Code = "org01",
-                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 482, DateTimeKind.Local).AddTicks(216),
+                            Created = new DateTime(2024, 6, 7, 10, 16, 44, 744, DateTimeKind.Local).AddTicks(4852),
                             Description = "Development organisation"
                         });
                 });
@@ -260,25 +261,25 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(9689),
+                            Created = new DateTime(2024, 6, 7, 10, 16, 44, 744, DateTimeKind.Local).AddTicks(4215),
                             Description = "PROJECT"
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(9701),
+                            Created = new DateTime(2024, 6, 7, 10, 16, 44, 744, DateTimeKind.Local).AddTicks(4234),
                             Description = "PROTOCOL"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(9703),
+                            Created = new DateTime(2024, 6, 7, 10, 16, 44, 744, DateTimeKind.Local).AddTicks(4237),
                             Description = "BUNDLE"
                         },
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(9705),
+                            Created = new DateTime(2024, 6, 7, 10, 16, 44, 744, DateTimeKind.Local).AddTicks(4240),
                             Description = "GRIS ID"
                         });
                 });
@@ -302,6 +303,10 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("effective_to");
 
+                    b.Property<int?>("OrganizationId")
+                        .HasColumnType("int")
+                        .HasColumnName("organization_id");
+
                     b.Property<int>("PractitionerId")
                         .HasColumnType("int")
                         .HasColumnName("practitioner_id");
@@ -315,6 +320,8 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         .HasColumnName("roleType_id");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
 
                     b.HasIndex(new[] { "PractitionerId" }, "idx_researchStudyTeamMember_PractitionerId");
 
@@ -356,35 +363,35 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         {
                             Id = 1,
                             Code = "CHF_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5",
-                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(8566),
+                            Created = new DateTime(2024, 6, 7, 10, 16, 44, 744, DateTimeKind.Local).AddTicks(3023),
                             Description = "Chief Investigator"
                         },
                         new
                         {
                             Id = 2,
                             Code = "STDY_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5",
-                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(8616),
+                            Created = new DateTime(2024, 6, 7, 10, 16, 44, 744, DateTimeKind.Local).AddTicks(3083),
                             Description = "Study Coordinator"
                         },
                         new
                         {
                             Id = 3,
                             Code = "RSRCH_ACT_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5",
-                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(8620),
+                            Created = new DateTime(2024, 6, 7, 10, 16, 44, 744, DateTimeKind.Local).AddTicks(3087),
                             Description = "Research Activity Coordinator"
                         },
                         new
                         {
                             Id = 4,
                             Code = "PRNCPL_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5",
-                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(8623),
+                            Created = new DateTime(2024, 6, 7, 10, 16, 44, 744, DateTimeKind.Local).AddTicks(3090),
                             Description = "Principal Investigator"
                         },
                         new
                         {
                             Id = 5,
                             Code = "CMPNY_RP@2.16.840.1.113883.2.1.3.8.5.2.3.5",
-                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 481, DateTimeKind.Local).AddTicks(8625),
+                            Created = new DateTime(2024, 6, 7, 10, 16, 44, 744, DateTimeKind.Local).AddTicks(3093),
                             Description = "Company Representative"
                         });
                 });
@@ -421,14 +428,14 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         {
                             Id = 1,
                             Code = "EDGE",
-                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 483, DateTimeKind.Local).AddTicks(343),
+                            Created = new DateTime(2024, 6, 7, 10, 16, 44, 745, DateTimeKind.Local).AddTicks(8636),
                             Description = "Edge system"
                         },
                         new
                         {
                             Id = 2,
                             Code = "IRAS",
-                            Created = new DateTime(2024, 6, 6, 15, 51, 23, 483, DateTimeKind.Local).AddTicks(382),
+                            Created = new DateTime(2024, 6, 7, 10, 16, 44, 745, DateTimeKind.Local).AddTicks(8669),
                             Description = "IRAS system"
                         });
                 });
@@ -506,6 +513,11 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
 
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.ResearchStudyTeamMemberEntity", b =>
                 {
+                    b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.OrganisationEntity", "Organitation")
+                        .WithMany("ResearchStudyTeamMembers")
+                        .HasForeignKey("OrganizationId")
+                        .HasConstraintName("fk_researchStudyTeamMember_organization");
+
                     b.HasOne("NIHR.StudyManagement.Infrastructure.Repository.Models.PractitionerEntity", "Practitioner")
                         .WithMany("ResearchStudyTeamMembers")
                         .HasForeignKey("PractitionerId")
@@ -524,11 +536,18 @@ namespace NIHR.StudyManagement.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_researchStudyTeamMember_personRole");
 
+                    b.Navigation("Organitation");
+
                     b.Navigation("PersonRole");
 
                     b.Navigation("Practitioner");
 
                     b.Navigation("ResearchStudy");
+                });
+
+            modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.OrganisationEntity", b =>
+                {
+                    b.Navigation("ResearchStudyTeamMembers");
                 });
 
             modelBuilder.Entity("NIHR.StudyManagement.Infrastructure.Repository.Models.PersonEntity", b =>

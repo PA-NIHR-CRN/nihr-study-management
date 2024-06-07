@@ -69,6 +69,15 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
 
             foreach (var teamMember in request.TeamMembers)
             {
+                OrganisationEntity? organisation = null;
+
+                if (teamMember.Organisation != null)
+                {
+                    organisation = await _context.OrganisationEntities
+                        .FirstOrDefaultAsync(org => org.Code == teamMember.Organisation.Code)
+                        ?? new OrganisationEntity { Code = teamMember.Organisation.Code, Description = teamMember.Organisation.Description };
+                }
+
                 var personEntity = await GetPersonAsync(teamMember.Person, cancellationToken) ?? new PersonDb
                 {
                     PersonNames = new PersonNameEntity[] {
@@ -80,7 +89,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     }
                 };
 
-                var personRoleCI = await _context.PersonRoles.FirstOrDefaultAsync(x => x.Code == teamMember.Role.Name, cancellationToken) ?? throw new EntityNotFoundException(nameof(RoleTypeEntity));
+                var roleType = await _context.PersonRoles.FirstOrDefaultAsync(x => x.Code == teamMember.Role.Code, cancellationToken) ?? throw new EntityNotFoundException(nameof(RoleTypeEntity));
 
                 var teamMemberToAdd = new ResearchStudyTeamMemberEntity
                 {
@@ -89,7 +98,8 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     {
                         Person = personEntity
                     },
-                    PersonRole = personRoleCI
+                    PersonRole = roleType,
+                    Organitation = organisation
                 };
 
                 await _context.AddAsync(teamMemberToAdd, cancellationToken);
@@ -183,30 +193,38 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
         {
             var teamMembers = new List<TeamMember>();
 
-            foreach (var teamMember in researchStudyTeamMembers)
+            foreach (var teamMemberEntity in researchStudyTeamMembers)
             {
-                teamMembers.Add(new TeamMember
+                var teamMember = new TeamMember
                 {
                     Role = new Role
                     {
-                        Description = teamMember.PersonRole != null
-                            && !string.IsNullOrEmpty(teamMember.PersonRole.Description)
-                            ? teamMember.PersonRole.Description : "",
-                        Name = teamMember.PersonRole != null
-                            && !string.IsNullOrEmpty( teamMember.PersonRole.Code)
-                            ? teamMember.PersonRole.Code
+                        Description = teamMemberEntity.PersonRole != null
+                            && !string.IsNullOrEmpty(teamMemberEntity.PersonRole.Description)
+                            ? teamMemberEntity.PersonRole.Description : "",
+                        Code = teamMemberEntity.PersonRole != null
+                            && !string.IsNullOrEmpty(teamMemberEntity.PersonRole.Code)
+                            ? teamMemberEntity.PersonRole.Code
                             : ""
                     },
                     Person = new PersonWithPrimaryEmail
                     {
                         Email = new Email
                         {
-                            Address = teamMember.Practitioner.Person.PersonNames.First().Email
+                            Address = teamMemberEntity.Practitioner.Person.PersonNames.First().Email
                         },
-                        Firstname = teamMember.Practitioner.Person.PersonNames.First().Given,
-                        Lastname = teamMember.Practitioner.Person.PersonNames.First().Family
+                        Firstname = teamMemberEntity.Practitioner.Person.PersonNames.First().Given,
+                        Lastname = teamMemberEntity.Practitioner.Person.PersonNames.First().Family
                     }
-                });
+                };
+
+                if(teamMemberEntity.Organitation != null)
+                {
+                    teamMember.Organisation = new Organisation(teamMemberEntity.Organitation.Code,
+                        teamMemberEntity.Organitation.Description);
+                }
+
+                teamMembers.Add(teamMember);
             }
 
             return teamMembers;

@@ -23,6 +23,13 @@ namespace NIHR.StudyManagement.Infrastructure.Repository.Models
 
         public string Code { get; set; } = null!;
 
-        public string? Description { get; set; }
+        public string Description { get; set; } = null!;
+
+        public virtual ICollection<ResearchStudyTeamMemberEntity> ResearchStudyTeamMembers { get; set; }
+
+        public OrganisationEntity()
+        {
+            ResearchStudyTeamMembers = new List<ResearchStudyTeamMemberEntity>();
+        }
     }
 }

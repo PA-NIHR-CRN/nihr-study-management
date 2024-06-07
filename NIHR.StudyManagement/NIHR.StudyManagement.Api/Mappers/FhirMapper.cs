@@ -69,7 +69,7 @@ namespace NIHR.StudyManagement.Api.Mappers
             {
                 PractitionerRole practitionerRole = null;
 
-                // Find the matching resource
+                // Find the matching Practitioner Role resource
                 foreach (var resource in bundleResources)
                 {
                     if (resource.Id.Equals(associatedParty.Party.Reference, StringComparison.OrdinalIgnoreCase)
@@ -83,6 +83,18 @@ namespace NIHR.StudyManagement.Api.Mappers
                 if(practitionerRole == null)
                 {
                     continue;
+                }
+
+                // Find the organization of the practitioner role
+                Organization practitionerOrganisation = null;
+
+                foreach (var resource in bundleResources)
+                {
+                    if (resource.Id.Equals(practitionerRole.Organization.Reference.Trim('#'), StringComparison.OrdinalIgnoreCase)
+                                            && resource is Organization)
+                    {
+                        practitionerOrganisation = (Organization)resource;
+                    }
                 }
 
                 foreach (var resource in bundleResources)
@@ -99,7 +111,7 @@ namespace NIHR.StudyManagement.Api.Mappers
                             Role = new Role
                             {
                                 Description = practitionerRole.Code.First().Coding.First().Display,
-                                Name = practitionerRole.Code.First().Coding.First().Display,
+                                Code = practitionerRole.Code.First().Coding.First().Code,
                             }
                         };
 
@@ -115,6 +127,28 @@ namespace NIHR.StudyManagement.Api.Mappers
                             {
                                 Address = telecom.Value
                             };
+                        }
+
+                        if (practitionerOrganisation != null)
+                        {
+                            var orgIdentifier = practitionerOrganisation.Identifier.FirstOrDefault();
+
+                            if (orgIdentifier == null)
+                            {
+                                continue;
+                            }
+
+                            var coding = orgIdentifier.Type != null
+                                && orgIdentifier.Type.Coding.Count > 0
+                                ? orgIdentifier.Type.Coding.FirstOrDefault()
+                                : null;
+
+                            if(coding == null)
+                            {
+                                continue;
+                            }
+
+                            teamMember.Organisation = new Organisation (coding.Code, coding.Display);
                         }
 
                         teamMembers.Add(teamMember);
@@ -153,26 +187,17 @@ namespace NIHR.StudyManagement.Api.Mappers
 
             study.Identifier.AddRange(GetLinkedIdentifiers(x));
 
-            var firstPractitioner = AddTeamMembers(x, bundle, httpRequestResponseFhirContext);
+            AddTeamMembers(x, bundle, study, httpRequestResponseFhirContext);
 
-            var practitionerRole = GetPractitionerRole(x, firstPractitioner?.Id ?? "");
+            //var practitionerRole = GetPractitionerRole(x, firstPractitioner?.Id ?? "");
 
-            bundle.AddNewEntryComponent(practitionerRole, httpRequestResponseFhirContext);
+            //bundle.AddNewEntryComponent(practitionerRole, httpRequestResponseFhirContext);
 
-            study.AssociatedParty = new List<ResearchStudy.AssociatedPartyComponent> {
-                new ResearchStudy.AssociatedPartyComponent{
-                    Party = new ResourceReference() { Reference = $"#{practitionerRole.Id}"},
-                    Role = new CodeableConcept
-                    {
-                        Coding = new List<Coding>{
-
-                            new Coding{
-                                Display = PersonRoles.ChiefInvestigator
-                            }
-                        }
-                    }
-                }
-            };
+            //study.AssociatedParty = new List<ResearchStudy.AssociatedPartyComponent> {
+            //    new ResearchStudy.AssociatedPartyComponent{
+            //        Party = new ResourceReference() { Reference = $"#{practitionerRole.Id}"}
+            //    }
+            //};
 
             bundle.AddNewEntryComponent(study, httpRequestResponseFhirContext);
 
@@ -206,12 +231,12 @@ namespace NIHR.StudyManagement.Api.Mappers
             return identifiers;
         }
 
-        private static Practitioner? AddTeamMembers(GovernmentResearchIdentifier x, Bundle bundle,
+        private static void AddTeamMembers(GovernmentResearchIdentifier governmentResearchIdentifier,
+            Bundle bundle,
+            ResearchStudy study,
             HttpRequestResponseFhirContext httpRequestResponseFhirContext)
         {
-            Practitioner firstPractitioner = null;
-
-            foreach (var teamMember in x.TeamMembers)
+            foreach (var teamMember in governmentResearchIdentifier.TeamMembers)
             {
                 var practitioner = new Practitioner()
                 {
@@ -236,32 +261,33 @@ namespace NIHR.StudyManagement.Api.Mappers
                     }
                 };
 
-                bundle.AddNewEntryComponent(practitioner, httpRequestResponseFhirContext);
-
-                firstPractitioner = practitioner;
-            }
-
-            return firstPractitioner;
-        }
-
-        private static PractitionerRole GetPractitionerRole(GovernmentResearchIdentifier x,
-            string practitionerId)
-        {
-            return new PractitionerRole()
-            {
-                Id = Guid.NewGuid().ToString(),
-                Practitioner = new ResourceReference() { Reference = $"#{practitionerId}" },
-                Code = new List<CodeableConcept> {
-                    new CodeableConcept{
-                        Coding = new List<Coding>{
-
-                            new Coding{
-                                Display = PersonRoles.ChiefInvestigator
+                var practitionerRole = new PractitionerRole
+                {
+                    Practitioner = new ResourceReference() { Reference = $"#{practitioner.Id}" },
+                    Code = new List<CodeableConcept> {
+                        new CodeableConcept {
+                            Coding = new List<Coding> {
+                                new Coding {
+                                    Display = teamMember.Role.Description,
+                                    Code = teamMember.Role.Code
+                                }
                             }
                         }
                     }
-                }
-            };
+                };
+
+                bundle.AddNewEntryComponent(practitioner, httpRequestResponseFhirContext);
+                bundle.AddNewEntryComponent(practitionerRole, httpRequestResponseFhirContext);
+
+
+                study.AssociatedParty = new List<ResearchStudy.AssociatedPartyComponent> {
+                    new ResearchStudy.AssociatedPartyComponent{
+                        Party = new ResourceReference() { Reference = $"#{practitionerRole.Id}"}
+                    }
+                };
+            }
+
+            return;
         }
 
         private static IEnumerable<Identifier> GetLinkedIdentifiers(GovernmentResearchIdentifier x)

@@ -28,7 +28,6 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
         {
         }
 
-        //public virtual DbSet<GriMapping> GriMappings { get; set; } = null!;
         public virtual DbSet<ResearchStudyEntity> ResearchStudies { get; set; } = null!;
 
         public virtual DbSet<PersonNameEntity> PersonNames { get; set; } = null!;
@@ -276,6 +275,8 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
 
                 entity.Property(e => e.PractitionerId).HasColumnName("practitioner_id");
 
+                entity.Property(e => e.OrganizationId).HasColumnName("organization_id");
+
                 entity.Property(e => e.Created).HasColumnName("created");
 
                 entity.Property(e => e.EffectiveFrom).HasColumnName("effective_from").IsRequired();
@@ -299,6 +300,12 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     .HasForeignKey(d => d.PractitionerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_researchStudyTeamMember_practitioner");
+
+                entity.HasOne(d => d.Organitation)
+                    .WithMany(p => p.ResearchStudyTeamMembers)
+                    .HasForeignKey(d => d.OrganizationId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_researchStudyTeamMember_organization");
             });
 
             modelBuilder.Entity<PractitionerEntity>(entity =>
