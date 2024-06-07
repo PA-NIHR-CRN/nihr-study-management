@@ -56,15 +56,6 @@ namespace NIHR.StudyManagement.Domain.Services
                 throw new GriNotFoundException($"Could not find an existing GRI with the specified identifier '{request.Identifier}'");
             }
 
-            //// Ensure no existing link exists for the same local system record
-            //if(existingIdentifier.LinkedSystemIdentifiers.Any(linked => linked.Identifier == request.ProjectId
-            //    && linked.SystemName == _settings.DefaultLocalSystemName
-            //    // Todo: need to add effective from/to dates on this record for evaluation here.
-            //    ))
-            //{
-            //    throw new GriAlreadyExistsException($"A local system identifier already exists for GRI '{request.Identifier}' and '{_settings.DefaultLocalSystemName}'");
-            //}
-
             var domainRequest = new AddStudyToExistingIdentifierRequestWithContext
             {
                 RequestContext = request
@@ -105,7 +96,7 @@ namespace NIHR.StudyManagement.Domain.Services
 
             var researchStudy = await _governmentResearchIdentifierRepository.AddStudyToIdentifierAsync(domainRequest, cancellationToken);
 
-            //await _messagePublisher.PublishAsync(GrisNsipEventTypes.StudyRegistered, request.ApiSystemName, researchStudy, cancellationToken);
+            await _messagePublisher.PublishAsync(GrisNsipEventTypes.StudyRegistered, request.ApiSystemName, researchStudy, cancellationToken);
 
             return researchStudy;
         }
@@ -132,7 +123,7 @@ namespace NIHR.StudyManagement.Domain.Services
 
             var researchStudy = await _governmentResearchIdentifierRepository.CreateAsync(request, gri, cancellationToken);
 
-            //await _messagePublisher.PublishAsync(GrisNsipEventTypes.StudyRegistered, request.ApiSystemName, researchStudy, cancellationToken);
+            await _messagePublisher.PublishAsync(GrisNsipEventTypes.StudyRegistered, request.ApiSystemName, researchStudy, cancellationToken);
 
             return researchStudy;
         }

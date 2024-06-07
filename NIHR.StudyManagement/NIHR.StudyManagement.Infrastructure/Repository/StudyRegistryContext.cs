@@ -321,7 +321,7 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                 entity.Property(e => e.Created).HasColumnName("created");
 
                 entity.HasOne(d => d.Person)
-                    .WithMany(p => p.Researchers)
+                    .WithMany(p => p.Practitioners)
                     .HasForeignKey(d => d.PersonId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_researcher_person");

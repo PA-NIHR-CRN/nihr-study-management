@@ -189,16 +189,6 @@ namespace NIHR.StudyManagement.Api.Mappers
 
             AddTeamMembers(x, bundle, study, httpRequestResponseFhirContext);
 
-            //var practitionerRole = GetPractitionerRole(x, firstPractitioner?.Id ?? "");
-
-            //bundle.AddNewEntryComponent(practitionerRole, httpRequestResponseFhirContext);
-
-            //study.AssociatedParty = new List<ResearchStudy.AssociatedPartyComponent> {
-            //    new ResearchStudy.AssociatedPartyComponent{
-            //        Party = new ResourceReference() { Reference = $"#{practitionerRole.Id}"}
-            //    }
-            //};
-
             bundle.AddNewEntryComponent(study, httpRequestResponseFhirContext);
 
             return bundle;
@@ -315,86 +305,6 @@ namespace NIHR.StudyManagement.Api.Mappers
                     }
                 };
             }
-        }
-
-        private string GetProtocolId(ResearchStudy researchStudy)
-        {
-            return GetIdentifierByTypeText("protocol id", researchStudy);
-        }
-
-        private static string GetProjectId(ResearchStudy researchStudy)
-        {
-            return GetIdentifierByTypeText("edge id", researchStudy);
-        }
-
-        private static string GetIdentifierByTypeText(string typeText, ResearchStudy researchStudy)
-        {
-            var identifierValue = "";
-
-            foreach (var identifier in researchStudy.Identifier)
-            {
-                if (identifier.Type.Text.Equals(typeText, StringComparison.OrdinalIgnoreCase))
-                {
-                    identifierValue = identifier.Value;
-                    break;
-                }
-            }
-
-            return identifierValue;
-        }
-
-        private static PersonWithPrimaryEmail GetChiefInvestigator(Bundle bundle)
-        {
-            var chief = new PersonWithPrimaryEmail();
-            var bundleResources = bundle.GetResources();
-            var practitionerId = "";
-
-
-            foreach (var resource in bundleResources)
-            {
-                if (resource is not PractitionerRole)
-                {
-                    continue;
-                }
-
-                var practitionerRole = (PractitionerRole) resource;
-
-                practitionerId = practitionerRole.Practitioner.Reference;
-
-                break;
-            }
-
-            foreach (var resource in bundleResources)
-            {
-                if (resource is not Practitioner
-                    || resource.Id != practitionerId.Trim('#'))
-                {
-                    continue;
-                }
-
-                var practitioner = (Practitioner) resource;
-
-                var name = practitioner.Name.FirstOrDefault(x => x.Use == HumanName.NameUse.Usual);
-                var telecom = practitioner.Telecom.FirstOrDefault(x => x.System == ContactPoint.ContactPointSystem.Email && x.Use == ContactPoint.ContactPointUse.Work);
-
-                if (name != null)
-                {
-                    chief.Firstname = string.Join(" ", name.Given);
-                    chief.Lastname = name.Family;
-                }
-
-                if (telecom != null)
-                {
-                    chief.Email = new Email
-                    {
-                        Address = telecom.Value
-                    };
-                }
-
-                break;
-            }
-
-            return chief;
         }
     }
 }

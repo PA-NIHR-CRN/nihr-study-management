@@ -1,13 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using NIHR.StudyManagement.Domain.Abstractions;
-using NIHR.StudyManagement.Domain.Configuration;
 using NIHR.StudyManagement.Domain.EnumsAndConstants;
 using NIHR.StudyManagement.Domain.Exceptions;
 using NIHR.StudyManagement.Domain.Models;
-using NIHR.StudyManagement.Infrastructure.Repository.EnumsAndConstants;
 using NIHR.StudyManagement.Infrastructure.Repository.Models;
-using System;
 
 using PersonDb = NIHR.StudyManagement.Infrastructure.Repository.Models.PersonEntity;
 
@@ -244,18 +240,6 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                     .ThenInclude(team => team.PersonNames)
                 .FirstOrDefaultAsync(researchStudyIdentifier => researchStudyIdentifier.IdentifierType.Description == ResearchInitiativeIdentifierTypes.GrisId
                     && researchStudyIdentifier.Value == identifier, cancellationToken);
-
-
-            //var griResearchStudy = await _context.
-            //    .Include(context => context.ResearchStudyTeamMembers)
-            //        .ThenInclude(x => x.Practitiooner)
-            //        .ThenInclude(researcher => researcher.Person)
-            //        .ThenInclude(person => person.PersonNames)
-            //     .Include(context => context.ResearchStudyTeamMembers).ThenInclude(x => x.PersonRole)
-            //     .Include(study => study.ResearchStudyIdentifiers).ThenInclude(mapping => mapping.SourceSystem)
-            //     .Include(study => study.ResearchStudyIdentifiers).ThenInclude(x => x.IdentifierType)
-            //     .Include(study => study.ResearchStudyIdentifiers).ThenInclude(mapping => mapping.IdentifierStatuses)
-            //    .FirstOrDefaultAsync(x => x.Gri == identifier, cancellationToken);
 
             return griResearchStudyIdentifier?.ResearchStudy;
         }
