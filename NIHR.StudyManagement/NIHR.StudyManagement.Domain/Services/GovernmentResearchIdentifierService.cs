@@ -56,15 +56,6 @@ namespace NIHR.StudyManagement.Domain.Services
                 throw new GriNotFoundException($"Could not find an existing GRI with the specified identifier '{request.Identifier}'");
             }
 
-            // Ensure no existing link exists for the same local system record
-            if(existingIdentifier.LinkedSystemIdentifiers.Any(linked => linked.Identifier == request.ProjectId
-                && linked.SystemName == _settings.DefaultLocalSystemName
-                // Todo: need to add effective from/to dates on this record for evaluation here.
-                ))
-            {
-                throw new GriAlreadyExistsException($"A local system identifier already exists for GRI '{request.Identifier}' and '{_settings.DefaultLocalSystemName}'");
-            }
-
             var domainRequest = new AddStudyToExistingIdentifierRequestWithContext
             {
                 RequestContext = request
@@ -110,32 +101,27 @@ namespace NIHR.StudyManagement.Domain.Services
             return researchStudy;
         }
 
-        private RegisterStudyRequestWithContext Map(RegisterStudyRequest request, string identifier)
-        {
-            return new RegisterStudyRequestWithContext
-            {
-                ChiefInvestigator = request.ChiefInvestigator,
-                ApiSystemName = request.ApiSystemName,
-                ProjectId = request.ProjectId,
-                Identifier = identifier,
-                Identifiers = request.Identifiers,
-                Sponsor = request.Sponsor,
-                ShortTitle = request.ShortTitle,
-                RoleName = _settings.DefaultRoleName,
-                ProtocolId = request.ProtocolId,
-                StatusCode = request.StatusCode
-            };
-        }
-
         private async Task<GovernmentResearchIdentifier> RegisterNewStudyWithNewIdentifierAsync(RegisterStudyRequest request,
             CancellationToken cancellationToken)
         {
             // Generate the GRI
             var gri = GenerateGrisPostcode();
 
-            var domainRequest =  Map(request, gri);
+            // Add the GRI as an identifier
+            request.Identifiers.Add(new ResearchInitiativeIdentifierItem
+            {
+                StatusCode = "Active",
+                Type = ResearchInitiativeIdentifierTypes.GrisId,
+                Value = gri
+            });
 
-            var researchStudy = await _governmentResearchIdentifierRepository.CreateAsync(domainRequest, cancellationToken);
+            // Set API consumer name if not set
+            if(string.IsNullOrEmpty(request.ApiSystemName))
+            {
+                request.ApiSystemName = _settings.DefaultLocalSystemName;
+            };
+
+            var researchStudy = await _governmentResearchIdentifierRepository.CreateAsync(request, gri, cancellationToken);
 
             await _messagePublisher.PublishAsync(GrisNsipEventTypes.StudyRegistered, request.ApiSystemName, researchStudy, cancellationToken);
 

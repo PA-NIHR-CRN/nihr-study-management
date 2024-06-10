@@ -1,15 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using NIHR.StudyManagement.Domain.Abstractions;
-using NIHR.StudyManagement.Domain.Configuration;
 using NIHR.StudyManagement.Domain.EnumsAndConstants;
 using NIHR.StudyManagement.Domain.Exceptions;
 using NIHR.StudyManagement.Domain.Models;
-using NIHR.StudyManagement.Infrastructure.Repository.EnumsAndConstants;
 using NIHR.StudyManagement.Infrastructure.Repository.Models;
-using System;
 
-using PersonDb = NIHR.StudyManagement.Infrastructure.Repository.Models.Person;
+using PersonDb = NIHR.StudyManagement.Infrastructure.Repository.Models.PersonEntity;
 
 namespace NIHR.StudyManagement.Infrastructure.Repository
 {
@@ -22,7 +18,8 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
             _context = context;
         }
 
-        public async Task<GovernmentResearchIdentifier> CreateAsync(RegisterStudyRequestWithContext request,
+        public async Task<GovernmentResearchIdentifier> CreateAsync(RegisterStudyRequest request,
+            string griId,
             CancellationToken cancellationToken = default)
         {
             if (request == null)
@@ -30,96 +27,83 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
                 throw new ArgumentNullException(nameof(request));
             };
 
-            var studyType = await GetResearchInitiativeTypeAsync(ResearchInitiativeTypes.Study, cancellationToken) ?? throw new EntityNotFoundException(nameof(ResearchInitiativeType));
+            var localSystem = await GetSourceSystemAsync(request.ApiSystemName, cancellationToken) ?? throw new EntityNotFoundException(nameof(SourceSystemEntity));
 
-            var edgeSystem = await GetSourceSystemAsync(request.ApiSystemName, cancellationToken) ?? throw new EntityNotFoundException(nameof(SourceSystem));
-
-            var personTypeResearcher = await _context.PersonTypes.FirstOrDefaultAsync(x => x.Description == PersonTypes.Researcher, cancellationToken) ?? throw new EntityNotFoundException(nameof(PersonType));
-
-            var personRoleCI = await _context.PersonRoles.FirstOrDefaultAsync(x => x.Type == PersonRoles.ChiefInvestigator, cancellationToken) ?? throw new EntityNotFoundException(nameof(PersonRole));
-
-            var researchInitiativeIdentifierTypes = new Dictionary<string, ResearchInitiativeIdentifierType>();
+            var researchInitiativeIdentifierTypes = new Dictionary<string, ResearchStudyIdentifierTypeEntity>();
 
             foreach (var x in _context.ResearchInitiativeIdentifierTypes.Select(x => x))
             {
                 researchInitiativeIdentifierTypes[x.Description] = x;
             }
 
-            var researchInitiative = new ResearchInitiative
+            var researchStudy = new ResearchStudyEntity
             {
-                ResearchInitiativeType = studyType,
-            };
-
-            var researchStudy = new GriResearchStudy
-            {
-                ResearchInitiative = researchInitiative,
                 ShortTitle = request.ShortTitle,
-                Gri = request.Identifier ?? "",
-                RequestSourceSystem = edgeSystem
+                RequestSourceSystem = localSystem
             };
-
-            GriMapping mainGriMappingForStatus = null;
 
             foreach (var identifier in request.Identifiers)
             {
-                var griMapping = new GriMapping
+
+                var griMapping = new ResearchStudyIdentifierEntity
                 {
-                    GriResearchStudy = researchStudy,
-                    ResearchInitiativeIdentifier = new ResearchInitiativeIdentifier
-                    {
-                        SourceSystem = edgeSystem,
-                        Value = identifier.Value,
-                        ResearchInitiativeIdentifierType = researchInitiativeIdentifierTypes[identifier.Type]
-                    },
-                    SourceSystem = edgeSystem
+                    ResearchStudy = researchStudy,
+                    Value = identifier.Value,
+                    IdentifierType = researchInitiativeIdentifierTypes[identifier.Type],
+                    SourceSystem = localSystem
                 };
 
+                var identifierStatus = new ResearchStudyIdentifierStatusEntity
+                {
+                    ResearchStudyIdentifier = griMapping,
+                    Code = identifier.StatusCode
+                };
+
+                await _context.AddAsync(identifierStatus);
                 await _context.AddAsync(griMapping, cancellationToken);
-
-                if (identifier.Type == ResearchInitiativeIdentifierTypes.Project)
-                {
-                    mainGriMappingForStatus = griMapping;
-                }
             }
 
-            if(mainGriMappingForStatus != null)
+            foreach (var teamMember in request.TeamMembers)
             {
-                var griResearchStudyStatus = new GriResearchStudyStatus
+                OrganisationEntity? organisation = null;
+
+                if (teamMember.Organisation != null)
                 {
-                    Code = request.StatusCode,
-                    GriMapping = mainGriMappingForStatus,
-                    FromDate = DateTime.Now
+                    organisation = await _context.OrganisationEntities
+                        .FirstOrDefaultAsync(org => org.Code == teamMember.Organisation.Code)
+                        ?? new OrganisationEntity { Code = teamMember.Organisation.Code, Description = teamMember.Organisation.Description };
+                }
+
+                var personEntity = await GetPersonAsync(teamMember.Person, cancellationToken) ?? new PersonDb
+                {
+                    PersonNames = new PersonNameEntity[] {
+                        new PersonNameEntity {
+                        Given =teamMember.Person.Firstname,
+                        Family = teamMember.Person.Lastname,
+                        Email = teamMember.Person.Email.Address
+                        }
+                    }
                 };
 
-                await _context.AddAsync(griResearchStudyStatus, cancellationToken);
-            }
+                var roleType = await _context.PersonRoles.FirstOrDefaultAsync(x => x.Code == teamMember.Role.Code, cancellationToken) ?? throw new EntityNotFoundException(nameof(RoleTypeEntity));
 
-            var chiefInvestigator = await GetPersonAsync(request.ChiefInvestigator, cancellationToken) ?? new PersonDb
-            {
-                PersonNames = new PersonName[] { new PersonName {
-                        Given =request.ChiefInvestigator.Firstname,
-                        Family = request.ChiefInvestigator.Lastname,
-                        Email = request.ChiefInvestigator.Email.Address
-                    } },
-                PersonType = personTypeResearcher
-            };
-
-            var teamMember = new ResearchStudyTeamMember
-            {
-                GriMapping = researchStudy,
-                Researcher = new Researcher
+                var teamMemberToAdd = new ResearchStudyTeamMemberEntity
                 {
-                    Person = chiefInvestigator
-                },
-                PersonRole = personRoleCI
-            };
+                    ResearchStudy = researchStudy,
+                    Practitioner = new PractitionerEntity
+                    {
+                        Person = personEntity
+                    },
+                    PersonRole = roleType,
+                    Organitation = organisation
+                };
 
-
-            await _context.AddAsync(teamMember, cancellationToken);
+                await _context.AddAsync(teamMemberToAdd, cancellationToken);
+            }
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return await GetAsync(request.Identifier);
+            return await GetAsync(griId);
         }
 
         public async Task<GovernmentResearchIdentifier> AddStudyToIdentifierAsync(AddStudyToExistingIdentifierRequestWithContext request,
@@ -129,11 +113,9 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
 
             var griResearchStudy = await GetGriResearchStudyByIdentifierAsync(request.RequestContext.Identifier, cancellationToken) ?? throw new GriNotFoundException();
 
-            var studyType = await GetResearchInitiativeTypeAsync(ResearchInitiativeTypes.Study, cancellationToken) ?? throw new EntityNotFoundException(nameof(ResearchInitiativeType));
+            var sourceSystem = await GetSourceSystemAsync(request.RequestContext.ApiSystemName, cancellationToken) ?? throw new EntityNotFoundException(nameof(SourceSystemEntity));
 
-            var sourceSystem = await GetSourceSystemAsync(request.RequestContext.ApiSystemName, cancellationToken) ?? throw new EntityNotFoundException(nameof(SourceSystem));
-
-            var researchInitiativeIdentifierTypes = new Dictionary<string, ResearchInitiativeIdentifierType>();
+            var researchInitiativeIdentifierTypes = new Dictionary<string, ResearchStudyIdentifierTypeEntity>();
 
             foreach (var x in _context.ResearchInitiativeIdentifierTypes.Select(x => x))
             {
@@ -144,22 +126,18 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
             {
                 var identifierType = researchInitiativeIdentifierTypes[identifierToAdd.IdentifierType];
 
-                var griMapping = new GriMapping
+                var griMapping = new ResearchStudyIdentifierEntity
                 {
-                    GriResearchStudy = griResearchStudy,
-                    ResearchInitiativeIdentifier = new ResearchInitiativeIdentifier
-                    {
-                        SourceSystem = sourceSystem,
-                        Value = identifierToAdd.Identifier,
-                        ResearchInitiativeIdentifierType = identifierType
-                    },
+                    ResearchStudy = griResearchStudy,
+                    Value = identifierToAdd.Identifier,
+                    IdentifierType = identifierType,
                     SourceSystem = sourceSystem
                 };
 
-                var griResearchStudyStatus = new GriResearchStudyStatus
+                var griResearchStudyStatus = new ResearchStudyIdentifierStatusEntity
                 {
-                    Code = request.RequestContext.StatusCode,
-                    GriMapping = griMapping,
+                    Code = identifierToAdd.StatusCode,
+                    ResearchStudyIdentifier = griMapping,
                     FromDate = DateTime.Now
                 };
 
@@ -182,19 +160,19 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
             return governmentResearchIdentifier;
         }
 
-        private GovernmentResearchIdentifier Map(GriResearchStudy griResearchStudy)
+        private GovernmentResearchIdentifier Map(ResearchStudyEntity griResearchStudy)
         {
             var linkedSystemIdentifiers = new List<LinkedSystemIdentifier>();
 
-            foreach (var x in griResearchStudy.GriMappings)
+            foreach (var x in griResearchStudy.ResearchStudyIdentifiers)
             {
                 linkedSystemIdentifiers.Add(new LinkedSystemIdentifier
                 {
                     CreatedAt = x.Created,
                     SystemName = x.SourceSystem.Code,
-                    Identifier = x.ResearchInitiativeIdentifier.Value,
-                    IdentifierType = x.ResearchInitiativeIdentifier.ResearchInitiativeIdentifierType.Description,
-                    StatusCode = x.GriResearchStudyStatuses.FirstOrDefault(status => !status.ToDate.HasValue)?.Code ?? ""
+                    Identifier = x.Value,
+                    IdentifierType = x.IdentifierType.Description,
+                    StatusCode = x.IdentifierStatuses.FirstOrDefault(status => !status.ToDate.HasValue)?.Code ?? ""
                 });
             }
 
@@ -202,61 +180,68 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
             {
                 Created = griResearchStudy.Created,
                 LinkedSystemIdentifiers = linkedSystemIdentifiers,
-                Identifier = griResearchStudy.Gri,
                 ShortTitle = griResearchStudy.ShortTitle,
                 TeamMembers = Map(griResearchStudy.ResearchStudyTeamMembers)
             };
         }
 
-        private List<TeamMember> Map(ICollection<ResearchStudyTeamMember> researchStudyTeamMembers)
+        private List<TeamMember> Map(ICollection<ResearchStudyTeamMemberEntity> researchStudyTeamMembers)
         {
             var teamMembers = new List<TeamMember>();
 
-            foreach (var teamMember in researchStudyTeamMembers)
+            foreach (var teamMemberEntity in researchStudyTeamMembers)
             {
-                teamMembers.Add(new TeamMember
+                var teamMember = new TeamMember
                 {
                     Role = new Role
                     {
-                        Description = teamMember.PersonRole != null
-                            && !string.IsNullOrEmpty(teamMember.PersonRole.Description)
-                            ? teamMember.PersonRole.Description : "",
-                        Name = teamMember.PersonRole != null
-                            && !string.IsNullOrEmpty( teamMember.PersonRole.Type)
-                            ? teamMember.PersonRole.Type
+                        Description = teamMemberEntity.PersonRole != null
+                            && !string.IsNullOrEmpty(teamMemberEntity.PersonRole.Description)
+                            ? teamMemberEntity.PersonRole.Description : "",
+                        Code = teamMemberEntity.PersonRole != null
+                            && !string.IsNullOrEmpty(teamMemberEntity.PersonRole.Code)
+                            ? teamMemberEntity.PersonRole.Code
                             : ""
                     },
                     Person = new PersonWithPrimaryEmail
                     {
                         Email = new Email
                         {
-                            Address = teamMember.Researcher.Person.PersonNames.First().Email
+                            Address = teamMemberEntity.Practitioner.Person.PersonNames.First().Email
                         },
-                        Firstname = teamMember.Researcher.Person.PersonNames.First().Given,
-                        Lastname = teamMember.Researcher.Person.PersonNames.First().Family
+                        Firstname = teamMemberEntity.Practitioner.Person.PersonNames.First().Given,
+                        Lastname = teamMemberEntity.Practitioner.Person.PersonNames.First().Family
                     }
-                });
+                };
+
+                if(teamMemberEntity.Organitation != null)
+                {
+                    teamMember.Organisation = new Organisation(teamMemberEntity.Organitation.Code,
+                        teamMemberEntity.Organitation.Description);
+                }
+
+                teamMembers.Add(teamMember);
             }
 
             return teamMembers;
         }
 
-        private async Task<GriResearchStudy?> GetGriResearchStudyByIdentifierAsync(string? identifier,
+        private async Task<ResearchStudyEntity?> GetGriResearchStudyByIdentifierAsync(string? identifier,
             CancellationToken cancellationToken)
         {
-            var griResearchStudy = await _context.GriResearchStudies
-                .Include(context => context.ResearchStudyTeamMembers)
-                    .ThenInclude(x => x.Researcher)
-                    .ThenInclude(researcher => researcher.Person)
-                    .ThenInclude(person => person.PersonNames)
-                 .Include(context => context.ResearchStudyTeamMembers).ThenInclude(x => x.PersonRole)
-                 .Include(study => study.GriMappings).ThenInclude(mapping => mapping.SourceSystem)
-                 .Include(study => study.GriMappings).ThenInclude(mapping => mapping.ResearchInitiativeIdentifier)
-                    .ThenInclude(x => x.ResearchInitiativeIdentifierType)
-                 .Include(study => study.GriMappings).ThenInclude(mapping => mapping.GriResearchStudyStatuses)
-                .FirstOrDefaultAsync(x => x.Gri == identifier, cancellationToken);
+            var griResearchStudyIdentifier = await _context.ResearchStudyIdentifiers
+                .Include(record => record.SourceSystem)
+                .Include(record => record.IdentifierStatuses)
+                .Include(record => record.IdentifierType)
+                .Include(record => record.ResearchStudy)
+                    .ThenInclude(study => study.ResearchStudyTeamMembers)
+                    .ThenInclude(team => team.Practitioner)
+                    .ThenInclude(team => team.Person)
+                    .ThenInclude(team => team.PersonNames)
+                .FirstOrDefaultAsync(researchStudyIdentifier => researchStudyIdentifier.IdentifierType.Description == ResearchInitiativeIdentifierTypes.GrisId
+                    && researchStudyIdentifier.Value == identifier, cancellationToken);
 
-            return griResearchStudy;
+            return griResearchStudyIdentifier?.ResearchStudy;
         }
 
         private async Task<PersonDb?> GetPersonAsync(PersonWithPrimaryEmail person,
@@ -276,14 +261,10 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
         }
 
 
-        private async Task<SourceSystem?> GetSourceSystemAsync(string code, CancellationToken cancellationToken)
+        private async Task<SourceSystemEntity?> GetSourceSystemAsync(string code, CancellationToken cancellationToken)
         {
             return await _context.SourceSystems.FirstOrDefaultAsync(system => system.Code == code, cancellationToken);
         }
 
-        private async Task<ResearchInitiativeType?> GetResearchInitiativeTypeAsync(string code, CancellationToken cancellationToken)
-        {
-            return await _context.ResearchInitiativeTypes.FirstOrDefaultAsync(x => x.Description == code, cancellationToken);
-        }
     }
 }

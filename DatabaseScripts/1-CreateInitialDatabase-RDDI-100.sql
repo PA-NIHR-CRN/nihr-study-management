@@ -10,7 +10,7 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
     ALTER DATABASE CHARACTER SET utf8mb4;
 
@@ -24,14 +24,14 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    CREATE TABLE `personRole` (
+    CREATE TABLE `organisation` (
         `id` int NOT NULL AUTO_INCREMENT,
-        `type` varchar(45) CHARACTER SET utf8mb4 NOT NULL,
-        `description` varchar(150) CHARACTER SET utf8mb4 NULL,
+        `code` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
+        `description` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
         `created` datetime(6) NOT NULL,
-        CONSTRAINT `PK_personRole` PRIMARY KEY (`id`)
+        CONSTRAINT `PK_organisation` PRIMARY KEY (`id`)
     ) CHARACTER SET=utf8mb4;
 
     END IF;
@@ -44,13 +44,12 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    CREATE TABLE `personType` (
+    CREATE TABLE `person` (
         `id` int NOT NULL AUTO_INCREMENT,
-        `description` varchar(45) CHARACTER SET utf8mb4 NOT NULL,
         `created` datetime(6) NOT NULL,
-        CONSTRAINT `PK_personType` PRIMARY KEY (`id`)
+        CONSTRAINT `PK_person` PRIMARY KEY (`id`)
     ) CHARACTER SET=utf8mb4;
 
     END IF;
@@ -63,13 +62,13 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    CREATE TABLE `researchInitiativeIdentifierType` (
+    CREATE TABLE `researchStudyIdentifierType` (
         `id` int NOT NULL AUTO_INCREMENT,
-        `description` varchar(45) CHARACTER SET utf8mb4 NOT NULL,
+        `description` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
         `created` datetime(6) NOT NULL,
-        CONSTRAINT `PK_researchInitiativeIdentifierType` PRIMARY KEY (`id`)
+        CONSTRAINT `PK_researchStudyIdentifierType` PRIMARY KEY (`id`)
     ) CHARACTER SET=utf8mb4;
 
     END IF;
@@ -82,13 +81,14 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    CREATE TABLE `researchInitiativeType` (
+    CREATE TABLE `roleType` (
         `id` int NOT NULL AUTO_INCREMENT,
-        `description` varchar(45) CHARACTER SET utf8mb4 NULL,
+        `code` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
+        `description` varchar(250) CHARACTER SET utf8mb4 NULL,
         `created` datetime(6) NOT NULL,
-        CONSTRAINT `PK_researchInitiativeType` PRIMARY KEY (`id`)
+        CONSTRAINT `PK_roleType` PRIMARY KEY (`id`)
     ) CHARACTER SET=utf8mb4;
 
     END IF;
@@ -101,12 +101,12 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
     CREATE TABLE `sourceSystem` (
         `id` int NOT NULL AUTO_INCREMENT,
-        `code` varchar(45) CHARACTER SET utf8mb4 NOT NULL,
-        `description` varchar(45) CHARACTER SET utf8mb4 NOT NULL,
+        `code` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
+        `description` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
         `created` datetime(6) NOT NULL,
         CONSTRAINT `PK_sourceSystem` PRIMARY KEY (`id`)
     ) CHARACTER SET=utf8mb4;
@@ -121,77 +121,14 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
-
-    CREATE TABLE `person` (
-        `id` int NOT NULL AUTO_INCREMENT,
-        `personType_id` int NOT NULL,
-        `created` datetime(6) NOT NULL,
-        CONSTRAINT `PK_person` PRIMARY KEY (`id`),
-        CONSTRAINT `fk_person_type` FOREIGN KEY (`personType_id`) REFERENCES `personType` (`id`)
-    ) CHARACTER SET=utf8mb4;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
-
-    CREATE TABLE `researchInitiative` (
-        `id` int NOT NULL AUTO_INCREMENT,
-        `researchInitiativeType_id` int NULL,
-        `created` datetime(6) NOT NULL,
-        CONSTRAINT `PK_researchInitiative` PRIMARY KEY (`id`),
-        CONSTRAINT `fk_researchInitiative_type` FOREIGN KEY (`researchInitiativeType_id`) REFERENCES `researchInitiativeType` (`id`)
-    ) CHARACTER SET=utf8mb4;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
-
-    CREATE TABLE `researchInitiativeIdentifier` (
-        `int` int NOT NULL AUTO_INCREMENT,
-        `sourceSystem_id` int NOT NULL,
-        `value` varchar(150) CHARACTER SET utf8mb4 NOT NULL,
-        `researchInitiativeIdentifierType_id` int NOT NULL,
-        `created` datetime(6) NOT NULL,
-        CONSTRAINT `PRIMARY` PRIMARY KEY (`int`),
-        CONSTRAINT `fk_researchInitiativeIdentifier_sourceSystem` FOREIGN KEY (`sourceSystem_id`) REFERENCES `sourceSystem` (`id`),
-        CONSTRAINT `fk_researchInitiativeIdentifier_type` FOREIGN KEY (`researchInitiativeIdentifierType_id`) REFERENCES `researchInitiativeIdentifierType` (`id`)
-    ) CHARACTER SET=utf8mb4;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
     CREATE TABLE `personName` (
         `id` int NOT NULL AUTO_INCREMENT,
         `person_id` int NOT NULL,
-        `family` varchar(100) CHARACTER SET utf8mb4 NOT NULL,
-        `given` varchar(10) CHARACTER SET utf8mb4 NOT NULL,
-        `email` varchar(150) CHARACTER SET utf8mb4 NOT NULL,
+        `family` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
+        `given` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
+        `email` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
         `created` datetime(6) NOT NULL,
         CONSTRAINT `PK_personName` PRIMARY KEY (`id`),
         CONSTRAINT `fk_personName_person` FOREIGN KEY (`person_id`) REFERENCES `person` (`id`)
@@ -207,13 +144,13 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    CREATE TABLE `researcher` (
+    CREATE TABLE `practitioner` (
         `id` int NOT NULL AUTO_INCREMENT,
         `person_id` int NOT NULL,
         `created` datetime(6) NOT NULL,
-        CONSTRAINT `PK_researcher` PRIMARY KEY (`id`),
+        CONSTRAINT `PK_practitioner` PRIMARY KEY (`id`),
         CONSTRAINT `fk_researcher_person` FOREIGN KEY (`person_id`) REFERENCES `person` (`id`)
     ) CHARACTER SET=utf8mb4;
 
@@ -227,42 +164,15 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    CREATE TABLE `griResearchStudy` (
+    CREATE TABLE `researchStudy` (
         `id` int NOT NULL AUTO_INCREMENT,
-        `researchInitiative_id` int NOT NULL,
-        `gri` varchar(100) CHARACTER SET utf8mb4 NOT NULL,
-        `shortTitle` varchar(150) CHARACTER SET utf8mb4 NOT NULL,
-        `requestSourceSystem_id` int NOT NULL,
-        `created` datetime(6) NOT NULL,
-        CONSTRAINT `PK_griResearchStudy` PRIMARY KEY (`id`),
-        CONSTRAINT `fk_griResearchStudy_researchInitiative` FOREIGN KEY (`researchInitiative_id`) REFERENCES `researchInitiative` (`id`),
-        CONSTRAINT `fk_griResearchStudy_sourceSystem` FOREIGN KEY (`requestSourceSystem_id`) REFERENCES `sourceSystem` (`id`)
-    ) CHARACTER SET=utf8mb4;
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
-
-    CREATE TABLE `griMapping` (
-        `id` int NOT NULL AUTO_INCREMENT,
-        `griResearchStudy_id` int NOT NULL,
+        `shortTitle` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
         `sourceSystem_id` int NOT NULL,
-        `researchInitiativeIdentifier_id` int NOT NULL,
         `created` datetime(6) NOT NULL,
-        CONSTRAINT `PK_griMapping` PRIMARY KEY (`id`),
-        CONSTRAINT `fk_griMapping_griResearchStudy` FOREIGN KEY (`griResearchStudy_id`) REFERENCES `griResearchStudy` (`id`),
-        CONSTRAINT `fk_griMapping_researchInitiativeIdentifier` FOREIGN KEY (`researchInitiativeIdentifier_id`) REFERENCES `researchInitiativeIdentifier` (`int`),
-        CONSTRAINT `fk_griMapping_sourceSystem` FOREIGN KEY (`sourceSystem_id`) REFERENCES `sourceSystem` (`id`)
+        CONSTRAINT `PK_researchStudy` PRIMARY KEY (`id`),
+        CONSTRAINT `fk_researchStudy_sourceSystem` FOREIGN KEY (`sourceSystem_id`) REFERENCES `sourceSystem` (`id`)
     ) CHARACTER SET=utf8mb4;
 
     END IF;
@@ -275,20 +185,22 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    CREATE TABLE `researchStudyTeamMember` (
+    CREATE TABLE `practitionerRole` (
         `id` int NOT NULL AUTO_INCREMENT,
-        `griMapping_id` int NOT NULL,
-        `researcher_id` int NOT NULL,
-        `personRole_id` int NOT NULL,
+        `researchStudy_id` int NOT NULL,
+        `practitioner_id` int NOT NULL,
+        `roleType_id` int NOT NULL,
+        `organization_id` int NULL,
         `effective_from` datetime(6) NOT NULL,
         `effective_to` datetime(6) NULL,
         `created` datetime(6) NOT NULL,
-        CONSTRAINT `PK_researchStudyTeamMember` PRIMARY KEY (`id`),
-        CONSTRAINT `fk_researchStudyTeamMember_griResearch` FOREIGN KEY (`griMapping_id`) REFERENCES `griResearchStudy` (`id`),
-        CONSTRAINT `fk_researchStudyTeamMember_personRol` FOREIGN KEY (`personRole_id`) REFERENCES `personRole` (`id`),
-        CONSTRAINT `researchStudyTeamMember_researcher` FOREIGN KEY (`researcher_id`) REFERENCES `researcher` (`id`)
+        CONSTRAINT `PK_practitionerRole` PRIMARY KEY (`id`),
+        CONSTRAINT `fk_researchStudyTeamMember_organization` FOREIGN KEY (`organization_id`) REFERENCES `organisation` (`id`),
+        CONSTRAINT `fk_researchStudyTeamMember_personRole` FOREIGN KEY (`roleType_id`) REFERENCES `roleType` (`id`),
+        CONSTRAINT `fk_researchStudyTeamMember_practitioner` FOREIGN KEY (`practitioner_id`) REFERENCES `practitioner` (`id`),
+        CONSTRAINT `fk_researchStudyTeamMember_researchStudy` FOREIGN KEY (`researchStudy_id`) REFERENCES `researchStudy` (`id`)
     ) CHARACTER SET=utf8mb4;
 
     END IF;
@@ -301,17 +213,42 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    CREATE TABLE `griResearchStudyStatus` (
+    CREATE TABLE `researchStudyIdentifier` (
         `id` int NOT NULL AUTO_INCREMENT,
-        `GriMappingId` int NOT NULL,
-        `code` varchar(100) CHARACTER SET utf8mb4 NOT NULL,
+        `researchStudy_id` int NOT NULL,
+        `sourceSystem_id` int NOT NULL,
+        `value` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
+        `IdentifierTypeId` int NOT NULL,
+        `created` datetime(6) NOT NULL,
+        CONSTRAINT `PK_researchStudyIdentifier` PRIMARY KEY (`id`),
+        CONSTRAINT `fk_researchStudyIdentifier_researchStudy` FOREIGN KEY (`researchStudy_id`) REFERENCES `researchStudy` (`id`),
+        CONSTRAINT `FK_researchStudyIdentifier_researchStudyIdentifierType_Identifi~` FOREIGN KEY (`IdentifierTypeId`) REFERENCES `researchStudyIdentifierType` (`id`) ON DELETE CASCADE,
+        CONSTRAINT `fk_researchStudyIdentifier_sourceSystem` FOREIGN KEY (`sourceSystem_id`) REFERENCES `sourceSystem` (`id`)
+    ) CHARACTER SET=utf8mb4;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
+
+    CREATE TABLE `researchStudyIdentifierStatus` (
+        `id` int NOT NULL AUTO_INCREMENT,
+        `ResearchStudyIdentifierId` int NOT NULL,
+        `code` varchar(250) CHARACTER SET utf8mb4 NOT NULL,
         `FromDate` datetime(6) NOT NULL,
         `ToDate` datetime(6) NULL,
         `created` datetime(6) NOT NULL,
-        CONSTRAINT `PK_griResearchStudyStatus` PRIMARY KEY (`id`),
-        CONSTRAINT `fk_griResearchStudyStatus_griMapping` FOREIGN KEY (`GriMappingId`) REFERENCES `griMapping` (`id`)
+        CONSTRAINT `PK_researchStudyIdentifierStatus` PRIMARY KEY (`id`),
+        CONSTRAINT `fk_researchStudyIdentifierStatus_researchStudy` FOREIGN KEY (`ResearchStudyIdentifierId`) REFERENCES `researchStudyIdentifier` (`id`)
     ) CHARACTER SET=utf8mb4;
 
     END IF;
@@ -324,25 +261,10 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    INSERT INTO `personRole` (`id`, `created`, `description`, `type`)
-    VALUES (1, TIMESTAMP '2024-03-08 11:09:04', 'A Chief investigator role', 'CHIEF_INVESTIGATOR');
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
-
-    INSERT INTO `personType` (`id`, `created`, `description`)
-    VALUES (1, TIMESTAMP '2024-03-08 11:09:04', 'RESEARCHER');
+    INSERT INTO `organisation` (`id`, `code`, `created`, `description`)
+    VALUES (1, 'org01', TIMESTAMP '2024-06-07 10:16:44', 'Development organisation');
 
     END IF;
 END //
@@ -354,27 +276,16 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    INSERT INTO `researchInitiativeIdentifierType` (`id`, `created`, `description`)
-    VALUES (1, TIMESTAMP '2024-03-08 11:09:04', 'PROJECT');
-    INSERT INTO `researchInitiativeIdentifierType` (`id`, `created`, `description`)
-    VALUES (2, TIMESTAMP '2024-03-08 11:09:04', 'PROTOCOL');
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
-
-    INSERT INTO `researchInitiativeType` (`id`, `created`, `description`)
-    VALUES (1, TIMESTAMP '2024-03-08 11:09:04', 'STUDY');
+    INSERT INTO `researchStudyIdentifierType` (`id`, `created`, `description`)
+    VALUES (1, TIMESTAMP '2024-06-07 10:16:44', 'PROJECT');
+    INSERT INTO `researchStudyIdentifierType` (`id`, `created`, `description`)
+    VALUES (2, TIMESTAMP '2024-06-07 10:16:44', 'PROTOCOL');
+    INSERT INTO `researchStudyIdentifierType` (`id`, `created`, `description`)
+    VALUES (3, TIMESTAMP '2024-06-07 10:16:44', 'BUNDLE');
+    INSERT INTO `researchStudyIdentifierType` (`id`, `created`, `description`)
+    VALUES (4, TIMESTAMP '2024-06-07 10:16:44', 'GRIS ID');
 
     END IF;
 END //
@@ -386,12 +297,35 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
+
+    INSERT INTO `roleType` (`id`, `code`, `created`, `description`)
+    VALUES (1, 'CHF_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5', TIMESTAMP '2024-06-07 10:16:44', 'Chief Investigator');
+    INSERT INTO `roleType` (`id`, `code`, `created`, `description`)
+    VALUES (2, 'STDY_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5', TIMESTAMP '2024-06-07 10:16:44', 'Study Coordinator');
+    INSERT INTO `roleType` (`id`, `code`, `created`, `description`)
+    VALUES (3, 'RSRCH_ACT_CRDNTR@2.16.840.1.113883.2.1.3.8.5.2.3.5', TIMESTAMP '2024-06-07 10:16:44', 'Research Activity Coordinator');
+    INSERT INTO `roleType` (`id`, `code`, `created`, `description`)
+    VALUES (4, 'PRNCPL_INV@2.16.840.1.113883.2.1.3.8.5.2.3.5', TIMESTAMP '2024-06-07 10:16:44', 'Principal Investigator');
+    INSERT INTO `roleType` (`id`, `code`, `created`, `description`)
+    VALUES (5, 'CMPNY_RP@2.16.840.1.113883.2.1.3.8.5.2.3.5', TIMESTAMP '2024-06-07 10:16:44', 'Company Representative');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
     INSERT INTO `sourceSystem` (`id`, `code`, `created`, `description`)
-    VALUES (1, 'EDGE', TIMESTAMP '2024-03-08 11:09:04', 'Edge system');
+    VALUES (1, 'EDGE', TIMESTAMP '2024-06-07 10:16:44', 'Edge system');
     INSERT INTO `sourceSystem` (`id`, `code`, `created`, `description`)
-    VALUES (2, 'IRAS', TIMESTAMP '2024-03-08 11:09:04', 'IRAS system');
+    VALUES (2, 'IRAS', TIMESTAMP '2024-06-07 10:16:44', 'IRAS system');
 
     END IF;
 END //
@@ -403,23 +337,9 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    CREATE INDEX `fk_griMapping_griResearchStudy_idx` ON `griMapping` (`griResearchStudy_id`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
-
-    CREATE INDEX `fk_griMapping_researchInitiativeIdentifier_idx` ON `griMapping` (`researchInitiativeIdentifier_id`);
+    CREATE INDEX `idx_personName_id` ON `personName` (`person_id`);
 
     END IF;
 END //
@@ -431,23 +351,9 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    CREATE INDEX `fk_griMapping_sourceSystem_idx` ON `griMapping` (`sourceSystem_id`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
-
-    CREATE INDEX `fk_griResearchStudy_researchInitiative_idx` ON `griResearchStudy` (`researchInitiative_id`);
+    CREATE INDEX `fk_researcher_person_idx` ON `practitioner` (`person_id`);
 
     END IF;
 END //
@@ -459,23 +365,9 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    CREATE INDEX `fk_griResearchStudy_sourceSystem_idx` ON `griResearchStudy` (`requestSourceSystem_id`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
-
-    CREATE INDEX `IX_griResearchStudyStatus_GriMappingId` ON `griResearchStudyStatus` (`GriMappingId`);
+    CREATE INDEX `idx_researchStudyTeamMember_PractitionerId` ON `practitionerRole` (`practitioner_id`);
 
     END IF;
 END //
@@ -487,23 +379,9 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    CREATE INDEX `fk_person_type_idx` ON `person` (`personType_id`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
-
-    CREATE INDEX `fk_personName_person_idx` ON `personName` (`person_id`);
+    CREATE INDEX `idx_researchStudyTeamMember_researchStudyId` ON `practitionerRole` (`researchStudy_id`);
 
     END IF;
 END //
@@ -515,23 +393,9 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    CREATE INDEX `fk_researcher_person_idx` ON `researcher` (`person_id`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
-
-    CREATE INDEX `fk_researchInitiative_type_idx` ON `researchInitiative` (`researchInitiativeType_id`);
+    CREATE INDEX `idx_researchStudyTeamMember_roleTypeId` ON `practitionerRole` (`roleType_id`);
 
     END IF;
 END //
@@ -543,23 +407,9 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    CREATE INDEX `fk_researchInitiativeIdentifier_sourceSystem_idx` ON `researchInitiativeIdentifier` (`sourceSystem_id`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
-
-    CREATE INDEX `fk_researchInitiativeIdentifier_type_idx` ON `researchInitiativeIdentifier` (`researchInitiativeIdentifierType_id`);
+    CREATE INDEX `IX_practitionerRole_organization_id` ON `practitionerRole` (`organization_id`);
 
     END IF;
 END //
@@ -571,23 +421,9 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    CREATE INDEX `fk_researchStudyTeamMember_griResearch_idx` ON `researchStudyTeamMember` (`griMapping_id`);
-
-    END IF;
-END //
-DELIMITER ;
-CALL MigrationsScript();
-DROP PROCEDURE MigrationsScript;
-
-DROP PROCEDURE IF EXISTS MigrationsScript;
-DELIMITER //
-CREATE PROCEDURE MigrationsScript()
-BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
-
-    CREATE INDEX `fk_researchStudyTeamMember_personRol_idx` ON `researchStudyTeamMember` (`personRole_id`);
+    CREATE INDEX `idx_researchStudy_sourceSystem` ON `researchStudy` (`sourceSystem_id`);
 
     END IF;
 END //
@@ -599,9 +435,9 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
-    CREATE INDEX `researchStudyTeamMember_researcher_idx` ON `researchStudyTeamMember` (`researcher_id`);
+    CREATE INDEX `idx_researchStudyIdentifier_researchStudyId` ON `researchStudyIdentifier` (`researchStudy_id`);
 
     END IF;
 END //
@@ -613,10 +449,52 @@ DROP PROCEDURE IF EXISTS MigrationsScript;
 DELIMITER //
 CREATE PROCEDURE MigrationsScript()
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240308110904_01-Initial') THEN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
+
+    CREATE INDEX `idx_researchStudyIdentifier_sourceSystemId` ON `researchStudyIdentifier` (`sourceSystem_id`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
+
+    CREATE INDEX `IX_researchStudyIdentifier_IdentifierTypeId` ON `researchStudyIdentifier` (`IdentifierTypeId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
+
+    CREATE INDEX `IX_researchStudyIdentifierStatus_ResearchStudyIdentifierId` ON `researchStudyIdentifierStatus` (`ResearchStudyIdentifierId`);
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__EFMigrationsHistory` WHERE `MigrationId` = '20240607091645_01-Initial') THEN
 
     INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
-    VALUES ('20240308110904_01-Initial', '6.0.25');
+    VALUES ('20240607091645_01-Initial', '6.0.25');
 
     END IF;
 END //

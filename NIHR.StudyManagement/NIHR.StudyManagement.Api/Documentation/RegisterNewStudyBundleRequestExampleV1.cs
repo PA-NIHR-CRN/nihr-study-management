@@ -83,8 +83,22 @@ namespace NIHR.StudyManagement.Api.Documentation
             {
                 Id = "organization-1",
                 Active = true,
-                Type = new List<CodeableConcept>(),
-                Name = "Fake Organization name"
+                Identifier = new List<Identifier> {
+                    new Identifier
+                    {
+                        Type = new CodeableConcept()
+                        {
+                            Coding = new List<Coding>
+                            {
+                                new Coding
+                                {
+                                    Code = "org_o1",
+                                    Display = "Fake organisation"
+                                }
+                            }
+                        }
+                    }
+                }
             };
 
             bundle.Entry.Add(new Bundle.EntryComponent() { Resource = practitioner });
@@ -100,7 +114,8 @@ namespace NIHR.StudyManagement.Api.Documentation
                         Coding = new List<Coding>{
 
                             new Coding{
-                                Display = PersonRoles.ChiefInvestigator
+                                Code = PersonRoles.ChiefInvestigator,
+                                Display = "Chief Investigator"
                             }
                         }
                     }
@@ -117,7 +132,8 @@ namespace NIHR.StudyManagement.Api.Documentation
                         Coding = new List<Coding>{
 
                             new Coding{
-                                Display = PersonRoles.ChiefInvestigator
+                                Code = PersonRoles.ChiefInvestigator,
+                                Display = "Chief Investigator"
                             }
                         }
                     }

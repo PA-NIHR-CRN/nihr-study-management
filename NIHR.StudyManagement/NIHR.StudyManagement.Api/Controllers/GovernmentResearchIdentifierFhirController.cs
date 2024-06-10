@@ -55,7 +55,7 @@ namespace NIHR.StudyManagement.Api.Controllers
                         Url = HttpContext.Request.GetEncodedUrl()
                     });
 
-            return CreatedAtAction(nameof(GetIdentifierAsync), new { identifier = identifier.Identifier}, responseDto);
+            return CreatedAtAction(nameof(GetIdentifierAsync), new { identifier = identifier.GrisId}, responseDto);
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace NIHR.StudyManagement.Api.Controllers
                         Url = HttpContext.Request.GetEncodedUrl()
                     });
 
-            return CreatedAtAction(nameof(GetIdentifierAsync), new { identifier = researchStudy.Identifier }, responseDto);
+            return CreatedAtAction(nameof(GetIdentifierAsync), new { identifier = identifier }, responseDto);
         }
 
         /// <summary>
