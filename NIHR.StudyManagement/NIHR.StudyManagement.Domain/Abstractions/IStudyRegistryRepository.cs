@@ -9,5 +9,7 @@ namespace NIHR.StudyManagement.Domain.Abstractions
         Task<GovernmentResearchIdentifier> AddStudyToIdentifierAsync(AddStudyToExistingIdentifierRequestWithContext request, CancellationToken cancellationToken = default);
 
         Task<GovernmentResearchIdentifier> GetAsync(string identifier, CancellationToken cancellationToken = default);
+
+        Task<bool> DoesGrisExist(string identifier, CancellationToken cancellationToken = default);
     }
 }

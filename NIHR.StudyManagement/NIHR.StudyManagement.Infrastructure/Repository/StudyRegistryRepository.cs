@@ -285,5 +285,10 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
         {
             return await _context.ResearchInitiativeTypes.FirstOrDefaultAsync(x => x.Description == code, cancellationToken);
         }
+
+        public async Task<bool> DoesGrisExist(string identifier, CancellationToken cancellationToken = default)
+        {
+            return await _context.GriResearchStudies.AnyAsync(study => study.Gri == identifier, cancellationToken);
+        }
     }
 }

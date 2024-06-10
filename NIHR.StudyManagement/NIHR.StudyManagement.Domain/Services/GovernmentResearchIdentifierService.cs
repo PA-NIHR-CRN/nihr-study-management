@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NIHR.StudyManagement.Domain.Abstractions;
 using NIHR.StudyManagement.Domain.Configuration;
 using NIHR.StudyManagement.Domain.Constants;
 using NIHR.StudyManagement.Domain.EnumsAndConstants;
 using NIHR.StudyManagement.Domain.Exceptions;
 using NIHR.StudyManagement.Domain.Models;
-using System.Security.Cryptography;
 
 namespace NIHR.StudyManagement.Domain.Services
 {
@@ -13,16 +13,22 @@ namespace NIHR.StudyManagement.Domain.Services
     {
         private readonly IStudyRegistryRepository _governmentResearchIdentifierRepository;
         private readonly IStudyEventMessagePublisher _messagePublisher;
+        private readonly IRandomNumberGenerator _randomNumberGenerator;
+        private readonly ILogger<GovernmentResearchIdentifierService> _logger;
 
         private readonly StudyManagementSettings _settings;
 
         public GovernmentResearchIdentifierService(IStudyRegistryRepository governmentResearchIdentifierRepository,
             IOptions<StudyManagementSettings> settings,
-            IStudyEventMessagePublisher messagePublisher)
+            IStudyEventMessagePublisher messagePublisher,
+            IRandomNumberGenerator randomNumberGenerator,
+            ILogger<GovernmentResearchIdentifierService> logger)
         {
             this._governmentResearchIdentifierRepository = governmentResearchIdentifierRepository;
             this._settings = settings.Value;
             this._messagePublisher = messagePublisher;
+            this._randomNumberGenerator = randomNumberGenerator;
+            this._logger = logger;
 
             if (string.IsNullOrEmpty(this._settings.DefaultRoleName)) throw new ArgumentNullException(nameof(_settings.DefaultRoleName));
 
@@ -131,15 +137,38 @@ namespace NIHR.StudyManagement.Domain.Services
             CancellationToken cancellationToken)
         {
             // Generate the GRI
-            var gri = GenerateGrisPostcode();
+            var gri = await GenerateNewGrisIdAsync(cancellationToken);
 
-            var domainRequest =  Map(request, gri);
+            var domainRequest =  Map(request, gri.DisplayValue);
 
             var researchStudy = await _governmentResearchIdentifierRepository.CreateAsync(domainRequest, cancellationToken);
 
             await _messagePublisher.PublishAsync(GrisNsipEventTypes.StudyRegistered, request.ApiSystemName, researchStudy, cancellationToken);
 
             return researchStudy;
+        }
+
+        private async Task<GrisId> GenerateNewGrisIdAsync(CancellationToken cancellationToken)
+        {
+            // Allow one failure/duplicate
+            for(int retries = 3;retries > 0;retries--)
+            {
+                var grisId = GrisId.GenerateNewGrisId(_randomNumberGenerator);
+
+                // Check if ID already exists
+                if(await _governmentResearchIdentifierRepository.DoesGrisExist(grisId.DisplayValue, cancellationToken) )
+                {
+                    // Warn
+                    _logger.LogWarning($"Randomly generated sequence {grisId.DisplayValue} already exists. Retries left {retries - 1}");
+                    continue;
+                }
+
+                return grisId;
+            }
+
+            _logger.LogError($"Could not generate GRIS ID. Exceeded max attempts.");
+
+            throw new Exception("Could not generate GRIS ID");
         }
 
         public async Task<GovernmentResearchIdentifier> GetAsync(string identifier, CancellationToken cancellationToken = default)
@@ -157,39 +186,6 @@ namespace NIHR.StudyManagement.Domain.Services
         private async Task<GovernmentResearchIdentifier> GetByIdentifierAsync(string identifier, CancellationToken cancellationToken)
         {
             return await _governmentResearchIdentifierRepository.GetAsync(identifier, cancellationToken);
-        }
-
-        /// <summary>
-        /// This is a temp implementation for proof of concept to generate a government research identifier.
-        /// The implementation simply generates a random sequence of 3 capital letters, 3 numbers and 3 capital letters.
-        /// </summary>
-        /// <returns></returns>
-        private string GenerateGrisPostcode()
-        {
-            int asciiA = 65;
-            int asciiX = 90;
-            int ascii1 = 48;
-            int ascii9 = 57;
-            int maxCharacters = 3;
-
-            var identifier = $"{GetRandomSting(asciiA,asciiX, maxCharacters)}{GetRandomSting(ascii1, ascii9, maxCharacters)}{GetRandomSting(asciiA, asciiX, maxCharacters)}";
-
-            return identifier;
-        }
-
-        private static string GetRandomSting(int minAsciiValue, int maxAsciiValue, int numberCharacters)
-        {
-            var identifier = "";
-
-            for (int i = 0; i < numberCharacters; i++)
-            {
-                var randomCharacterAscii = RandomNumberGenerator.GetInt32(minAsciiValue, maxAsciiValue);
-
-                var randomCharacter = ((char)randomCharacterAscii).ToString();
-                identifier = identifier + randomCharacter;
-            }
-
-            return identifier;
         }
     }
 }

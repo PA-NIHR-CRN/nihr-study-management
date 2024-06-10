@@ -15,6 +15,7 @@ using NIHR.StudyManagement.Infrastructure.MessageBus;
 using Amazon;
 using Hl7.Fhir.Serialization;
 using Swashbuckle.AspNetCore.Filters;
+using NIHR.StudyManagement.Domain.Helpers;
 
 namespace NIHR.StudyManagement.Api;
 
@@ -123,6 +124,8 @@ public class Startup
         services.AddTransient<IGovernmentResearchIdentifierDtoMapper, GovernmentResearchIdentifierDtoMapper>();
         services.AddTransient<IStudyEventMessagePublisher, StudyManagementKafkaMessageProducer>();
         services.AddTransient<IFhirMapper, FhirMapper>();
+        services.AddTransient<IRandomNumberGenerator, RandomNumberGenerator>();
+
         services.AddDbContext<StudyRegistryContext>(options =>
         {
             // For local development, username/password included in connection string.
