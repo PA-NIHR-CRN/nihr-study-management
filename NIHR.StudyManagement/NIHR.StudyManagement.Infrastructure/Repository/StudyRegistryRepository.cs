@@ -182,6 +182,16 @@ namespace NIHR.StudyManagement.Infrastructure.Repository
             return governmentResearchIdentifier;
         }
 
+        public async Task<bool> DoesGrisExist(string identifier, CancellationToken cancellationToken = default)
+        {
+            var matchingIdentifiers = from existingIdentifiers in _context.ResearchStudyIdentifiers
+                            join identifierType in _context.ResearchInitiativeIdentifierTypes on existingIdentifiers.IdentifierTypeId equals identifierType.Id
+                            where identifierType.Description == ResearchInitiativeIdentifierTypes.GrisId && existingIdentifiers.Value == identifier
+                            select existingIdentifiers;
+
+            return await matchingIdentifiers.FirstOrDefaultAsync() != null;
+        }
+
         private GovernmentResearchIdentifier Map(GriResearchStudy griResearchStudy)
         {
             var linkedSystemIdentifiers = new List<LinkedSystemIdentifier>();
