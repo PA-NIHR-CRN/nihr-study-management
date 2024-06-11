@@ -4,11 +4,12 @@ using Microsoft.Extensions.Options;
 using NIHR.StudyManagement.Domain.Abstractions;
 using NIHR.StudyManagement.Domain.Configuration;
 using NIHR.StudyManagement.Domain.Models;
+using NIHR.StudyManagement.Infrastructure.Repository.EnumsAndConstants;
 
 namespace NIHR.StudyManagement.Infrastructure.MessageBus
 {
 
-    public class StudyManagementKafkaMessageProducer : IStudyEventMessagePublisher
+    public class StudyManagementKafkaMessageProducer : IStudyEventMessagePublisher, INsipGrisMessageHelper
     {
         private readonly ILogger<StudyManagementKafkaMessageProducer> _logger;
         private readonly MessageBusSettings _settings;
@@ -20,6 +21,28 @@ namespace NIHR.StudyManagement.Infrastructure.MessageBus
             _settings = settings.Value;
 
             _logger.LogInformation($"MSK settings BootstrapServers: {_settings.BootstrapServers}. Topic: {_settings.Topic}");
+        }
+
+        public NsipMessage<string> Prepare(string eventType, string sourceSystem, string eventData)
+        {
+            var nsipMessage = new NsipMessage<string>(eventData)
+            {
+                NsipEventId = "1",
+                NsipEventSourceSystemId = sourceSystem,
+                NsipEventType = eventType,
+            };
+
+            return nsipMessage;
+        }
+
+        public async Task PrepareAndPublishAsync(string eventType,
+            string sourceSystemName,
+            string payload,
+            CancellationToken cancellationToken)
+        {
+            var nsipMessage = Prepare(eventType, sourceSystemName, payload);
+
+            await Publish(nsipMessage, cancellationToken);
         }
 
         public async Task PublishAsync(string eventType,
@@ -39,20 +62,24 @@ namespace NIHR.StudyManagement.Infrastructure.MessageBus
 
         private async Task Publish<TEventType>(NsipMessage<TEventType> nsipMessage,
             CancellationToken cancellationToken)
-            where TEventType : new()
+          {
+            var nsipMessageJson = System.Text.Json.JsonSerializer.Serialize(nsipMessage);
+
+            await Publish(nsipMessageJson, cancellationToken);
+        }
+
+        public async Task Publish(string payload, CancellationToken cancellationToken)
         {
             var producerConfig = new ProducerConfig
             {
                 BootstrapServers = _settings.BootstrapServers
             };
 
-            var nsipMessageJson = System.Text.Json.JsonSerializer.Serialize(nsipMessage);
-
             using (var producer = new ProducerBuilder<Null, string>(producerConfig).Build())
             {
-                var msg = new Message<Null, string>() { Value = nsipMessageJson };
+                var msg = new Message<Null, string>() { Value = payload };
 
-                _logger.LogInformation($"Producer: About to publish {nsipMessageJson}");
+                _logger.LogInformation($"Producer: About to publish {payload}");
 
                 var deliveryReport = await producer.ProduceAsync(_settings.Topic, msg, cancellationToken: cancellationToken);
 
@@ -67,7 +94,7 @@ namespace NIHR.StudyManagement.Infrastructure.MessageBus
                     "PoC" ?? "NULL",
                     deliveryReport.TopicPartition.Partition.Value,
                     deliveryReport.Status,
-                    nsipMessageJson);
+                    payload);
             }
         }
     }
