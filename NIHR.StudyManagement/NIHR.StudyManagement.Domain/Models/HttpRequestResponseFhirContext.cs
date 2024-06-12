@@ -1,4 +1,4 @@
-﻿namespace NIHR.StudyManagement.Api.Models
+﻿namespace NIHR.StudyManagement.Domain.Models
 {
     public class HttpRequestResponseFhirContext
     {

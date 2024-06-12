@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NIHR.StudyManagement.Infrastructure.Repository;
 
@@ -10,9 +11,10 @@ using NIHR.StudyManagement.Infrastructure.Repository;
 namespace NIHR.StudyManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(StudyRegistryContext))]
-    partial class StudyRegistryContextModelSnapshot : ModelSnapshot
+    [Migration("20240611102510_02-RDD-815")]
+    partial class _02RDD815
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

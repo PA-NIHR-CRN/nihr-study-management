@@ -1,5 +1,5 @@
 ﻿using Hl7.Fhir.Model;
-using NIHR.StudyManagement.Api.Models;
+using NIHR.StudyManagement.Domain.Models;
 
 namespace NIHR.StudyManagement.Api.ExtensionMethods
 {

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "NIHR.StudyManagement.OutboxProcessor": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
