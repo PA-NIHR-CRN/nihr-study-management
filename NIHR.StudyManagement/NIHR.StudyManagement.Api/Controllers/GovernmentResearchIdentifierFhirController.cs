@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using NIHR.StudyManagement.Api.Documentation;
-using NIHR.StudyManagement.Api.Mappers;
 using NIHR.StudyManagement.Api.Models;
 using NIHR.StudyManagement.Api.Models.Dto;
 using NIHR.StudyManagement.Domain.Abstractions;
@@ -45,15 +44,16 @@ namespace NIHR.StudyManagement.Api.Controllers
         {
             var createIdentifierRequest = _fhirMapper.MapCreateRequestBundle(request, ApiConsumerSystemName, "");
 
+            createIdentifierRequest.HttpRequestResponseFhirContext = new HttpRequestResponseFhirContext
+            {
+                Method = HttpMethod.Post,
+                Status = (int)HttpStatusCode.Created,
+                Url = HttpContext.Request.GetEncodedUrl()
+            };
+
             var identifier = await _governmentResearchIdentifierService.RegisterStudyAsync(createIdentifierRequest, cancellationToken);
 
-            var responseDto = _fhirMapper.MapToResearchStudyBundle(identifier,
-                    new HttpRequestResponseFhirContext
-                    {
-                        Method = HttpMethod.Post,
-                        Status = (int)HttpStatusCode.Created,
-                        Url = HttpContext.Request.GetEncodedUrl()
-                    });
+            var responseDto = _fhirMapper.MapToResearchStudyBundle(identifier, createIdentifierRequest.HttpRequestResponseFhirContext);
 
             return CreatedAtAction(nameof(GetIdentifierAsync), new { identifier = identifier.GrisId}, responseDto);
         }
@@ -72,15 +72,16 @@ namespace NIHR.StudyManagement.Api.Controllers
         {
             var createIdentifierRequest = _fhirMapper.MapCreateRequestBundle(request, ApiConsumerSystemName, identifier);
 
+            createIdentifierRequest.HttpRequestResponseFhirContext = new HttpRequestResponseFhirContext
+            {
+                Method = HttpMethod.Patch,
+                Status = (int)HttpStatusCode.Created,
+                Url = HttpContext.Request.GetEncodedUrl()
+            };
+
             var researchStudy = await _governmentResearchIdentifierService.RegisterStudyAsync((RegisterStudyToExistingIdentifierRequest)createIdentifierRequest, cancellationToken);
 
-            var responseDto = _fhirMapper.MapToResearchStudyBundle(researchStudy,
-                    new HttpRequestResponseFhirContext
-                    {
-                        Method = HttpMethod.Patch,
-                        Status = (int)HttpStatusCode.Created,
-                        Url = HttpContext.Request.GetEncodedUrl()
-                    });
+            var responseDto = _fhirMapper.MapToResearchStudyBundle(researchStudy, createIdentifierRequest.HttpRequestResponseFhirContext);
 
             return CreatedAtAction(nameof(GetIdentifierAsync), new { identifier = identifier }, responseDto);
         }

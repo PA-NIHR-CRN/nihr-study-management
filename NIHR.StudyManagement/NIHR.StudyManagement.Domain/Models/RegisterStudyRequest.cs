@@ -17,6 +17,8 @@
             TeamMembers = new List<TeamMember>();
             Identifiers = new List<ResearchInitiativeIdentifierItem>();
         }
+
+        public HttpRequestResponseFhirContext? HttpRequestResponseFhirContext { get; set; }
     }
 
     public class ResearchInitiativeIdentifierItem

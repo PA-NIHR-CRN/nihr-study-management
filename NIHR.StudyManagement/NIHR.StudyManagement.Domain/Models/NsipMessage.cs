@@ -1,11 +1,10 @@
-﻿namespace NIHR.StudyManagement.Infrastructure.MessageBus
+﻿namespace NIHR.StudyManagement.Domain.Models
 {
     /// <summary>
     /// Message wrapper for an NSIP message
     /// </summary>
     /// <typeparam name="TEventData"></typeparam>
     public class NsipMessage<TEventData>
-        where TEventData : new()
     {
         public decimal NsipEventVersion { get; set; }
 
@@ -21,9 +20,9 @@
 
         public TEventData NsipEventData { get; private set; }
 
-        public NsipMessage(TEventData data)
+        public NsipMessage(TEventData nsipEventData)
         {
-            NsipEventData = data;
+            NsipEventData = nsipEventData;
             NsipEventDateCreated = DateTime.Now;
             NsipEventVersion = 1;
             NsipEventId = "";
