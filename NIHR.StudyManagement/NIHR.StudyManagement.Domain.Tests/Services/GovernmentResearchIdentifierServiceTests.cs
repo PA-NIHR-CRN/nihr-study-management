@@ -21,10 +21,13 @@ namespace NIHR.StudyManagement.Domain.Tests.Services
         Mock<IUnitOfWork> _unitOfWorkMock;
         Mock<IFhirMapper> _fhirMapperMock;
         Mock<IOptions<StudyManagementSettings>> _settingsMock;
+        Mock<ILogger<GovernmentResearchIdentifierService>> _loggerMock = new Mock<ILogger<GovernmentResearchIdentifierService>>();
+        Mock<IRandomNumberGenerator> _randomNumberGeneratorMock = new Mock<IRandomNumberGenerator>();
 
         GovernmentResearchIdentifierService _serviceUnderTest;
         RegisterStudyRequest _registerStudyRequest;
         StudyManagementSettings _settingValues;
+        HttpRequestResponseFhirContext _httpRequestResponseFhirContext;
 
         const string DEFAULT_SYSTEM_NAME = "unittest";
         const string DEFAULT_ROLE_NAME = "unittester";
@@ -57,7 +60,8 @@ namespace NIHR.StudyManagement.Domain.Tests.Services
         [TestMethod]
         public async Task RegiserStudyAsync_InvokesStudyRecordOutboxRepositoryMethodAddToOutbox()
         {
-            _fhirMapperMock.Setup(mock => mock.MapToResearchStudyBundleAsJson(It.IsAny<GovernmentResearchIdentifier>()))
+            _fhirMapperMock.Setup(mock => mock.MapToResearchStudyBundleAsJson(It.IsAny<GovernmentResearchIdentifier>(),
+                It.IsAny<HttpRequestResponseFhirContext>()))
                 .Returns("abc");
 
             InitialiseService();
@@ -92,7 +96,9 @@ namespace NIHR.StudyManagement.Domain.Tests.Services
                 _settingsMock.Object,
                 _studyEventMessagePublisherMock.Object,
                 _unitOfWorkMock.Object,
-                _fhirMapperMock.Object);
+                _fhirMapperMock.Object,
+                _randomNumberGeneratorMock.Object,
+                _loggerMock.Object);
         }
 
         private void SetupMockDefaults()
@@ -103,8 +109,12 @@ namespace NIHR.StudyManagement.Domain.Tests.Services
             _unitOfWorkMock = new Mock<IUnitOfWork>();
             _fhirMapperMock = new Mock<IFhirMapper>();
             _settingsMock = new Mock<IOptions<StudyManagementSettings>>();
+            _loggerMock = new Mock<ILogger<GovernmentResearchIdentifierService>>();
+            _randomNumberGeneratorMock = new Mock<IRandomNumberGenerator>();
 
             _registerStudyRequest = new RegisterStudyRequest();
+
+            _httpRequestResponseFhirContext = new HttpRequestResponseFhirContext();
 
             _settingValues = new StudyManagementSettings() { DefaultRoleName = DEFAULT_ROLE_NAME, DefaultLocalSystemName = DEFAULT_SYSTEM_NAME };
 
