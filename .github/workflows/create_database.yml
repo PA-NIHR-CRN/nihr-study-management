@@ -57,7 +57,7 @@ jobs:
         if: env.GITHUB_ACTIONS_ENVIRONMENT == 'dev'
         with:
           secret-ids: |
-            RDS, nihrd-secret-dev-rds-aurora-mysql-credential-study-management
+            RDS, nihrd-secret-dev-rds-aurora-mysql-credential-rddi-study-management
           parse-json-secrets: true
       - name: Set security group (dev)
         if: env.GITHUB_ACTIONS_ENVIRONMENT == 'dev'
@@ -133,7 +133,7 @@ jobs:
           DATABASE_NAME: ${{ env.RDS_DATABASE }}
           DATABASE_USERNAME: ${{ env.RDS_USERNAME }}
           DATABASE_PASSWORD: ${{ env.RDS_PASSWORD }}
-          DATABASE_SCRIPT: 'DatabaseScripts/2-RDD-815.sql'
+          DATABASE_SCRIPT: 'DatabaseScripts/1-CreateInitialDatabase-RDDI-100.sql'
 
       - name: Remove Github Actions IP from RDS security group
         run: |
