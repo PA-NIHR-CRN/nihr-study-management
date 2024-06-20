@@ -57,12 +57,12 @@ jobs:
         if: env.GITHUB_ACTIONS_ENVIRONMENT == 'dev'
         with:
           secret-ids: |
-            RDS, nihrd-secret-dev-rds-aurora-mysql-credential-study-management
+            RDS, nihrd-secret-dev-rds-aurora-mysql-credential-rddi-study-management
           parse-json-secrets: true
       - name: Set security group (dev)
         if: env.GITHUB_ACTIONS_ENVIRONMENT == 'dev'
         run: |
-          echo "RDS_SECURITY_GROUP=sg-05e4d3572a4cf816f" >> $GITHUB_ENV
+          echo "RDS_SECURITY_GROUP=sg-02d122f8d441191e6" >> $GITHUB_ENV
 
     #   - name: Read secrets from AWS Secrets Manager into environment variables (Test)
     #     uses: aws-actions/aws-secretsmanager-get-secrets@v1
