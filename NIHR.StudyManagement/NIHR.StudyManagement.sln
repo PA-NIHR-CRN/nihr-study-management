@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NIHR.StudyManagement.Domain
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NIHR.StudyManagement.OutboxProcessor", "NIHR.StudyManagement.OutboxProcessor\NIHR.StudyManagement.OutboxProcessor.csproj", "{CCDEAD8C-CA07-4CF3-B4C2-6A07C522DE7D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NIHR.StudyManagement.Domain.Tests", "NIHR.StudyManagement.Domain.Tests\NIHR.StudyManagement.Domain.Tests.csproj", "{FAFADBA2-B12C-45FA-A259-A3F594570898}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{CCDEAD8C-CA07-4CF3-B4C2-6A07C522DE7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCDEAD8C-CA07-4CF3-B4C2-6A07C522DE7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCDEAD8C-CA07-4CF3-B4C2-6A07C522DE7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAFADBA2-B12C-45FA-A259-A3F594570898}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAFADBA2-B12C-45FA-A259-A3F594570898}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAFADBA2-B12C-45FA-A259-A3F594570898}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAFADBA2-B12C-45FA-A259-A3F594570898}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

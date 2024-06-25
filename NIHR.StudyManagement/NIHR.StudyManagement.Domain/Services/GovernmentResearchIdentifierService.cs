@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NIHR.StudyManagement.Domain.Abstractions;
 using NIHR.StudyManagement.Domain.Configuration;
 using NIHR.StudyManagement.Domain.Constants;
 using NIHR.StudyManagement.Domain.EnumsAndConstants;
 using NIHR.StudyManagement.Domain.Exceptions;
 using NIHR.StudyManagement.Domain.Models;
-using System.Security.Cryptography;
 
 namespace NIHR.StudyManagement.Domain.Services
 {
@@ -13,6 +13,8 @@ namespace NIHR.StudyManagement.Domain.Services
     {
         private readonly IStudyRegistryRepository _governmentResearchIdentifierRepository;
         private readonly IStudyEventMessagePublisher _messagePublisher;
+        private readonly IRandomNumberGenerator _randomNumberGenerator;
+        private readonly ILogger<GovernmentResearchIdentifierService> _logger;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFhirMapper _fhirMapper;
 
@@ -22,11 +24,15 @@ namespace NIHR.StudyManagement.Domain.Services
             IOptions<StudyManagementSettings> settings,
             IStudyEventMessagePublisher messagePublisher,
             IUnitOfWork unitOfWork,
-            IFhirMapper fhirMapper)
+            IFhirMapper fhirMapper,
+            IRandomNumberGenerator randomNumberGenerator,
+            ILogger<GovernmentResearchIdentifierService> logger)
         {
             this._governmentResearchIdentifierRepository = governmentResearchIdentifierRepository;
             this._settings = settings.Value;
             this._messagePublisher = messagePublisher;
+            this._randomNumberGenerator = randomNumberGenerator;
+            this._logger = logger;
             this._unitOfWork = unitOfWork;
             this._fhirMapper = fhirMapper;
 
@@ -121,14 +127,14 @@ namespace NIHR.StudyManagement.Domain.Services
             CancellationToken cancellationToken)
         {
             // Generate the GRI
-            var gri = GenerateGrisPostcode();
+            var gri = await GenerateNewGrisIdAsync(cancellationToken);
 
             // Add the GRI as an identifier
             request.Identifiers.Add(new ResearchInitiativeIdentifierItem
             {
                 StatusCode = "Active",
                 Type = ResearchInitiativeIdentifierTypes.GrisId,
-                Value = gri
+                Value = gri.DisplayValue
             });
 
             // Set API consumer name if not set
@@ -137,7 +143,7 @@ namespace NIHR.StudyManagement.Domain.Services
                 request.ApiSystemName = _settings.DefaultLocalSystemName;
             };
 
-            var researchStudy = await _unitOfWork.StudyRegistryRepository.CreateAsync(request, gri, cancellationToken);
+            var researchStudy = await _unitOfWork.StudyRegistryRepository.CreateAsync(request, gri.DisplayValue, cancellationToken);
 
             var bundleJson = _fhirMapper.MapToResearchStudyBundleAsJson(researchStudy, request.HttpRequestResponseFhirContext);
 
@@ -151,6 +157,29 @@ namespace NIHR.StudyManagement.Domain.Services
             await _unitOfWork.CommitAsync();
 
             return researchStudy;
+        }
+
+        private async Task<GrisId> GenerateNewGrisIdAsync(CancellationToken cancellationToken)
+        {
+            // Allow one failure/duplicate
+            for(int retries = 3;retries > 0;retries--)
+            {
+                var grisId = GrisId.GenerateNewGrisId(_randomNumberGenerator);
+
+                // Check if ID already exists
+                if(await _governmentResearchIdentifierRepository.DoesGrisExist(grisId.DisplayValue, cancellationToken) )
+                {
+                    // Warn
+                    _logger.LogWarning($"Randomly generated sequence {grisId.DisplayValue} already exists. Retries left {retries - 1}");
+                    continue;
+                }
+
+                return grisId;
+            }
+
+            _logger.LogError($"Could not generate GRIS ID. Exceeded max attempts.");
+
+            throw new Exception("Could not generate GRIS ID");
         }
 
         public async Task<GovernmentResearchIdentifier> GetAsync(string identifier, CancellationToken cancellationToken = default)
@@ -168,39 +197,6 @@ namespace NIHR.StudyManagement.Domain.Services
         private async Task<GovernmentResearchIdentifier> GetByIdentifierAsync(string identifier, CancellationToken cancellationToken)
         {
             return await _unitOfWork.StudyRegistryRepository.GetAsync(identifier, cancellationToken);
-        }
-
-        /// <summary>
-        /// This is a temp implementation for proof of concept to generate a government research identifier.
-        /// The implementation simply generates a random sequence of 3 capital letters, 3 numbers and 3 capital letters.
-        /// </summary>
-        /// <returns></returns>
-        private string GenerateGrisPostcode()
-        {
-            int asciiA = 65;
-            int asciiX = 90;
-            int ascii1 = 48;
-            int ascii9 = 57;
-            int maxCharacters = 3;
-
-            var identifier = $"{GetRandomSting(asciiA,asciiX, maxCharacters)}{GetRandomSting(ascii1, ascii9, maxCharacters)}{GetRandomSting(asciiA, asciiX, maxCharacters)}";
-
-            return identifier;
-        }
-
-        private static string GetRandomSting(int minAsciiValue, int maxAsciiValue, int numberCharacters)
-        {
-            var identifier = "";
-
-            for (int i = 0; i < numberCharacters; i++)
-            {
-                var randomCharacterAscii = RandomNumberGenerator.GetInt32(minAsciiValue, maxAsciiValue);
-
-                var randomCharacter = ((char)randomCharacterAscii).ToString();
-                identifier = identifier + randomCharacter;
-            }
-
-            return identifier;
         }
     }
 }
