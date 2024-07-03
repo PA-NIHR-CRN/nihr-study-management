@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NIHR.StudyManagement.Outbox
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NIHR.StudyManagement.Api.Authorizer", "NIHR.StudyManagement.Api.Authorizer\NIHR.StudyManagement.Api.Authorizer.csproj", "{107F6E25-798A-44AC-B731-44D184986D82}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NIHR.StudyManagement.Domain.Tests", "NIHR.StudyManagement.Domain.Tests\NIHR.StudyManagement.Domain.Tests.csproj", "{FAFADBA2-B12C-45FA-A259-A3F594570898}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{107F6E25-798A-44AC-B731-44D184986D82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{107F6E25-798A-44AC-B731-44D184986D82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{107F6E25-798A-44AC-B731-44D184986D82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAFADBA2-B12C-45FA-A259-A3F594570898}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAFADBA2-B12C-45FA-A259-A3F594570898}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAFADBA2-B12C-45FA-A259-A3F594570898}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAFADBA2-B12C-45FA-A259-A3F594570898}.Release|Any CPU.Build.0 = Release|Any CPU		
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
