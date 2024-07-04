@@ -14,25 +14,102 @@ namespace RDD1191.CreateCognitoUser
 
             var userPoolId = Console.ReadLine();
 
-            if (string.IsNullOrEmpty(userPoolId))
-            {
-                Console.WriteLine("User pool ID must be specified.");
-                return;
-            }
+            //if (string.IsNullOrEmpty(userPoolId))
+            //{
+            //    Console.WriteLine("User pool ID must be specified.");
+            //    return;
+            //}
 
             var awsCognitoUserManager = new AwsCognitoUserManager(userPoolId);
 
-            Console.WriteLine("Please enter the username of the Cognito User you wish to view.");
-
-            var username = Console.ReadLine();
-
-            if(string.IsNullOrEmpty(username))
+            while (true)
             {
-                Console.WriteLine("Username must be specified.");
-                return;
-            }
+                Console.WriteLine("Would you like to CREATE or READ a user. Type CREATE or READ. Press CTRL-C to abort.");
+                var userInput = Console.ReadLine();
 
-            await awsCognitoUserManager.GetUser(username);
+                if (!string.IsNullOrEmpty(userInput) && userInput.Equals("CREATE", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine("Please enter the username of the Cognito User you wish to create");
+
+                    var username = Console.ReadLine();
+
+                    if (string.IsNullOrEmpty(username))
+                    {
+                        Console.WriteLine("Username must be specified.");
+                        continue;
+                    }
+
+                    var createUserResponse = await awsCognitoUserManager.CreateUser(username);
+
+                    if(createUserResponse == null)
+                    {
+                        continue;
+                    }
+
+                    Console.WriteLine();
+                    Console.WriteLine($"User created with username: {createUserResponse.User.Username} and the following attributes");
+
+                    var heading = String.Format("{0, 20} | {1, 5}", "Name", "Value");
+
+                    Console.WriteLine();
+                    Console.WriteLine(heading);
+                    Console.WriteLine("--------------------------------------------------------------------");
+
+                    foreach (var userAttribute in createUserResponse.User.Attributes)
+                    {
+                        var row = String.Format("{0, 20} | {1, 5}", userAttribute.Name, userAttribute.Value);
+                        Console.WriteLine(row);
+                    }
+
+                    Console.WriteLine();
+                    Console.WriteLine();
+                    Console.WriteLine();
+                    Console.WriteLine();
+                }
+                else if (!string.IsNullOrEmpty(userInput) && userInput.Equals("READ", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine("Please enter the username of the Cognito User you wish to view.");
+
+                    var username = Console.ReadLine();
+
+                    if (string.IsNullOrEmpty(username))
+                    {
+                        Console.WriteLine("Username must be specified.");
+                        return;
+                    }
+
+                    var getUserResponse = await awsCognitoUserManager.GetUser(username);
+
+                    if (getUserResponse == null) {
+                        Console.WriteLine($"Could not find user with username '{username}'");
+                        continue;
+                    }
+
+                    Console.WriteLine();
+                    Console.WriteLine($"Found user with username: {getUserResponse.Username}. User has the following attributes");
+
+                    var heading = String.Format("{0, 20} | {1, 5}", "Name", "Value");
+
+                    Console.WriteLine();
+                    Console.WriteLine(heading);
+                    Console.WriteLine("--------------------------------------------------------------------");
+
+                    foreach (var userAttribute in getUserResponse.UserAttributes)
+                    {
+                        var row = String.Format("{0, 20} | {1, 5}", userAttribute.Name, userAttribute.Value);
+                        Console.WriteLine(row);
+                    }
+
+                    Console.WriteLine();
+                    Console.WriteLine();
+                    Console.WriteLine();
+                    Console.WriteLine();
+                }
+                else
+                {
+                    Console.WriteLine("Invalid action");
+                }
+            }
         }
     }
 
@@ -43,46 +120,58 @@ namespace RDD1191.CreateCognitoUser
 
         public AwsCognitoUserManager(string userPoolId)
         {
-            _userPoolId = userPoolId ?? cognitoUserPoolId;
+            _userPoolId = string.IsNullOrEmpty(userPoolId)
+                ? cognitoUserPoolId
+                : userPoolId;
         }
 
-        public async Task GetUser(string username)
+        public async Task<AdminGetUserResponse?> GetUser(string username)
         {
             var cancellationTokenSource = new CancellationTokenSource();
 
             cancellationTokenSource.CancelAfter(5000);
-
-            // No credentials passed in here. This assumes credentials of local Visual Studio user .\aws\credentials file.
-            var chain = new CredentialProfileStoreChain();
-            var result = chain.TryGetAWSCredentials("Default", out var credentials);
-
-            AmazonCognitoIdentityProviderClient cognitoClient = new AmazonCognitoIdentityProviderClient(credentials, RegionEndpoint.EUWest2);
+            var cognitoClient = GetCognitoClient();
 
             var getUserRequest = new AdminGetUserRequest {
                 Username = username,
                 UserPoolId = _userPoolId
             };
 
-            var getUserResponse = await cognitoClient.AdminGetUserAsync(getUserRequest, cancellationTokenSource.Token);
+            try
+            {
+                var getUserResponse = await cognitoClient.AdminGetUserAsync(getUserRequest, cancellationTokenSource.Token);
 
-            if(getUserResponse.HttpStatusCode != System.Net.HttpStatusCode.OK) {
-                Console.WriteLine($"Failed to read user profile");
-                return;
+                if (getUserResponse.HttpStatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    Console.WriteLine($"Failed to read user profile");
+                    return null;
+                }
+
+                return getUserResponse;
             }
-
-            Console.WriteLine(getUserResponse.Username);
-            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(getUserResponse.UserAttributes));
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
-        public async Task CreateUser(string username)
+        private AmazonCognitoIdentityProviderClient GetCognitoClient()
         {
-            var sharedFile = new SharedCredentialsFile();
-            sharedFile.TryGetProfile("default", out var profile);
-            AWSCredentialsFactory.TryGetAWSCredentials(profile, sharedFile, out var credentials);
+            // No credentials passed in here. This assumes credentials of local Visual Studio user .\aws\credentials file.
+            var chain = new CredentialProfileStoreChain();
+            var result = chain.TryGetAWSCredentials("Default", out var credentials);
 
             AmazonCognitoIdentityProviderClient cognitoClient = new AmazonCognitoIdentityProviderClient(credentials, RegionEndpoint.EUWest2);
 
+            return cognitoClient;
+        }
 
+        public async Task<AdminCreateUserResponse?> CreateUser(string username)
+        {
+            var cancellationTokenSource = new CancellationTokenSource();
+
+            cancellationTokenSource.CancelAfter(5000);
+            var cognitoClient = GetCognitoClient();
 
             var createUserRequest = new AdminCreateUserRequest
             {
@@ -93,15 +182,23 @@ namespace RDD1191.CreateCognitoUser
                 {
                     new AttributeType
                     {
-                        Name = "source",
+                        Name = "name",
                         Value = "RDD-1191 spike console application"
                     }
                 }
             };
 
-            var createUserResponse = await cognitoClient.AdminCreateUserAsync(createUserRequest);
+            try
+            {
+                var createUserResponse = await cognitoClient.AdminCreateUserAsync(createUserRequest);
 
-
+                return createUserResponse;
+            }
+            catch (UsernameExistsException)
+            {
+                Console.WriteLine($"Username already exists. Please try another unique username");
+                return null;
+            }
         }
     }
 }
