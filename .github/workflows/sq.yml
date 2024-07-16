@@ -1,0 +1,37 @@
+name: Sonarcloud
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+jobs:
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Install dotnet tools
+        run: |
+          dotnet tool install --global dotnet-coverage
+          dotnet tool install --global dotnet-sonarscanner
+      - name: Add Github Interoperability Nuget Source
+        run: dotnet nuget add source --username USERNAME --password ${{ secrets.GITHUB_TOKEN }}  --store-password-in-clear-text --name github "https://nuget.pkg.github.com/pa-nihr-crn/index.json"
+      - name: Install dependencies
+        run: dotnet restore NIHR.StudyManagement/NIHR.StudyManagement.sln
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Build .NET Scanner
+        run: |
+          dotnet sonarscanner begin /k:"PA-NIHR-CRN_nihr-study-management" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"  \
+          /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml \
+          /d:sonar.host.url="https://sonarcloud.io" \
+          /o:"pa-nihr-crn"
+          dotnet build --no-incremental NIHR.StudyManagement/NIHR.StudyManagement.sln
+          dotnet-coverage collect 'dotnet test NIHR.StudyManagement/NIHR.StudyManagement.sln' -f xml  -o 'coverage.xml'
+          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
