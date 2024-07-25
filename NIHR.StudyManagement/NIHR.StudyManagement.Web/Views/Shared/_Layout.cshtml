@@ -6,10 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - NIHR</title>
     <link rel="stylesheet" href="~/css/govuk-frontend-5.4.1.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
 </head>
 
-<body>
+<body class="govuk-template__body">
     <header class="govuk-header" data-module="govuk-header">
         <div class="govuk-header__container govuk-width-container">
             <div class="govuk-header__logo">
@@ -119,10 +118,7 @@
             </div>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 
 </html>
