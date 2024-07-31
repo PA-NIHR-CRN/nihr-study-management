@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using NIHR.StudyManagement.Domain.Configuration;
 
 namespace NIHR.StudyManagement.Web
 {
@@ -12,6 +14,8 @@ namespace NIHR.StudyManagement.Web
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddOptions<AuthenticationSettings>().Bind(builder.Configuration.GetSection("Cognito"));
 
             builder.Services.AddAuthentication(options =>
             {
