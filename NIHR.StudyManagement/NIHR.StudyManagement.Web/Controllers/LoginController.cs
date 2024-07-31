@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using NIHR.StudyManagement.Web.Models;
 
 namespace NIHR.StudyManagement.Web.Controllers;
 
@@ -12,9 +13,9 @@ public class LoginController : Controller
         _logger = logger;
     }
 
-    public IActionResult Index()
+    public IActionResult Index(LoginViewModel model)
     {
-        return View();
+        return View(model);
     }
 
 }
