@@ -1,11 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-using System.Text.Encodings.Web;
 using NIHR.StudyManagement.Web.Models;
 
 
 namespace NIHR.StudyManagement.Web.Controllers;
 
+[Authorize]
 public class GrisId01Controller : Controller
 {
 
