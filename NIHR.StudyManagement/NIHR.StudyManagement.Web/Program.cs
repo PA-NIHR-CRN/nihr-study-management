@@ -1,3 +1,9 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using NIHR.StudyManagement.Domain.Configuration;
+
 namespace NIHR.StudyManagement.Web
 {
     public class Program
@@ -8,6 +14,33 @@ namespace NIHR.StudyManagement.Web
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddOptions<AuthenticationSettings>().Bind(builder.Configuration.GetSection("Cognito"));
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+            })
+            .AddCookie()
+            .AddOpenIdConnect(options =>
+            {
+                options.ResponseType = builder.Configuration["Cognito:ResponseType"];
+                options.MetadataAddress = builder.Configuration["Cognito:MetadataAddress"];
+                options.ClientId = builder.Configuration["Cognito:ClientId"];
+                options.ClientSecret = builder.Configuration["Cognito:ClientSecret"];
+                options.SaveTokens = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = builder.Configuration["Cognito:Authority"],
+                    ValidAudience = builder.Configuration["Cognito:ClientId"]
+                };
+
+                options.Scope.Clear();
+                options.Scope.Add("openid");
+
+            });
 
             var app = builder.Build();
 
@@ -24,11 +57,12 @@ namespace NIHR.StudyManagement.Web
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Login}/{action=Index}/{id?}");
 
             app.Run();
         }
